@@ -2,8 +2,14 @@ import ytGet from 'yt-get';
 import fs from 'fs';
 import path from 'path';
 
+interface ProcessedVideoResult {
+  title: string;
+  transcription: string;
+  summary: string;
+}
+
 // Process and Transcribe YouTube Video
-const processYouTubeVideo = async (videoURL: string) => {
+export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
   try {
     // Get video title
     console.log('Fetching video title...');
@@ -30,7 +36,7 @@ const processYouTubeVideo = async (videoURL: string) => {
     return { title: videoTitle, transcription, summary };
   } catch (error) {
     console.error('Error processing video:', error);
-    throw new Error('Error in processing video');
+    throw new Error(`Error in processing video: ${error.message}`);
   }
 };
 
@@ -43,20 +49,13 @@ const convertBase64ToFile = async (base64: string) => {
 };
 
 // Mock function to transcribe the audio
-const transcribeAudioFile = async (filePath: string) => {
-  // Implement logic to send audio file for transcription and return the text
+const transcribeAudioFile = async (filePath: string): Promise<string> => {
+  // TODO: Implement logic to send audio file for transcription and return the text
+  return "Mocked transcription";
 };
 
 // Mock function to summarize text
-const summarizeText = async (text: string) => {
-  // Implement logic to summarize text and return summary
+const summarizeText = async (text: string): Promise<string> => {
+  // TODO: Implement logic to summarize text and return summary
+  return "Mocked summary";
 };
-
-// Usage example
-processYouTubeVideo(videoURL)
-  .then(result => {
-    console.log('Final Result:', result);
-  })
-  .catch(error => {
-    console.error('Final Error:', error);
-  });
