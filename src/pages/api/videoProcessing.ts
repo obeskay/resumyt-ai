@@ -5,10 +5,22 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  console.log('Received request body:', req.body);
+
   const { videoUrl } = req.body;
 
-  if (!videoUrl || typeof videoUrl !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid videoUrl in request body' });
+  console.log('Extracted videoUrl:', videoUrl);
+
+  if (!videoUrl) {
+    return res.status(400).json({ error: 'Missing videoUrl in request body' });
+  }
+
+  if (typeof videoUrl !== 'string') {
+    return res.status(400).json({ error: 'Invalid videoUrl: must be a string' });
+  }
+
+  if (!videoUrl.trim()) {
+    return res.status(400).json({ error: 'Invalid videoUrl: cannot be empty' });
   }
 
   try {
