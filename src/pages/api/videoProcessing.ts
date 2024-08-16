@@ -6,11 +6,14 @@ import ffmpeg from 'fluent-ffmpeg';
 
 const convertAudioFormat = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const tempFile = path.resolve('temp_audio.mp3');
+    const tempFile = path.resolve('temp_audio.wav');
 
     const command = ffmpeg()
       .input(getAudioStream(url) as any)
-      .audioCodec('libmp3lame')
+      .audioCodec('pcm_s16le')
+      .audioChannels(1)
+      .audioFrequency(16000)
+      .format('wav')
       .save(tempFile)
       .on('end', () => {
         resolve(tempFile);
