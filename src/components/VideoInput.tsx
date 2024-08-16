@@ -6,6 +6,7 @@ import { useVideoStore } from '../store/videoStore'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
+import { Toast } from "@/components/ui/toast"
 import AuthModal from './AuthModal'
 
 interface VideoInputProps {
