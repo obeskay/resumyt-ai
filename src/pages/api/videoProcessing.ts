@@ -1,25 +1,22 @@
 import fetch from 'node-fetch';
-import ytdl from 'ytdl-core';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
+import getAudioStream from 'youtube-audio-stream';
 
 const convertAudioFormat = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const tempFile = path.resolve('temp_audio.mp3');
-    const stream = ytdl(url, { filter: 'audioonly' });
-    const tempOggFile = path.resolve('temp_audio.ogg');
+    const writeStream = fs.createWriteStream(tempFile);
 
-    stream.pipe(fs.createWriteStream(tempOggFile)).on('finish', () => {
-      exec(`sox ${tempOggFile} ${tempFile}`, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          fs.unlinkSync(tempOggFile); // Clean up OGG file
-          resolve(tempFile);
-        }
+    getAudioStream(url)
+      .pipe(writeStream)
+      .on('finish', () => {
+        resolve(tempFile);
+      })
+      .on('error', (err) => {
+        reject(err);
       });
-    }).on('error', (err) => reject(err));
   });
 };
 
