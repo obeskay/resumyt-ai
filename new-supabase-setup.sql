@@ -45,7 +45,7 @@ CREATE TABLE summaries (
   video_id INTEGER REFERENCES videos (id),
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  created_by UUID REFERENCES users (id)
+  user_id UUID REFERENCES auth.users(id) NOT NULL
 );
 
 CREATE TABLE transcriptions (
@@ -53,7 +53,7 @@ CREATE TABLE transcriptions (
   video_id INTEGER REFERENCES videos (id),
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  created_by UUID REFERENCES users (id)
+  user_id UUID REFERENCES auth.users(id) NOT NULL
 );
 
 -- Create policies for row-level security
@@ -87,7 +87,7 @@ USING (role = 'anon');
 CREATE POLICY "Anonymous users can read public videos" 
 ON videos
 FOR SELECT
-USING (created_by IS NULL); 
+USING (user_id IS NULL); 
 
 CREATE POLICY "Anonymous users can read public summaries"
 ON summaries
