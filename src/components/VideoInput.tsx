@@ -16,19 +16,27 @@ interface VideoInputProps {
 
 export default function VideoInput({ onSuccess, session }: VideoInputProps) {
   const [input, setInput] = useState('https://www.youtube.com/watch?v=iJtkp4e3_PE')
-  const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const { setVideoUrl, setTranscription, setSummary, setIsTranscribing, setIsSummarizing } = useVideoStore()
+  const { 
+    setVideoUrl, 
+    setTranscription, 
+    setSummary, 
+    setIsTranscribing, 
+    setIsSummarizing,
+    isLoading,
+    setIsLoading,
+    userQuotaRemaining,
+    setUserQuotaRemaining
+  } = useVideoStore()
   const { toast } = useToast()
-  const [userQuotaRemaining, setUserQuotaRemaining] = useState(3)
 
   useEffect(() => {
     if (session) {
       setIsAuthenticated(true)
       setUserQuotaRemaining(3)
     }
-  }, [session])
+  }, [session, setUserQuotaRemaining])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
