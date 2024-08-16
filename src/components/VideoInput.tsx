@@ -6,8 +6,6 @@ import { useVideoStore } from '../store/videoStore'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { processVideo } from '@/lib/videoProcessing'
-import { supabase } from '@/lib/supabase'
 import AuthModal from './AuthModal'
 
 interface VideoInputProps {
@@ -16,7 +14,7 @@ interface VideoInputProps {
 }
 
 export default function VideoInput({ onSuccess, session }: VideoInputProps) {
-  const [input, setInput] = useState('')
+  const [input, setInput] = useState('https://www.youtube.com/watch?v=iJtkp4e3_PE')
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -53,39 +51,19 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     try {
       setVideoUrl(input)
 
-      // Save video information to Supabase
-      const { data: videoData, error: videoError } = await supabase
-        .from('videos')
-        .insert({ url: input, user_id: session.user.id })
-        .select()
-        .single()
+      // Process video with custom API
+      const { transcription, summary } = await fetch(`/api/videoProcessing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audioUrl: input }),
+      }).then((res) => res.json())
 
-      if (videoError) throw videoError
-
-      const { transcription, summary } = await processVideo(input, session.user.id, session)
-        
       setTranscription(transcription)
       setSummary(summary)
 
-      // Save transcription to Supabase
-      const { error: transcriptionError } = await supabase
-        .from('transcriptions')
-        .insert({ video_id: videoData.id, content: transcription })
-
-      if (transcriptionError) throw transcriptionError
-
-      // Save summary to Supabase
-      if (isAuthenticated) {
-        const { error: summaryError } = await supabase
-          .from('summaries')
-          .insert({ video_id: videoData.id, content: summary })
-
-        if (summaryError) throw summaryError
-      }
-        
       toast({
         title: "Success",
-        description: "Video processed and saved successfully!",
+        description: "Video processed successfully!",
       })
 
       if (userQuotaRemaining > 0) {
@@ -119,6 +97,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       >
         <div className="flex items-center bg-muted rounded-md p-2">
           <Input
+          
             type="text"
             placeholder="Enter YouTube URL"
             value={input}
@@ -128,29 +107,6 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             aria-label="YouTube URL input"
           />
           <img src="/youtube-logo.svg" alt="YouTube logo" className="w-6 h-6 ml-2" />
-        </div>
-        <div className="flex justify-between items-center">
-          {isAuthenticated && (
-            <div className="flex items-center space-x-2">
-              <div className="text-sm font-semibold text-primary">
-                Quota Remaining: {userQuotaRemaining}
-              </div>
-              <div className="w-24 h-2 bg-muted rounded-full">
-                <div className="h-2 bg-primary rounded-full" style={{ width: `${(userQuotaRemaining / 3) * 100}%` }}></div>
-              </div>
-            </div>
-          )}
-          {!isAuthenticated && (
-            <div className="text-sm text-muted-foreground">
-              <span>Need more quota?</span>
-              <button 
-                className="ml-2 text-primary hover:underline"
-                onClick={() => setShowAuthModal(true)}
-              >
-                Sign in
-              </button>
-            </div>
-          )}
         </div>
         <div className="relative">
           <Button
