@@ -61,10 +61,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const response = JSON.parse(stdout);
           if (response.error) {
             reject(new Error(response.error));
-          } else {
+          } else if (response.output && response.output.text) {
             resolve(response.output.text);
+          } else if (response.status === 'starting' || response.status === 'processing') {
+            resolve('Transcription in progress. Please try again in a few moments.');
+          } else {
+            console.error('Unexpected response structure:', JSON.stringify(response, null, 2));
+            reject(new Error('Unexpected response structure from transcription service'));
           }
         } catch (err) {
+          console.error('Raw stdout:', stdout);
           reject(new Error(`Failed to parse JSON response: ${err}`));
         }
       });
