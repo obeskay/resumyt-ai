@@ -7,7 +7,17 @@ export default async function handler(req, res) {
 
   console.log('Received request body:', req.body);
 
-  const { videoUrl } = req.body;
+  let videoUrl;
+  if (typeof req.body === 'string') {
+    try {
+      const parsedBody = JSON.parse(req.body);
+      videoUrl = parsedBody.videoUrl;
+    } catch (error) {
+      console.error('Error parsing request body:', error);
+    }
+  } else {
+    videoUrl = req.body.videoUrl;
+  }
 
   console.log('Extracted videoUrl:', videoUrl);
 
