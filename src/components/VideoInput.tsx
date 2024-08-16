@@ -24,10 +24,11 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     setIsTranscribing, 
     setIsSummarizing,
     isLoading,
-    setIsLoading,
     userQuotaRemaining,
     setUserQuotaRemaining
   } = useVideoStore()
+
+  const setIsLoading = useVideoStore((state) => state.setIsLoading)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -65,7 +66,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       const { transcription, summary } = await fetch(`/api/videoProcessing`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audioUrl: input }),
+        body: JSON.stringify({ videoUrl: input }),
       }).then((res) => res.json())
 
       setTranscription(transcription)
