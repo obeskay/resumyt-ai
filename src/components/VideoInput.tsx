@@ -6,7 +6,6 @@ import { useVideoStore } from '../store/videoStore'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { Toast } from "@/components/ui/toast"
 import AuthModal from './AuthModal'
 
 interface VideoInputProps {
@@ -15,9 +14,9 @@ interface VideoInputProps {
 }
 
 export default function VideoInput({ onSuccess, session }: VideoInputProps) {
-  const [input, setInput] = useState('https://www.youtube.com/watch?v=iJtkp4e3_PE')
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [input, setInput] = useState<string>('https://www.youtube.com/watch?v=iJtkp4e3_PE')
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false)
   const { 
     setVideoUrl, 
     setTranscription, 
@@ -40,7 +39,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     }
   }, [session, setUserQuotaRemaining])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input) {
       toast({
@@ -82,11 +81,11 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       }
 
       onSuccess()
-    } catch (error:any) {
+    } catch (error: unknown) {
       console.error(error)
       toast({
         title: "Error",
-        description: error.message || "Failed to process video. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to process video. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -98,7 +97,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
   }
 
   return (
-    <div>
+    <section aria-label="Video Input Form">
       <motion.form
         onSubmit={handleSubmit}
         className="flex flex-col space-y-4 w-full max-w-md mx-auto"
@@ -108,14 +107,14 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       >
         <div className="flex items-center bg-muted rounded-md p-2">
           <Input
-          
-            type="text"
+            type="url"
             placeholder="Enter YouTube URL"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
             disabled={isLoading}
             className="bg-transparent text-foreground placeholder:text-muted-foreground"  
             aria-label="YouTube URL input"
+            required
           />
           <img src="/youtube-logo.svg" alt="YouTube logo" className="w-6 h-6 ml-2" />
         </div>
@@ -124,10 +123,11 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             type="submit"
             disabled={isLoading}
             className="w-full bg-primary hover:bg-primary/80 transition-colors text-primary-foreground"
+            aria-busy={isLoading}
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <div className="w-5 h-5 mr-2 border-2 border-primary-foreground rounded-full border-r-transparent animate-spin"></div>
+                <div className="w-5 h-5 mr-2 border-2 border-primary-foreground rounded-full border-r-transparent animate-spin" aria-hidden="true"></div>
                 <span>Processing...</span>
               </div>
             ) : (
@@ -137,6 +137,6 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
         </div>
       </motion.form>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-    </div>
+    </section>
   )
 }
