@@ -34,7 +34,9 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
   useEffect(() => {
     if (session) {
       setIsAuthenticated(true)
-      setUserQuotaRemaining(3)
+      if (typeof setUserQuotaRemaining === 'function') {
+        setUserQuotaRemaining(3)
+      }
     }
   }, [session, setUserQuotaRemaining])
 
@@ -75,7 +77,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
         description: "Video processed successfully!",
       })
 
-      if (userQuotaRemaining > 0) {
+      if (userQuotaRemaining > 0 && typeof setUserQuotaRemaining === 'function') {
         setUserQuotaRemaining(userQuotaRemaining - 1)
       }
 
