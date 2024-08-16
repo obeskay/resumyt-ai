@@ -7,20 +7,20 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 DROP FUNCTION IF EXISTS handle_new_user;
 
 -- Create users table with role column
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  ip_address TEXT NOT NULL,
-  usage_quota INTEGER,
+CREATE TABLE public.users (
+  id UUID PRIMARY KEY REFERENCES auth.users(id),
+  ip_address TEXT,
+  usage_quota INTEGER DEFAULT 1000,
   role TEXT NOT NULL DEFAULT 'anon',
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Create handle_new_user trigger function
-CREATE OR REPLACE FUNCTION handle_new_user()
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO users (id, ip_address, usage_quota, role)
-  VALUES (NEW.id, NEW.raw_app_meta_data->>'ip_address', 1000, 'anon');
+  INSERT INTO public.users (id, ip_address, role)
+  VALUES (NEW.id, NEW.raw_app_meta_data->>'ip_address', 'anon');
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -29,7 +29,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users
 FOR EACH ROW
-EXECUTE FUNCTION handle_new_user();
+EXECUTE FUNCTION public.handle_new_user();
 
 -- Create other tables
 CREATE TABLE videos (
@@ -99,15 +99,21 @@ ON transcriptions
 FOR SELECT
 USING (created_by IS NULL);
 
+-- Enable Row Level Security
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.videos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.summaries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.transcriptions ENABLE ROW LEVEL SECURITY;
+
 -- Grant necessary permissions
-GRANT SELECT ON users TO AUTHENTICATED;
-GRANT INSERT (ip_address, usage_quota, role) ON users TO ANON;
+GRANT SELECT ON public.users TO authenticated;
+GRANT INSERT, UPDATE ON public.users TO authenticated;
 
-GRANT ALL ON videos TO AUTHENTICATED; 
-GRANT SELECT ON videos TO ANON;
+GRANT ALL ON public.videos TO authenticated;
+GRANT SELECT ON public.videos TO anon;
 
-GRANT ALL ON summaries TO AUTHENTICATED;
-GRANT SELECT ON summaries TO ANON; 
+GRANT ALL ON public.summaries TO authenticated;
+GRANT SELECT ON public.summaries TO anon;
 
-GRANT ALL ON transcriptions TO AUTHENTICATED;
-GRANT SELECT ON transcriptions TO ANON;
+GRANT ALL ON public.transcriptions TO authenticated;
+GRANT SELECT ON public.transcriptions TO anon;
