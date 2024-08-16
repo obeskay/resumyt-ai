@@ -112,6 +112,14 @@ GRANT INSERT, UPDATE ON public.users TO authenticated;
 GRANT ALL ON public.videos TO authenticated;
 GRANT SELECT ON public.videos TO anon;
 
+-- Add RLS policy for videos table
+CREATE POLICY "Users can insert their own videos" ON public.videos
+FOR INSERT TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+-- Ensure the videos table has a user_id column
+ALTER TABLE public.videos ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+
 GRANT ALL ON public.summaries TO authenticated;
 GRANT SELECT ON public.summaries TO anon;
 

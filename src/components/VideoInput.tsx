@@ -56,7 +56,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       // Save video information to Supabase
       const { data: videoData, error: videoError } = await supabase
         .from('videos')
-        .insert({ url: input })
+        .insert({ url: input, user_id: session.user.id })
         .select()
         .single()
 
