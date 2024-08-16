@@ -37,7 +37,7 @@ CREATE TABLE videos (
   url TEXT NOT NULL,
   title TEXT,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  created_by UUID REFERENCES users (id)
+  user_id UUID REFERENCES auth.users(id) NOT NULL
 );
 
 CREATE TABLE summaries (
@@ -66,7 +66,7 @@ USING (auth.role() = 'authenticated');
 CREATE POLICY "Authenticated users can access their own videos"
 ON videos 
 FOR ALL
-USING (auth.uid() = created_by);
+USING (auth.uid() = user_id);
 
 CREATE POLICY "Authenticated users can access their own summaries"
 ON summaries
@@ -117,8 +117,6 @@ CREATE POLICY "Users can insert their own videos" ON public.videos
 FOR INSERT TO authenticated
 WITH CHECK (auth.uid() = user_id);
 
--- Ensure the videos table has a user_id column
-ALTER TABLE public.videos ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
 
 GRANT ALL ON public.summaries TO authenticated;
 GRANT SELECT ON public.summaries TO anon;
