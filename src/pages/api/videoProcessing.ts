@@ -1,17 +1,18 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
 import getAudioStream from 'youtube-audio-stream';
+import ffmpeg from 'fluent-ffmpeg';
 
 const convertAudioFormat = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const tempFile = path.resolve('temp_audio.mp3');
-    const writeStream = fs.createWriteStream(tempFile);
 
-    getAudioStream(url)
-      .pipe(writeStream)
-      .on('finish', () => {
+    const command = ffmpeg()
+      .input(getAudioStream(url) as any)
+      .audioCodec('libmp3lame')
+      .save(tempFile)
+      .on('end', () => {
         resolve(tempFile);
       })
       .on('error', (err) => {
