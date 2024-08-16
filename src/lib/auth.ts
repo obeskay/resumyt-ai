@@ -13,13 +13,12 @@ export const isUserAuthenticated = async () => {
   try {
     const { data, error } = await supabase.auth.getSession()
     if (error) {
-      console.error('Error checking authentication:', error)
+      console.warn('Error checking authentication:', error)
       return false
     }
-
     return !!data.session
   } catch (error) {
-    console.error('Error checking authentication:', error)
+    console.warn('Error checking authentication:', error)
     return false
   }
 }
@@ -28,13 +27,12 @@ export const signInAnonymous = async () => {
   try {
     const { data, error } = await supabase.auth.signInAnonymously()
     if (error) {
-      console.error('Error signing in anonymously:', error)
+      console.warn('Error signing in anonymously:', error)
       return null
     }
-
     return data.session
   } catch (error) {
-    console.error('Error signing in anonymously:', error)
+    console.warn('Error signing in anonymously:', error)
     return null
   }
 }
