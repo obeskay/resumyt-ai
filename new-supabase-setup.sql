@@ -71,12 +71,12 @@ USING (auth.uid() = user_id);
 CREATE POLICY "Authenticated users can access their own summaries"
 ON summaries
 FOR ALL  
-USING (auth.uid() = created_by);
+USING (auth.uid() = user_id);
 
 CREATE POLICY "Authenticated users can access their own transcriptions"
 ON transcriptions
 FOR ALL
-USING (auth.uid() = created_by);
+USING (auth.uid() = user_id);
 
 -- Anonymous users can only read public data
 CREATE POLICY "Anonymous users can read public data"
@@ -92,12 +92,12 @@ USING (user_id IS NULL);
 CREATE POLICY "Anonymous users can read public summaries"
 ON summaries
 FOR SELECT
-USING (created_by IS NULL);
+USING (user_id IS NULL);
 
 CREATE POLICY "Anonymous users can read public transcriptions"
 ON transcriptions  
 FOR SELECT
-USING (created_by IS NULL);
+USING (user_id IS NULL);
 
 -- Enable Row Level Security
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
