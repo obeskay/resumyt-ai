@@ -9,14 +9,45 @@ interface ProcessedVideoResult {
 }
 
 export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
-  try {
-    console.log('Fetching video title...');
-    const videoTitle = await ytGet.getVideoTitle(videoURL);
-    console.log('Video Title:', videoTitle);
+  const maxRetries = 3;
+  let retryCount = 0;
 
-    console.log('Downloading audio in MP3 format...');
-    const { base64: audioBase64, title } = await ytGet.getVideoMP3Base64(videoURL);
-    console.log('Downloaded MP3 for:', title);
+  const fetchVideoTitle = async (url: string): Promise<string> => {
+    while (retryCount < maxRetries) {
+      try {
+        console.log('Fetching video title...');
+        const videoTitle = await ytGet.getVideoTitle(url);
+        console.log('Video Title:', videoTitle);
+        return videoTitle;
+      } catch (error) {
+        console.error(`Error fetching video title (attempt ${retryCount + 1}):`, error);
+        retryCount++;
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
+      }
+    }
+    throw new Error('Failed to fetch video title after multiple attempts');
+  };
+
+  const downloadAudio = async (url: string): Promise<{ base64: string, title: string }> => {
+    retryCount = 0; // Reset retry count
+    while (retryCount < maxRetries) {
+      try {
+        console.log('Downloading audio in MP3 format...');
+        const { base64, title } = await ytGet.getVideoMP3Base64(url);
+        console.log('Downloaded MP3 for:', title);
+        return { base64, title };
+      } catch (error) {
+        console.error(`Error downloading audio (attempt ${retryCount + 1}):`, error);
+        retryCount++;
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
+      }
+    }
+    throw new Error('Failed to download audio after multiple attempts');
+  };
+
+  try {
+    const videoTitle = await fetchVideoTitle(videoURL);
+    const { base64: audioBase64, title } = await downloadAudio(videoURL);
 
     const audioFilePath = await convertBase64ToFile(audioBase64);
     console.log('File saved:', audioFilePath);
@@ -29,7 +60,7 @@ export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVi
     console.log('Temporary audio file deleted:', audioFilePath);
 
     return { title: videoTitle, transcription };
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('Error processing video:', error);
     throw new Error(`Error in processing video: ${error.message}`);
   }
