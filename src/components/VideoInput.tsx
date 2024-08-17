@@ -55,7 +55,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       return
     }
 
-    setIsLoading(true)
+    typeof setIsLoading === 'function' && setIsLoading(true)
     setIsTranscribing(true)
     setIsSummarizing(true)
     try {
