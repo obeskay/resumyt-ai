@@ -25,9 +25,9 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     setIsSummarizing,
     isLoading,
     userQuotaRemaining,
-    setUserQuotaRemaining,
-    setIsLoading
+    setUserQuotaRemaining
   } = useVideoStore()
+  const setIsLoading = useVideoStore(state => state.setIsLoading)
   const { toast } = useToast()
 
   useEffect(() => {
