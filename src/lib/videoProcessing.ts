@@ -37,9 +37,14 @@ export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVi
         console.log('Downloaded MP3 for:', title);
         return { base64, title };
       } catch (error) {
-        console.error(`Error downloading audio (attempt ${retryCount + 1}):`, error);
-        retryCount++;
-        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
+        if (error.statusCode === 403) {
+          console.error('Forbidden error: The server blocked the request. Please check the video URL or try another video.');
+          throw new Error('Forbidden error: The server blocked the request. Please check the video URL or try another video.');
+        } else {
+          console.error(`Error downloading audio (attempt ${retryCount + 1}):`, error);
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
+        }
       }
     }
     throw new Error('Failed to download audio after multiple attempts');
