@@ -41,5 +41,8 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Error in processing request:', error);
     res.status(500).json({ error: 'Failed to process video', details: error.message || 'An unexpected error occurred' });
+  } finally {
+    // Agregar un mensaje de espera mientras se procesa el video
+    res.status(202).json({ message: 'Processing video...' });
   }
 }
