@@ -97,7 +97,8 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
   }
 
   return (
-    <section aria-label="Video Input Form">
+    <section>
+      <h2 className="sr-only">Video Input Form</h2>
       <motion.form
         onSubmit={handleSubmit}
         className="flex flex-col space-y-4 w-full max-w-md mx-auto"
@@ -116,7 +117,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             aria-label="YouTube URL input"
             required
           />
-          <img src="/youtube-logo.svg" alt="YouTube logo" className="w-6 h-6 ml-2" />
+          <img src="/youtube-logo.svg" alt="YouTube logo" className="w-6 h-6 ml-2" aria-hidden="true" />
         </div>
         <div className="relative">
           <Button
@@ -126,10 +127,13 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             aria-busy={isLoading}
           >
             {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 mr-2 border-2 border-primary-foreground rounded-full border-r-transparent animate-spin" aria-hidden="true"></div>
-                <span>Processing...</span>
-              </div>
+              <>
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 mr-2 border-2 border-primary-foreground rounded-full border-r-transparent animate-spin" aria-hidden="true"></div>
+                  <span>Processing...</span>
+                </div>
+                <span className="sr-only">Processing video, please wait</span>
+              </>
             ) : (
               'Generate Summary'
             )}
