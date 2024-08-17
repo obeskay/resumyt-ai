@@ -38,8 +38,8 @@ export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVi
         return { base64, title };
       } catch (error) {
         if (error.statusCode === 403) {
-          console.error('Forbidden error: The server blocked the request. Please check the video URL or try another video.');
-          throw new Error('Forbidden error: The server blocked the request. Please check the video URL or try another video.');
+          console.error('Forbidden error: The server blocked the request. This video may not be available for download.');
+          throw new Error('Forbidden error: The server blocked the request. This video may not be available for download.');
         } else {
           console.error(`Error downloading audio (attempt ${retryCount + 1}):`, error);
           retryCount++;
