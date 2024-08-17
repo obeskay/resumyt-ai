@@ -1,61 +1,87 @@
 import ytGet from 'yt-get';
 import fs from 'fs';
 import path from 'path';
+import fetch from 'node-fetch';
 
 interface ProcessedVideoResult {
   title: string;
   transcription: string;
-  summary: string;
 }
 
-// Process and Transcribe YouTube Video
 export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
   try {
-    // Get video title
     console.log('Fetching video title...');
     const videoTitle = await ytGet.getVideoTitle(videoURL);
     console.log('Video Title:', videoTitle);
 
-    // Get MP3 audio as base64
     console.log('Downloading audio in MP3 format...');
     const { base64: audioBase64, title } = await ytGet.getVideoMP3Base64(videoURL);
     console.log('Downloaded MP3 for:', title);
 
-    // Save base64 audio as a file
     const audioFilePath = await convertBase64ToFile(audioBase64);
     console.log('File saved:', audioFilePath);
 
-    // Transcribe the audio file
     const transcription = await transcribeAudioFile(audioFilePath);
-    console.log('Transcription completed:', transcription);
+    console.log('Transcription completed');
 
-    // Summarize the transcription
-    const summary = await summarizeText(transcription);
-    console.log('Summary generated:', summary);
+    // Clean up the temporary file
+    fs.unlinkSync(audioFilePath);
+    console.log('Temporary audio file deleted:', audioFilePath);
 
-    return { title: videoTitle, transcription, summary };
-  } catch (error) {
+    return { title: videoTitle, transcription };
+  } catch (error:any) {
     console.error('Error processing video:', error);
     throw new Error(`Error in processing video: ${error.message}`);
   }
 };
 
-// Utility to save base64 audio as a file
-const convertBase64ToFile = async (base64: string) => {
+const convertBase64ToFile = async (base64: string): Promise<string> => {
   const filePath = path.resolve('temp_audio.mp3');
   const fileData = Buffer.from(base64, 'base64');
   fs.writeFileSync(filePath, fileData);
   return filePath;
 };
 
-// Mock function to transcribe the audio
 const transcribeAudioFile = async (filePath: string): Promise<string> => {
-  // TODO: Implement logic to send audio file for transcription and return the text
-  return "Mocked transcription";
-};
+  const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 
-// Mock function to summarize text
-const summarizeText = async (text: string): Promise<string> => {
-  // TODO: Implement logic to summarize text and return summary
-  return "Mocked summary";
+  const data = {
+    version: '3ab86df6c8f54c11309d4d1f930ac292bad43ace52d10c80d87eb258b3c9f79c',
+    input: {
+      audio: `file://${filePath}`,
+      batch_size: 64
+    }
+  };
+
+  const response = await fetch('https://api.replicate.com/v1/predictions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Request failed with status: ${response.status}`);
+  }
+
+  let result:any = await response.json();
+
+  while (result.status !== 'succeeded' && result.status !== 'failed') {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const statusResponse = await fetch(result.urls.get, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${REPLICATE_API_TOKEN}`
+      }
+    });
+    result = await statusResponse.json();
+  }
+
+  if (result.status === 'failed') {
+    throw new Error('Transcription failed');
+  }
+
+  return result.output || "No transcription available";
 };
