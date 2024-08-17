@@ -85,7 +85,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       console.error(error)
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : error.details || "Failed to process video. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
