@@ -114,12 +114,8 @@ const downloadAudio = async (
       clearTimeout(timeout);
       clearInterval(checkProgress);
       console.error("Error in ytdl stream:", err);
-      if (err.message.includes("Status code: 403")) {
-        console.error("Access to the video is forbidden. This could be due to regional restrictions or the video being private.");
-        reject(new Error("Access to the video is forbidden. Please check if the video is public and accessible in your region."));
-      } else {
-        reject(err);
-      }
+      console.error("Detailed error message:", err.message);
+      reject(new Error(`Error downloading audio: ${err.message}`));
     });
   });
 };
