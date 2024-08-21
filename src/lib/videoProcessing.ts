@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
-const stream = require("youtube-audio-stream");
+import ytdl from "ytdl-core";
 
 interface ProcessedVideoResult {
   title: string;
@@ -59,9 +59,12 @@ const downloadAudio = (
   outputFilePath: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const fileStream = fs.createWriteStream(outputFilePath);
-    stream(`http://youtube.com/watch?v=${videoId}`)
-      .pipe(fileStream)
+    const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    ytdl(videoUrl, {
+      quality: 'highestaudio',
+      filter: 'audioonly',
+    })
+      .pipe(fs.createWriteStream(outputFilePath))
       .on("finish", () => {
         console.log("Audio download completed");
         resolve();
