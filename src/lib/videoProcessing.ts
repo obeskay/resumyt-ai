@@ -118,9 +118,14 @@ const downloadAudio = async (
       console.error("Error in ytdl stream:", err);
       console.error("Detailed error message:", err.message);
       if (err.message.includes("Status code: 403")) {
-        reject(new Error("Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you believe this is a regional restriction, try using a VPN."));
+        console.error("403 Forbidden error encountered. Details:", err);
+        reject(new Error("Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you believe this is a regional restriction, try using a VPN. If the issue persists, please try another video or contact support."));
+      } else if (err.message.includes("Video unavailable")) {
+        console.error("Video unavailable error encountered. Details:", err);
+        reject(new Error("This video is unavailable. It may have been removed or set to private by the owner."));
       } else {
-        reject(new Error(`Error downloading audio: ${err.message}`));
+        console.error("Unexpected error during audio download. Details:", err);
+        reject(new Error(`Error downloading audio: ${err.message}. Please try again or use a different video.`));
       }
     });
   });

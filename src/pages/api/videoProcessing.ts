@@ -47,11 +47,26 @@ export default async function handler(
     console.error("Error in processing request:", error);
     const errorMessage = error.message || "An unexpected error occurred";
     
+    let statusCode = 500;
+    let errorType = "PROCESSING_ERROR";
+
+    if (errorMessage.includes("Access to this video is forbidden")) {
+      statusCode = 403;
+      errorType = "ACCESS_FORBIDDEN";
+    } else if (errorMessage.includes("This video is unavailable")) {
+      statusCode = 404;
+      errorType = "VIDEO_UNAVAILABLE";
+    } else if (errorMessage.includes("Invalid YouTube URL")) {
+      statusCode = 400;
+      errorType = "INVALID_URL";
+    }
+
     const errorDetails = {
       error: "Failed to process video",
+      type: errorType,
       details: errorMessage,
     };
     console.error("Detailed error:", errorDetails);
-    res.status(500).json(errorDetails);
+    res.status(statusCode).json(errorDetails);
   }
 }
