@@ -90,6 +90,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       onSuccess();
     } catch (error: unknown) {
       console.error(error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Error",
         description: errorMessage,
