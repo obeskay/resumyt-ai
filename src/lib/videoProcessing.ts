@@ -1,4 +1,4 @@
-import ytGet from 'yt-get';
+import ytdl from 'ytdl-core';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
@@ -9,54 +9,28 @@ interface ProcessedVideoResult {
 }
 
 export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
-  const maxRetries = 3;
-  let retryCount = 0;
-
-  const fetchVideoTitle = async (url: string): Promise<string> => {
-    while (retryCount < maxRetries) {
-      try {
-        console.log('Fetching video title...');
-        const videoTitle = await ytGet.getVideoTitle(url);
-        console.log('Video Title:', videoTitle);
-        return videoTitle;
-      } catch (error) {
-        console.error(`Error fetching video title (attempt ${retryCount + 1}):`, error);
-        retryCount++;
-        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
-      }
-    }
-    throw new Error('Failed to fetch video title after multiple attempts');
-  };
-
-  const downloadAudio = async (url: string): Promise<{ base64: string, title: string }> => {
-    retryCount = 0; // Reset retry count
-    while (retryCount < maxRetries) {
-      try {
-        console.log('Downloading audio in MP3 format...');
-        const { base64, title } = await ytGet.getVideoMP3Base64(url);
-        console.log('Downloaded MP3 for:', title);
-        return { base64, title };
-      } catch (error) {
-        if (error.statusCode === 403) {
-          console.error('Forbidden error: The server blocked the request. Please check the video URL or try another video.');
-          throw new Error('Forbidden error: The server blocked the request. Please check the video URL or try another video.');
-        } else {
-          console.error(`Error downloading audio (attempt ${retryCount + 1}):`, error);
-          retryCount++;
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
-        }
-      }
-    }
-    throw new Error('Failed to download audio after multiple attempts');
-  };
-
   try {
-    const videoTitle = await fetchVideoTitle(videoURL);
-    const { base64: audioBase64, title } = await downloadAudio(videoURL);
+    console.log('Fetching video info...');
+    const videoInfo = await ytdl.getInfo(videoURL);
+    const videoTitle = videoInfo.videoDetails.title;
+    console.log('Video Title:', videoTitle);
 
-    const audioFilePath = await convertBase64ToFile(audioBase64);
-    console.log('File saved:', audioFilePath);
+    console.log('Downloading audio...');
+    const audioFilePath = path.resolve('temp_audio.mp3');
+    await new Promise<void>((resolve, reject) => {
+      ytdl(videoURL, { filter: 'audioonly' })
+        .pipe(fs.createWriteStream(audioFilePath))
+        .on('finish', () => {
+          console.log('Audio download completed');
+          resolve();
+        })
+        .on('error', (error) => {
+          console.error('Error downloading audio:', error);
+          reject(error);
+        });
+    });
 
+    console.log('Transcribing audio...');
     const transcription = await transcribeAudioFile(audioFilePath);
     console.log('Transcription completed');
 
@@ -69,13 +43,6 @@ export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVi
     console.error('Error processing video:', error);
     throw new Error(`Error in processing video: ${error.message}`);
   }
-};
-
-const convertBase64ToFile = async (base64: string): Promise<string> => {
-  const filePath = path.resolve('temp_audio.mp3');
-  const fileData = Buffer.from(base64, 'base64');
-  fs.writeFileSync(filePath, fileData);
-  return filePath;
 };
 
 const transcribeAudioFile = async (filePath: string): Promise<string> => {

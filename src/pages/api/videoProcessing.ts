@@ -38,7 +38,7 @@ export default async function handler(
   }
 
   console.log("Processing video:", videoUrl);
-  res.status(202).json({ message: "Processing video..." });
+  
   try {
     const result = await processYouTubeVideo(videoUrl);
     console.log("Processing result:", result);
