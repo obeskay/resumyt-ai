@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import AuthModal from "./AuthModal";
 import LoadingSpinner from "./LoadingSpinner";
+import YouTubeLogo from "./YouTubeLogo";
 
 interface VideoInputProps {
   onSuccess: () => void;
@@ -117,12 +118,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             aria-label="YouTube URL input"
             required
           />
-          <img
-            src="/youtube-logo.svg"
-            alt="YouTube logo"
-            className="w-6 h-6 ml-2"
-            aria-hidden="true"
-          />
+          <YouTubeLogo />
         </div>
         <div className="relative">
           <Button
