@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
-import youtubeAudioStream from "youtube-audio-stream";
+import ytdl from "ytdl-core";
 
 interface ProcessedVideoResult {
   title: string;
@@ -46,7 +46,7 @@ const downloadAudio = (
   outputFilePath: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const stream = youtubeAudioStream(videoURL);
+    const stream = ytdl(videoURL, { quality: 'highestaudio' });
     const fileStream = fs.createWriteStream(outputFilePath);
 
     stream.pipe(fileStream);
@@ -56,8 +56,13 @@ const downloadAudio = (
       resolve();
     });
 
-    fileStream.on("error", (err) => {
+    stream.on("error", (err) => {
       console.error("Error during audio download:", err);
+      reject(err);
+    });
+
+    fileStream.on("error", (err) => {
+      console.error("Error writing audio file:", err);
       reject(err);
     });
   });
