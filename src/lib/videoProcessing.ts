@@ -18,16 +18,30 @@ export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVi
     console.log('Downloading audio...');
     const audioFilePath = path.resolve('temp_audio.mp3');
     await new Promise<void>((resolve, reject) => {
-      ytdl(videoURL, { filter: 'audioonly' })
-        .pipe(fs.createWriteStream(audioFilePath))
-        .on('finish', () => {
-          console.log('Audio download completed');
-          resolve();
-        })
-        .on('error', (error) => {
-          console.error('Error downloading audio:', error);
-          reject(error);
-        });
+      const timeout = setTimeout(() => {
+        reject(new Error('Audio download timed out after 5 minutes'));
+      }, 5 * 60 * 1000); // 5 minutes timeout
+
+      const stream = ytdl(videoURL, { filter: 'audioonly' })
+        .pipe(fs.createWriteStream(audioFilePath));
+
+      let downloadedBytes = 0;
+      stream.on('data', (chunk) => {
+        downloadedBytes += chunk.length;
+        console.log(`Downloaded ${(downloadedBytes / 1024 / 1024).toFixed(2)} MB`);
+      });
+
+      stream.on('finish', () => {
+        clearTimeout(timeout);
+        console.log('Audio download completed');
+        resolve();
+      });
+
+      stream.on('error', (error) => {
+        clearTimeout(timeout);
+        console.error('Error downloading audio:', error);
+        reject(error);
+      });
     });
 
     console.log('Transcribing audio...');
