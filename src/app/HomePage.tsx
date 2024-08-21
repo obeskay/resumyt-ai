@@ -1,5 +1,5 @@
-import MainLayout from '../components/MainLayout';
-import Toaster from '../components/Toaster';
+import MainLayout from "../components/MainLayout";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function HomePage() {
   return (
@@ -7,5 +7,5 @@ export default function HomePage() {
       <MainLayout />
       <Toaster />
     </>
-  )
+  );
 }
