@@ -2,6 +2,7 @@ import ytdl from 'ytdl-core';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
+import ffmpeg from 'fluent-ffmpeg';
 
 interface ProcessedVideoResult {
   title: string;
@@ -15,48 +16,45 @@ export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVi
     const videoTitle = videoInfo.videoDetails.title;
     console.log('Video Title:', videoTitle);
 
-    console.log('Downloading audio...');
-    const audioFilePath = path.resolve('temp_audio.mp3');
-    await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Audio download timed out after 5 minutes'));
-      }, 5 * 60 * 1000); // 5 minutes timeout
-
-      const stream = ytdl(videoURL, { filter: 'audioonly' })
-        .pipe(fs.createWriteStream(audioFilePath));
-
-      let downloadedBytes = 0;
-      stream.on('data', (chunk) => {
-        downloadedBytes += chunk.length;
-        console.log(`Downloaded ${(downloadedBytes / 1024 / 1024).toFixed(2)} MB`);
-      });
-
-      stream.on('finish', () => {
-        clearTimeout(timeout);
-        console.log('Audio download completed');
-        resolve();
-      });
-
-      stream.on('error', (error) => {
-        clearTimeout(timeout);
-        console.error('Error downloading audio:', error);
-        reject(error);
-      });
-    });
+    console.log('Downloading and muxing video...');
+    const outputFilePath = path.resolve('temp_video.mp4');
+    await downloadAndMux(videoURL, outputFilePath);
 
     console.log('Transcribing audio...');
-    const transcription = await transcribeAudioFile(audioFilePath);
+    const transcription = await transcribeAudioFile(outputFilePath);
     console.log('Transcription completed');
 
     // Clean up the temporary file
-    fs.unlinkSync(audioFilePath);
-    console.log('Temporary audio file deleted:', audioFilePath);
+    fs.unlinkSync(outputFilePath);
+    console.log('Temporary video file deleted:', outputFilePath);
 
     return { title: videoTitle, transcription };
   } catch (error: any) {
     console.error('Error processing video:', error);
     throw new Error(`Error in processing video: ${error.message}`);
   }
+};
+
+const downloadAndMux = (videoURL: string, outputFilePath: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    ffmpeg()
+      .input(ytdl(videoURL, { quality: 'highestvideo' }))
+      .input(ytdl(videoURL, { filter: 'audioonly' }))
+      .outputOptions('-c:v copy')
+      .outputOptions('-c:a aac')
+      .save(outputFilePath)
+      .on('progress', (progress) => {
+        console.log(`Processing: ${progress.percent}% done`);
+      })
+      .on('end', () => {
+        console.log('Download and muxing completed');
+        resolve();
+      })
+      .on('error', (err) => {
+        console.error('Error during download and muxing:', err);
+        reject(err);
+      });
+  });
 };
 
 const transcribeAudioFile = async (filePath: string): Promise<string> => {
