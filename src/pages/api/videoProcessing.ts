@@ -46,19 +46,19 @@ export default async function handler(
   } catch (error: any) {
     console.error("Error in processing request:", error);
     const errorMessage = error.message || "An unexpected error occurred";
-    const errorDetails = {
-      error: "Failed to process video",
-      details: errorMessage,
-      stack: error.stack,
-    };
-    console.error("Detailed error:", errorDetails);
     
     if (errorMessage.includes("FFmpeg is not installed")) {
       res.status(400).json({
         error: "FFmpeg not installed",
-        message: "Please install FFmpeg to continue. You can download it from https://ffmpeg.org/download.html",
+        message: errorMessage,
       });
     } else {
+      const errorDetails = {
+        error: "Failed to process video",
+        details: errorMessage,
+        stack: error.stack,
+      };
+      console.error("Detailed error:", errorDetails);
       res.status(500).json(errorDetails);
     }
   }

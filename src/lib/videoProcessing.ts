@@ -20,11 +20,11 @@ function isFFmpegInstalled(): boolean {
 }
 
 export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
-  try {
-    if (!isFFmpegInstalled()) {
-      throw new Error('FFmpeg is not installed. Please install FFmpeg to continue.');
-    }
+  if (!isFFmpegInstalled()) {
+    throw new Error('FFmpeg is not installed. Please install FFmpeg to continue. You can download it from https://ffmpeg.org/download.html');
+  }
 
+  try {
     console.log('Fetching video info...');
     const videoInfo = await ytdl.getInfo(videoURL);
     const videoTitle = videoInfo.videoDetails.title;
