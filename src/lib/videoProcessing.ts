@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
-const stream = require('youtube-audio-stream');
+const stream = require("youtube-audio-stream");
 
 interface ProcessedVideoResult {
   title: string;
@@ -37,7 +37,8 @@ export const processYouTubeVideo = async (
 };
 
 const extractVideoId = (url: string): string => {
-  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/;
+  const regex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/;
   const match = url.match(regex);
   if (match && match[1]) {
     return match[1];
@@ -46,8 +47,10 @@ const extractVideoId = (url: string): string => {
 };
 
 const getVideoTitle = async (videoId: string): Promise<string> => {
-  const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
-  const data = await response.json();
+  const response = await fetch(
+    `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`
+  );
+  const data: any = await response.json();
   return data.title || "Unknown Title";
 };
 
@@ -59,11 +62,11 @@ const downloadAudio = (
     const fileStream = fs.createWriteStream(outputFilePath);
     stream(`http://youtube.com/watch?v=${videoId}`)
       .pipe(fileStream)
-      .on('finish', () => {
+      .on("finish", () => {
         console.log("Audio download completed");
         resolve();
       })
-      .on('error', (err: Error) => {
+      .on("error", (err: Error) => {
         console.error("Error during audio download:", err);
         reject(err);
       });
