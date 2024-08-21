@@ -4,6 +4,43 @@ import os from "os";
 import fetch from "node-fetch";
 import ytdl from "ytdl-core";
 
+class YTDLErrorHandler {
+  private error: Error;
+
+  constructor(error: Error) {
+    this.error = error;
+  }
+
+  getError(): { message: string; code: string } {
+    if (this.error.message.includes("Status code: 403")) {
+      return {
+        message: "Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you're outside of China, try using a VPN with a Chinese server.",
+        code: "FORBIDDEN_ACCESS"
+      };
+    } else if (this.error.message.includes("Video unavailable")) {
+      return {
+        message: "This video is unavailable. It may have been removed or set to private by the owner.",
+        code: "VIDEO_UNAVAILABLE"
+      };
+    } else if (this.error.message.includes("Video is private")) {
+      return {
+        message: "This video is private and cannot be accessed. Please try a different video.",
+        code: "PRIVATE_VIDEO"
+      };
+    } else if (this.error.message.includes("Sign in to confirm your age")) {
+      return {
+        message: "This video is age-restricted and requires sign-in. Please try a different video.",
+        code: "AGE_RESTRICTED"
+      };
+    } else {
+      return {
+        message: `Error downloading audio: ${this.error.message}. Please try again or use a different video.`,
+        code: "UNKNOWN_ERROR"
+      };
+    }
+  }
+}
+
 interface ProcessedVideoResult {
   title: string;
   transcription: string;
@@ -124,21 +161,11 @@ const downloadAudio = async (
       console.error("Detailed error message:", err.message);
       console.error("Error in ytdl stream. Full error object:", JSON.stringify(err, null, 2));
       
-      let errorMessage: string;
-      if (err.message.includes("Status code: 403")) {
-        errorMessage = "Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you're outside of China, try using a VPN with a Chinese server.";
-      } else if (err.message.includes("Video unavailable")) {
-        errorMessage = "This video is unavailable. It may have been removed or set to private by the owner.";
-      } else if (err.message.includes("Video is private")) {
-        errorMessage = "This video is private and cannot be accessed. Please try a different video.";
-      } else if (err.message.includes("Sign in to confirm your age")) {
-        errorMessage = "This video is age-restricted and requires sign-in. Please try a different video.";
-      } else {
-        errorMessage = `Error downloading audio: ${err.message}. Please try again or use a different video.`;
-      }
+      const errorHandler = new YTDLErrorHandler(err);
+      const { message, code } = errorHandler.getError();
       
-      console.error(errorMessage);
-      reject(new Error(errorMessage));
+      console.error(message);
+      reject({ message, code });
     });
   });
 };

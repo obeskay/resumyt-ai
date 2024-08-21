@@ -45,29 +45,33 @@ export default async function handler(
     res.status(200).json(result);
   } catch (error: any) {
     console.error("Error in processing request:", error);
-    const errorMessage = error.message || "An unexpected error occurred";
     
     let statusCode = 500;
     let errorType = "PROCESSING_ERROR";
+    let errorMessage = "An unexpected error occurred";
 
-    if (errorMessage.includes("Access to this video is forbidden")) {
-      statusCode = 403;
-      errorType = "ACCESS_FORBIDDEN";
-    } else if (errorMessage.includes("This video is unavailable")) {
-      statusCode = 404;
-      errorType = "VIDEO_UNAVAILABLE";
-    } else if (errorMessage.includes("Invalid YouTube URL")) {
-      statusCode = 400;
-      errorType = "INVALID_URL";
-    } else if (errorMessage.includes("This video is private")) {
-      statusCode = 403;
-      errorType = "PRIVATE_VIDEO";
-    } else if (errorMessage.includes("age-restricted")) {
-      statusCode = 403;
-      errorType = "AGE_RESTRICTED";
-    } else if (errorMessage.includes("Download timed out") || errorMessage.includes("Download stalled")) {
-      statusCode = 504;
-      errorType = "DOWNLOAD_TIMEOUT";
+    if (error.code) {
+      switch (error.code) {
+        case "FORBIDDEN_ACCESS":
+        case "PRIVATE_VIDEO":
+        case "AGE_RESTRICTED":
+          statusCode = 403;
+          errorType = error.code;
+          break;
+        case "VIDEO_UNAVAILABLE":
+          statusCode = 404;
+          errorType = error.code;
+          break;
+        case "INVALID_URL":
+          statusCode = 400;
+          errorType = error.code;
+          break;
+        case "DOWNLOAD_TIMEOUT":
+          statusCode = 504;
+          errorType = error.code;
+          break;
+      }
+      errorMessage = error.message;
     }
 
     // Add more detailed logging
