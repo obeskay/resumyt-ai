@@ -27,7 +27,15 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     setSummary,
     setIsTranscribing,
     setIsSummarizing,
+    isLoading,
+    userQuotaRemaining,
+    setUserQuotaRemaining,
+    setIsLoading,
   } = useVideoStore();
+
+  // Asegurarse de que setUserQuotaRemaining y setIsLoading son funciones
+  const safeSetUserQuotaRemaining = typeof setUserQuotaRemaining === 'function' ? setUserQuotaRemaining : () => {};
+  const safeSetIsLoading = typeof setIsLoading === 'function' ? setIsLoading : () => {};
 
   const { toast } = useToast();
 
@@ -54,7 +62,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       return;
     }
 
-    setIsLoading?.(true);
+    safeSetIsLoading(true);
     setIsTranscribing(true);
     setIsSummarizing(true);
     try {
@@ -88,7 +96,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
         variant: "destructive",
       });
     } finally {
-      setIsLoading?.(false);
+      safeSetIsLoading(false);
       setIsTranscribing(false);
       setIsSummarizing(false);
       setInput("");
