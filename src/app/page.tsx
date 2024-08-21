@@ -1,11 +1,3 @@
-import MainLayout from '../components/MainLayout';
-import Toaster from '../components/Toaster';
+import HomePage from './HomePage';
 
-export default function Home() {
-  return (
-    <>
-      <MainLayout />
-      <Toaster />
-    </>
-  )
-}
+export default HomePage;
