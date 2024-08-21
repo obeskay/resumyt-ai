@@ -25,15 +25,15 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     setSummary,
     setIsTranscribing,
     setIsSummarizing,
-    isLoading,
-    userQuotaRemaining,
-    setUserQuotaRemaining,
-    setIsLoading,
   } = useVideoStore();
 
   // Asegurarse de que setUserQuotaRemaining y setIsLoading son funciones
-  const safeSetUserQuotaRemaining = typeof setUserQuotaRemaining === 'function' ? setUserQuotaRemaining : () => {};
-  const safeSetIsLoading = typeof setIsLoading === 'function' ? setIsLoading : () => {};
+  const safeSetUserQuotaRemaining =
+    typeof setUserQuotaRemaining === "function"
+      ? setUserQuotaRemaining
+      : () => {};
+  const safeSetIsLoading =
+    typeof setIsLoading === "function" ? setIsLoading : () => {};
   const { toast } = useToast();
 
   useEffect(() => {
