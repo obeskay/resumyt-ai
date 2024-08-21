@@ -21,7 +21,14 @@ function isFFmpegInstalled(): boolean {
 
 export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
   if (!isFFmpegInstalled()) {
-    throw new Error('FFmpeg is not installed. Please install FFmpeg to continue. You can download it from https://ffmpeg.org/download.html');
+    throw new Error(`FFmpeg is not installed. Please install FFmpeg to continue. 
+
+Installation instructions:
+- Windows: Download from https://ffmpeg.org/download.html and add to PATH
+- macOS: Use Homebrew with 'brew install ffmpeg'
+- Linux: Use your package manager, e.g., 'sudo apt-get install ffmpeg' for Ubuntu
+
+After installation, restart your application or server.`);
   }
 
   try {

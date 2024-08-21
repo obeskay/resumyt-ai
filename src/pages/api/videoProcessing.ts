@@ -51,6 +51,11 @@ export default async function handler(
       res.status(400).json({
         error: "FFmpeg not installed",
         message: errorMessage,
+        instructions: `To install FFmpeg:
+1. Windows: Download from https://ffmpeg.org/download.html and add to PATH
+2. macOS: Use Homebrew with 'brew install ffmpeg'
+3. Linux: Use your package manager, e.g., 'sudo apt-get install ffmpeg' for Ubuntu
+After installation, restart the application or server.`
       });
     } else {
       const errorDetails = {
