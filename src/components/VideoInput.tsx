@@ -10,7 +10,7 @@ import AuthModal from "./AuthModal";
 
 interface VideoInputProps {
   onSuccess: () => void;
-  session: any;
+  session: any; // Consider replacing 'any' with a more specific type if available
 }
 
 export default function VideoInput({ onSuccess, session }: VideoInputProps) {
@@ -27,21 +27,14 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     setIsSummarizing,
   } = useVideoStore();
 
-  // Asegurarse de que setUserQuotaRemaining y setIsLoading son funciones
-  const safeSetUserQuotaRemaining =
-    typeof setUserQuotaRemaining === "function"
-      ? setUserQuotaRemaining
-      : () => {};
-  const safeSetIsLoading =
-    typeof setIsLoading === "function" ? setIsLoading : () => {};
   const { toast } = useToast();
 
   useEffect(() => {
     if (session) {
       setIsAuthenticated(true);
-      safeSetUserQuotaRemaining(3);
+      setUserQuotaRemaining?.(3);
     }
-  }, [session, safeSetUserQuotaRemaining]);
+  }, [session, setUserQuotaRemaining]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,7 +52,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       return;
     }
 
-    safeSetIsLoading(true);
+    setIsLoading?.(true);
     setIsTranscribing(true);
     setIsSummarizing(true);
     try {
@@ -93,7 +86,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
         variant: "destructive",
       });
     } finally {
-      safeSetIsLoading(false);
+      setIsLoading?.(false);
       setIsTranscribing(false);
       setIsSummarizing(false);
       setInput("");
