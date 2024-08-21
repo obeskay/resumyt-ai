@@ -1,22 +1,25 @@
 import { processYouTubeVideo } from '../../lib/videoProcessing';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req, res) {
+interface VideoProcessingRequestBody {
+  videoUrl: string;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   console.log('Received request body:', req.body);
 
-  let videoUrl;
-  if (typeof req.body === 'string') {
-    try {
-      const parsedBody = JSON.parse(req.body);
-      videoUrl = parsedBody.videoUrl;
-    } catch (error) {
-      console.error('Error parsing request body:', error);
-    }
-  } else {
-    videoUrl = req.body.videoUrl;
+  let videoUrl: string | undefined;
+  try {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const requestBody = body as VideoProcessingRequestBody;
+    videoUrl = requestBody.videoUrl;
+  } catch (error) {
+    console.error('Error parsing request body:', error);
+    return res.status(400).json({ error: 'Invalid request body' });
   }
 
   console.log('Extracted videoUrl:', videoUrl);
@@ -25,12 +28,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing videoUrl in request body' });
   }
 
-  if (typeof videoUrl !== 'string') {
-    return res.status(400).json({ error: 'Invalid videoUrl: must be a string' });
-  }
-
-  if (!videoUrl.trim()) {
-    return res.status(400).json({ error: 'Invalid videoUrl: cannot be empty' });
+  if (typeof videoUrl !== 'string' || !videoUrl.trim()) {
+    return res.status(400).json({ error: 'Invalid videoUrl: must be a non-empty string' });
   }
 
   console.log('Processing video:', videoUrl);
