@@ -40,6 +40,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in processing request:', error);
-    res.status(500).json({ error: 'Failed to process video', details: error.message || 'An unexpected error occurred' });
+    const errorMessage = error.message || 'An unexpected error occurred';
+    const errorDetails = {
+      error: 'Failed to process video',
+      details: errorMessage,
+      stack: error.stack
+    };
+    console.error('Detailed error:', errorDetails);
+    res.status(500).json(errorDetails);
   }
 }
