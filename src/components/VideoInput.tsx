@@ -1,100 +1,105 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { useVideoStore } from '../store/videoStore'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
-import AuthModal from './AuthModal'
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useVideoStore } from "../store/videoStore";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import AuthModal from "./AuthModal";
 
 interface VideoInputProps {
-  onSuccess: () => void
-  session: any
+  onSuccess: () => void;
+  session: any;
 }
 
 export default function VideoInput({ onSuccess, session }: VideoInputProps) {
-  const [input, setInput] = useState<string>('https://www.youtube.com/watch?v=iJtkp4e3_PE')
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
-  const [showAuthModal, setShowAuthModal] = useState<boolean>(false)
-  const { 
-    setVideoUrl, 
-    setTranscription, 
-    setSummary, 
-    setIsTranscribing, 
+  const [input, setInput] = useState<string>(
+    "https://www.youtube.com/watch?v=tswesZhemRw"
+  );
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const {
+    setVideoUrl,
+    setTranscription,
+    setSummary,
+    setIsTranscribing,
     setIsSummarizing,
     isLoading,
     userQuotaRemaining,
     setUserQuotaRemaining,
-    setIsLoading
-  } = useVideoStore()
-  const { toast } = useToast()
+    setIsLoading,
+  } = useVideoStore();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (session) {
-      setIsAuthenticated(true)
-      if (typeof setUserQuotaRemaining === 'function') {
-        setUserQuotaRemaining(3)
+      setIsAuthenticated(true);
+      if (typeof setUserQuotaRemaining === "function") {
+        setUserQuotaRemaining(3);
       }
     }
-  }, [session, setUserQuotaRemaining])
+  }, [session, setUserQuotaRemaining]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!input) {
       toast({
         title: "Error",
         description: "Please enter a YouTube URL",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     if (userQuotaRemaining <= 0 && !isAuthenticated) {
-      setShowAuthModal(true)
-      return
+      setShowAuthModal(true);
+      return;
     }
 
-    typeof setIsLoading === 'function' && setIsLoading(true)
-    setIsTranscribing(true)
-    setIsSummarizing(true)
+    typeof setIsLoading === "function" && setIsLoading(true);
+    setIsTranscribing(true);
+    setIsSummarizing(true);
     try {
-      setVideoUrl(input)
+      setVideoUrl(input);
 
       // Process video with custom API
       const { transcription, summary } = await fetch(`/api/videoProcessing`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ videoUrl: input }),
-      }).then((res) => res.json())
+      }).then((res) => res.json());
 
-      setTranscription(transcription)
-      setSummary(summary)
+      setTranscription(transcription);
+      setSummary(summary);
 
       toast({
         title: "Success",
         description: "Video processed successfully!",
-      })
+      });
 
-      if (userQuotaRemaining > 0 && typeof setUserQuotaRemaining === 'function') {
-        setUserQuotaRemaining(userQuotaRemaining - 1)
+      if (
+        userQuotaRemaining > 0 &&
+        typeof setUserQuotaRemaining === "function"
+      ) {
+        setUserQuotaRemaining(userQuotaRemaining - 1);
       }
 
-      onSuccess()
+      onSuccess();
     } catch (error: unknown) {
-      console.error(error)
+      console.error(error);
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
-      setIsTranscribing(false)
-      setIsSummarizing(false)
-      setInput('')
+      setIsLoading(false);
+      setIsTranscribing(false);
+      setIsSummarizing(false);
+      setInput("");
     }
-  }
+  };
 
   return (
     <section>
@@ -111,13 +116,20 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             type="url"
             placeholder="Enter YouTube URL"
             value={input}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setInput(e.target.value)
+            }
             disabled={isLoading}
-            className="bg-transparent text-foreground placeholder:text-muted-foreground"  
+            className="bg-transparent text-foreground placeholder:text-muted-foreground"
             aria-label="YouTube URL input"
             required
           />
-          <img src="/youtube-logo.svg" alt="YouTube logo" className="w-6 h-6 ml-2" aria-hidden="true" />
+          <img
+            src="/youtube-logo.svg"
+            alt="YouTube logo"
+            className="w-6 h-6 ml-2"
+            aria-hidden="true"
+          />
         </div>
         <div className="relative">
           <Button
@@ -129,18 +141,24 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             {isLoading ? (
               <>
                 <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 mr-2 border-2 border-primary-foreground rounded-full border-r-transparent animate-spin" aria-hidden="true"></div>
+                  <div
+                    className="w-5 h-5 mr-2 border-2 border-primary-foreground rounded-full border-r-transparent animate-spin"
+                    aria-hidden="true"
+                  ></div>
                   <span>Processing...</span>
                 </div>
                 <span className="sr-only">Processing video, please wait</span>
               </>
             ) : (
-              'Generate Summary'
+              "Generate Summary"
             )}
           </Button>
         </div>
       </motion.form>
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
     </section>
-  )
+  );
 }
