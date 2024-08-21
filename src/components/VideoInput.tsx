@@ -30,16 +30,18 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
     setUserQuotaRemaining,
     setIsLoading,
   } = useVideoStore();
+
+  // Asegurarse de que setUserQuotaRemaining y setIsLoading son funciones
+  const safeSetUserQuotaRemaining = typeof setUserQuotaRemaining === 'function' ? setUserQuotaRemaining : () => {};
+  const safeSetIsLoading = typeof setIsLoading === 'function' ? setIsLoading : () => {};
   const { toast } = useToast();
 
   useEffect(() => {
     if (session) {
       setIsAuthenticated(true);
-      if (typeof setUserQuotaRemaining === "function") {
-        setUserQuotaRemaining(3);
-      }
+      safeSetUserQuotaRemaining(3);
     }
-  }, [session, setUserQuotaRemaining]);
+  }, [session, safeSetUserQuotaRemaining]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,7 +59,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       return;
     }
 
-    typeof setIsLoading === "function" && setIsLoading(true);
+    safeSetIsLoading(true);
     setIsTranscribing(true);
     setIsSummarizing(true);
     try {
@@ -78,11 +80,8 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
         description: "Video processed successfully!",
       });
 
-      if (
-        userQuotaRemaining > 0 &&
-        typeof setUserQuotaRemaining === "function"
-      ) {
-        setUserQuotaRemaining(userQuotaRemaining - 1);
+      if (userQuotaRemaining > 0) {
+        safeSetUserQuotaRemaining(userQuotaRemaining - 1);
       }
 
       onSuccess();
@@ -94,7 +93,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      safeSetIsLoading(false);
       setIsTranscribing(false);
       setIsSummarizing(false);
       setInput("");
