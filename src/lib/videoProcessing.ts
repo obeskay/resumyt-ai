@@ -13,7 +13,8 @@ export const processYouTubeVideo = async (
 ): Promise<ProcessedVideoResult> => {
   try {
     console.log("Fetching video info...");
-    const videoTitle = await getVideoTitle(videoURL);
+    const videoInfo = await ytdl.getInfo(videoURL);
+    const videoTitle = videoInfo.videoDetails.title;
     console.log("Video Title:", videoTitle);
 
     console.log("Downloading audio...");
@@ -31,15 +32,14 @@ export const processYouTubeVideo = async (
     return { title: videoTitle, transcription };
   } catch (error: any) {
     console.error("Error processing video:", error);
-    throw new Error(`Error in processing video: ${error.message}`);
+    if (error.statusCode === 403) {
+      throw new Error(`Access to the video is forbidden. This could be due to age restrictions or the video being private.`);
+    } else {
+      throw new Error(`Error in processing video: ${error.message}`);
+    }
   }
 };
 
-const getVideoTitle = async (videoURL: string): Promise<string> => {
-  const response = await fetch(`https://noembed.com/embed?url=${videoURL}`);
-  const data: any = await response.json();
-  return data.title || "Unknown Title";
-};
 
 const downloadAudio = (
   videoURL: string,
