@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import fetch from "node-fetch";
 import ytdl from "ytdl-core";
 
@@ -20,7 +21,7 @@ export const processYouTubeVideo = async (
     console.log("Video Title:", videoTitle);
 
     console.log("Downloading audio...");
-    outputFilePath = path.resolve("temp_audio.mp3");
+    outputFilePath = path.join(os.tmpdir(), `temp_audio_${Date.now()}.mp3`);
     console.log("Output file path:", outputFilePath);
     await downloadAudio(videoId, outputFilePath);
 
@@ -31,12 +32,16 @@ export const processYouTubeVideo = async (
     return { title: videoTitle, transcription };
   } catch (error: any) {
     console.error("Error processing video:", error);
-    throw new Error(`Error in processing video: ${error.message}`);
+    throw error; // Propagate the original error
   } finally {
     // Clean up the temporary file
     if (outputFilePath && fs.existsSync(outputFilePath)) {
-      fs.unlinkSync(outputFilePath);
-      console.log("Temporary audio file deleted:", outputFilePath);
+      try {
+        fs.unlinkSync(outputFilePath);
+        console.log("Temporary audio file deleted:", outputFilePath);
+      } catch (unlinkError) {
+        console.error("Error deleting temporary file:", unlinkError);
+      }
     }
   }
 };
@@ -118,22 +123,22 @@ const downloadAudio = async (
       console.error("Error in ytdl stream:", err);
       console.error("Detailed error message:", err.message);
       console.error("Error in ytdl stream. Full error object:", JSON.stringify(err, null, 2));
+      
+      let errorMessage: string;
       if (err.message.includes("Status code: 403")) {
-        console.error("403 Forbidden error encountered. Details:", err);
-        reject(new Error("Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you believe this is a regional restriction, try using a VPN. If the issue persists, please try another video or contact support."));
+        errorMessage = "Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private.";
       } else if (err.message.includes("Video unavailable")) {
-        console.error("Video unavailable error encountered. Details:", err);
-        reject(new Error("This video is unavailable. It may have been removed or set to private by the owner."));
+        errorMessage = "This video is unavailable. It may have been removed or set to private by the owner.";
       } else if (err.message.includes("Video is private")) {
-        console.error("Private video error encountered. Details:", err);
-        reject(new Error("This video is private and cannot be accessed. Please try a different video."));
+        errorMessage = "This video is private and cannot be accessed. Please try a different video.";
       } else if (err.message.includes("Sign in to confirm your age")) {
-        console.error("Age-restricted video error encountered. Details:", err);
-        reject(new Error("This video is age-restricted and requires sign-in. Please try a different video."));
+        errorMessage = "This video is age-restricted and requires sign-in. Please try a different video.";
       } else {
-        console.error("Unexpected error during audio download. Details:", err);
-        reject(new Error(`Error downloading audio: ${err.message}. Please try again or use a different video.`));
+        errorMessage = `Error downloading audio: ${err.message}. Please try again or use a different video.`;
       }
+      
+      console.error(errorMessage);
+      reject(new Error(errorMessage));
     });
   });
 };

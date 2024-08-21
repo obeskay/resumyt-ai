@@ -65,6 +65,9 @@ export default async function handler(
     } else if (errorMessage.includes("age-restricted")) {
       statusCode = 403;
       errorType = "AGE_RESTRICTED";
+    } else if (errorMessage.includes("Download timed out") || errorMessage.includes("Download stalled")) {
+      statusCode = 504;
+      errorType = "DOWNLOAD_TIMEOUT";
     }
 
     const errorDetails = {
