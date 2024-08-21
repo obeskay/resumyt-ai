@@ -15,11 +15,13 @@ export const processYouTubeVideo = async (
   try {
     console.log("Fetching video info...");
     const videoId = extractVideoId(videoURL);
+    console.log("Extracted video ID:", videoId);
     const videoTitle = await getVideoTitle(videoId);
     console.log("Video Title:", videoTitle);
 
     console.log("Downloading audio...");
     outputFilePath = path.resolve("temp_audio.mp3");
+    console.log("Output file path:", outputFilePath);
     await downloadAudio(videoId, outputFilePath);
 
     console.log("Transcribing audio...");
@@ -115,7 +117,11 @@ const downloadAudio = async (
       clearInterval(checkProgress);
       console.error("Error in ytdl stream:", err);
       console.error("Detailed error message:", err.message);
-      reject(new Error(`Error downloading audio: ${err.message}`));
+      if (err.message.includes("Status code: 403")) {
+        reject(new Error("Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you believe this is a regional restriction, try using a VPN."));
+      } else {
+        reject(new Error(`Error downloading audio: ${err.message}`));
+      }
     });
   });
 };
