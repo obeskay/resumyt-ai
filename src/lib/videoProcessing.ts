@@ -1,45 +1,22 @@
-import ytdl from 'ytdl-core';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
-import ffmpeg from 'fluent-ffmpeg';
-import { execSync } from 'child_process';
+import youtubeAudioStream from 'youtube-audio-stream';
 
 interface ProcessedVideoResult {
   title: string;
   transcription: string;
 }
 
-function isFFmpegInstalled(): boolean {
-  try {
-    execSync('ffmpeg -version', { stdio: 'ignore' });
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
 export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
-  if (!isFFmpegInstalled()) {
-    throw new Error(`FFmpeg is not installed. Please install FFmpeg to continue. 
-
-Installation instructions:
-- Windows: Download from https://ffmpeg.org/download.html and add to PATH
-- macOS: Use Homebrew with 'brew install ffmpeg'
-- Linux: Use your package manager, e.g., 'sudo apt-get install ffmpeg' for Ubuntu
-
-After installation, restart your application or server.`);
-  }
-
   try {
     console.log('Fetching video info...');
-    const videoInfo = await ytdl.getInfo(videoURL);
-    const videoTitle = videoInfo.videoDetails.title;
+    const videoTitle = await getVideoTitle(videoURL);
     console.log('Video Title:', videoTitle);
 
-    console.log('Downloading and muxing video...');
-    const outputFilePath = path.resolve('temp_video.mp4');
-    await downloadAndMux(videoURL, outputFilePath);
+    console.log('Downloading audio...');
+    const outputFilePath = path.resolve('temp_audio.mp3');
+    await downloadAudio(videoURL, outputFilePath);
 
     console.log('Transcribing audio...');
     const transcription = await transcribeAudioFile(outputFilePath);
@@ -47,7 +24,7 @@ After installation, restart your application or server.`);
 
     // Clean up the temporary file
     fs.unlinkSync(outputFilePath);
-    console.log('Temporary video file deleted:', outputFilePath);
+    console.log('Temporary audio file deleted:', outputFilePath);
 
     return { title: videoTitle, transcription };
   } catch (error: any) {
@@ -56,25 +33,28 @@ After installation, restart your application or server.`);
   }
 };
 
-const downloadAndMux = (videoURL: string, outputFilePath: string): Promise<void> => {
+const getVideoTitle = async (videoURL: string): Promise<string> => {
+  const response = await fetch(`https://noembed.com/embed?url=${videoURL}`);
+  const data = await response.json();
+  return data.title || 'Unknown Title';
+};
+
+const downloadAudio = (videoURL: string, outputFilePath: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const video = ytdl(videoURL, { quality: 'highestvideo', filter: 'audioandvideo' });
-    
-    ffmpeg(video)
-      .outputOptions('-c:v copy')
-      .outputOptions('-c:a aac')
-      .save(outputFilePath)
-      .on('progress', (progress) => {
-        console.log(`Processing: ${progress.percent ? progress.percent.toFixed(2) : 0}% done`);
-      })
-      .on('end', () => {
-        console.log('Download and processing completed');
-        resolve();
-      })
-      .on('error', (err) => {
-        console.error('Error during download and processing:', err);
-        reject(err);
-      });
+    const stream = youtubeAudioStream(videoURL);
+    const fileStream = fs.createWriteStream(outputFilePath);
+
+    stream.pipe(fileStream);
+
+    fileStream.on('finish', () => {
+      console.log('Audio download completed');
+      resolve();
+    });
+
+    fileStream.on('error', (err) => {
+      console.error('Error during audio download:', err);
+      reject(err);
+    });
   });
 };
 
