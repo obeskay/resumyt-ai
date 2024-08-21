@@ -50,7 +50,6 @@ export default async function handler(
     const errorDetails = {
       error: "Failed to process video",
       details: errorMessage,
-      stack: error.stack,
     };
     console.error("Detailed error:", errorDetails);
     res.status(500).json(errorDetails);

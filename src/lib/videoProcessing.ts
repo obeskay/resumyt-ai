@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
-import ytdl from "ytdl-core";
+const stream = require('youtube-audio-stream');
 
 interface ProcessedVideoResult {
   title: string;
@@ -13,13 +13,13 @@ export const processYouTubeVideo = async (
 ): Promise<ProcessedVideoResult> => {
   try {
     console.log("Fetching video info...");
-    const videoInfo = await ytdl.getInfo(videoURL);
-    const videoTitle = videoInfo.videoDetails.title;
+    const videoId = extractVideoId(videoURL);
+    const videoTitle = await getVideoTitle(videoId);
     console.log("Video Title:", videoTitle);
 
     console.log("Downloading audio...");
     const outputFilePath = path.resolve("temp_audio.mp3");
-    await downloadAudio(videoURL, outputFilePath);
+    await downloadAudio(videoId, outputFilePath);
 
     console.log("Transcribing audio...");
     const transcription = await transcribeAudioFile(outputFilePath);
@@ -32,39 +32,41 @@ export const processYouTubeVideo = async (
     return { title: videoTitle, transcription };
   } catch (error: any) {
     console.error("Error processing video:", error);
-    if (error.statusCode === 403) {
-      throw new Error(`Access to the video is forbidden. This could be due to age restrictions or the video being private.`);
-    } else {
-      throw new Error(`Error in processing video: ${error.message}`);
-    }
+    throw new Error(`Error in processing video: ${error.message}`);
   }
 };
 
+const extractVideoId = (url: string): string => {
+  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/;
+  const match = url.match(regex);
+  if (match && match[1]) {
+    return match[1];
+  }
+  throw new Error("Invalid YouTube URL");
+};
+
+const getVideoTitle = async (videoId: string): Promise<string> => {
+  const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+  const data = await response.json();
+  return data.title || "Unknown Title";
+};
 
 const downloadAudio = (
-  videoURL: string,
+  videoId: string,
   outputFilePath: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const stream = ytdl(videoURL, { quality: 'highestaudio' });
     const fileStream = fs.createWriteStream(outputFilePath);
-
-    stream.pipe(fileStream);
-
-    fileStream.on("finish", () => {
-      console.log("Audio download completed");
-      resolve();
-    });
-
-    stream.on("error", (err) => {
-      console.error("Error during audio download:", err);
-      reject(err);
-    });
-
-    fileStream.on("error", (err) => {
-      console.error("Error writing audio file:", err);
-      reject(err);
-    });
+    stream(`http://youtube.com/watch?v=${videoId}`)
+      .pipe(fileStream)
+      .on('finish', () => {
+        console.log("Audio download completed");
+        resolve();
+      })
+      .on('error', (err: Error) => {
+        console.error("Error during audio download:", err);
+        reject(err);
+      });
   });
 };
 
