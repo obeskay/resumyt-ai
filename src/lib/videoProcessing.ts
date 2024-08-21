@@ -60,16 +60,33 @@ const downloadAudio = (
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    ytdl(videoUrl, {
+    let startTime = Date.now();
+    let timeout = setTimeout(() => {
+      reject(new Error("Download timed out after 5 minutes"));
+    }, 5 * 60 * 1000); // 5 minutes timeout
+
+    const stream = ytdl(videoUrl, {
       quality: 'highestaudio',
       filter: 'audioonly',
-    })
-      .pipe(fs.createWriteStream(outputFilePath))
+    });
+
+    stream.on('progress', (chunkLength, downloaded, total) => {
+      const percent = (downloaded / total * 100).toFixed(2);
+      const downloadedMinutes = (Date.now() - startTime) / 1000 / 60;
+      const estimatedDownloadTime = (downloadedMinutes / (downloaded / total) - downloadedMinutes).toFixed(2);
+      
+      console.log(`Downloaded ${percent}% (${(downloaded / 1024 / 1024).toFixed(2)}MB) of ${(total / 1024 / 1024).toFixed(2)}MB`);
+      console.log(`Estimated download time: ${estimatedDownloadTime} minutes`);
+    });
+
+    stream.pipe(fs.createWriteStream(outputFilePath))
       .on("finish", () => {
+        clearTimeout(timeout);
         console.log("Audio download completed");
         resolve();
       })
       .on("error", (err: Error) => {
+        clearTimeout(timeout);
         console.error("Error during audio download:", err);
         reject(err);
       });
