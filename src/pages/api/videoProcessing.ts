@@ -33,16 +33,14 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid videoUrl: cannot be empty' });
   }
 
+  console.log('Processing video:', videoUrl);
+  res.status(202).json({ message: 'Processing video...' });
   try {
-    console.log('Processing video:', videoUrl);
     const result = await processYouTubeVideo(videoUrl);
     console.log('Processing result:', result);
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in processing request:', error);
     res.status(500).json({ error: 'Failed to process video', details: error.message || 'An unexpected error occurred' });
-  } finally {
-    // Agregar un mensaje de espera mientras se procesa el video
-    res.status(202).json({ message: 'Processing video...' });
   }
 }
