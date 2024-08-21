@@ -62,13 +62,16 @@ const downloadAudio = (
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
     let startTime = Date.now();
     let timeout = setTimeout(() => {
-      reject(new Error("Download timed out after 5 minutes"));
-    }, 5 * 60 * 1000); // 5 minutes timeout
+      stream.destroy();
+      reject(new Error("Download timed out after 2 minutes"));
+    }, 2 * 60 * 1000); // 2 minutes timeout
 
     const stream = ytdl(videoUrl, {
       quality: 'highestaudio',
       filter: 'audioonly',
     });
+
+    let lastProgressTime = Date.now();
 
     stream.on('progress', (chunkLength, downloaded, total) => {
       const percent = (downloaded / total * 100).toFixed(2);
@@ -77,19 +80,39 @@ const downloadAudio = (
       
       console.log(`Downloaded ${percent}% (${(downloaded / 1024 / 1024).toFixed(2)}MB) of ${(total / 1024 / 1024).toFixed(2)}MB`);
       console.log(`Estimated download time: ${estimatedDownloadTime} minutes`);
+
+      lastProgressTime = Date.now();
     });
+
+    const checkProgress = setInterval(() => {
+      if (Date.now() - lastProgressTime > 30000) { // No progress for 30 seconds
+        clearInterval(checkProgress);
+        clearTimeout(timeout);
+        stream.destroy();
+        reject(new Error("Download stalled"));
+      }
+    }, 5000);
 
     stream.pipe(fs.createWriteStream(outputFilePath))
       .on("finish", () => {
         clearTimeout(timeout);
+        clearInterval(checkProgress);
         console.log("Audio download completed");
         resolve();
       })
       .on("error", (err: Error) => {
         clearTimeout(timeout);
+        clearInterval(checkProgress);
         console.error("Error during audio download:", err);
         reject(err);
       });
+
+    stream.on("error", (err: Error) => {
+      clearTimeout(timeout);
+      clearInterval(checkProgress);
+      console.error("Error in ytdl stream:", err);
+      reject(err);
+    });
   });
 };
 
