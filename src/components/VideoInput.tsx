@@ -129,6 +129,7 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
             disabled={isLoading}
             className="w-full bg-primary hover:bg-primary/80 transition-colors text-primary-foreground"
             aria-busy={isLoading}
+            aria-label="Generate video summary"
           >
             {isLoading ? (
               <>
