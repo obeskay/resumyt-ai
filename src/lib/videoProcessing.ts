@@ -14,28 +14,32 @@ class YTDLErrorHandler {
   getError(): { message: string; code: string } {
     if (this.error.message.includes("Status code: 403")) {
       return {
-        message: "Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you're outside of China, try using a VPN with a Chinese server.",
-        code: "FORBIDDEN_ACCESS"
+        message:
+          "Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private.",
+        code: "FORBIDDEN_ACCESS",
       };
     } else if (this.error.message.includes("Video unavailable")) {
       return {
-        message: "This video is unavailable. It may have been removed or set to private by the owner.",
-        code: "VIDEO_UNAVAILABLE"
+        message:
+          "This video is unavailable. It may have been removed or set to private by the owner.",
+        code: "VIDEO_UNAVAILABLE",
       };
     } else if (this.error.message.includes("Video is private")) {
       return {
-        message: "This video is private and cannot be accessed. Please try a different video.",
-        code: "PRIVATE_VIDEO"
+        message:
+          "This video is private and cannot be accessed. Please try a different video.",
+        code: "PRIVATE_VIDEO",
       };
     } else if (this.error.message.includes("Sign in to confirm your age")) {
       return {
-        message: "This video is age-restricted and requires sign-in. Please try a different video.",
-        code: "AGE_RESTRICTED"
+        message:
+          "This video is age-restricted and requires sign-in. Please try a different video.",
+        code: "AGE_RESTRICTED",
       };
     } else {
       return {
         message: `Error downloading audio: ${this.error.message}. Please try again or use a different video.`,
-        code: "UNKNOWN_ERROR"
+        code: "UNKNOWN_ERROR",
       };
     }
   }
@@ -69,9 +73,8 @@ export const processYouTubeVideo = async (
     return { title: videoTitle, transcription };
   } catch (error: any) {
     console.error("Error processing video:", error);
-    throw error; // Propagate the original error
+    throw error;
   } finally {
-    // Clean up the temporary file
     if (outputFilePath && fs.existsSync(outputFilePath)) {
       try {
         fs.unlinkSync(outputFilePath);
@@ -85,7 +88,7 @@ export const processYouTubeVideo = async (
 
 const extractVideoId = (url: string): string => {
   const regex =
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/;
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?([^&]+)/;
   const match = url.match(regex);
   if (match && match[1]) {
     return match[1];
@@ -107,63 +110,27 @@ const downloadAudio = async (
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    let startTime = Date.now();
-    let timeout = setTimeout(() => {
-      stream.destroy();
-      reject(new Error("Download timed out after 2 minutes"));
-    }, 2 * 60 * 1000); // 2 minutes timeout
 
     const stream = ytdl(videoUrl, {
-      quality: 'highestaudio',
-      filter: 'audioonly',
+      quality: "highestaudio",
+      filter: "audioonly",
     });
 
-    let lastProgressTime = Date.now();
-
-    stream.on('progress', (chunkLength, downloaded, total) => {
-      const percent = (downloaded / total * 100).toFixed(2);
-      const downloadedMinutes = (Date.now() - startTime) / 1000 / 60;
-      const estimatedDownloadTime = (downloadedMinutes / (downloaded / total) - downloadedMinutes).toFixed(2);
-      
-      console.log(`Downloaded ${percent}% (${(downloaded / 1024 / 1024).toFixed(2)}MB) of ${(total / 1024 / 1024).toFixed(2)}MB`);
-      console.log(`Estimated download time: ${estimatedDownloadTime} minutes`);
-
-      lastProgressTime = Date.now();
-    });
-
-    const checkProgress = setInterval(() => {
-      if (Date.now() - lastProgressTime > 30000) { // No progress for 30 seconds
-        clearInterval(checkProgress);
-        clearTimeout(timeout);
-        stream.destroy();
-        reject(new Error("Download stalled"));
-      }
-    }, 5000);
-
-    stream.pipe(fs.createWriteStream(outputFilePath))
+    stream
+      .pipe(fs.createWriteStream(outputFilePath))
       .on("finish", () => {
-        clearTimeout(timeout);
-        clearInterval(checkProgress);
         console.log("Audio download completed");
         resolve();
       })
       .on("error", (err: Error) => {
-        clearTimeout(timeout);
-        clearInterval(checkProgress);
         console.error("Error during audio download:", err);
         reject(err);
       });
 
     stream.on("error", (err: Error) => {
-      clearTimeout(timeout);
-      clearInterval(checkProgress);
       console.error("Error in ytdl stream:", err);
-      console.error("Detailed error message:", err.message);
-      console.error("Error in ytdl stream. Full error object:", JSON.stringify(err, null, 2));
-      
       const errorHandler = new YTDLErrorHandler(err);
       const { message, code } = errorHandler.getError();
-      
       console.error(message);
       reject({ message, code });
     });
