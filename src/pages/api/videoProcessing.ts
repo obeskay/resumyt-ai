@@ -70,6 +70,11 @@ export default async function handler(
       errorType = "DOWNLOAD_TIMEOUT";
     }
 
+    // Add more detailed logging
+    console.error(`Error Type: ${errorType}`);
+    console.error(`Status Code: ${statusCode}`);
+    console.error(`Error Details: ${errorMessage}`);
+
     const errorDetails = {
       error: "Failed to process video",
       type: errorType,

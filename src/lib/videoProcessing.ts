@@ -126,7 +126,7 @@ const downloadAudio = async (
       
       let errorMessage: string;
       if (err.message.includes("Status code: 403")) {
-        errorMessage = "Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private.";
+        errorMessage = "Access to this video is forbidden. This could be due to regional restrictions, age restrictions, or the video being private. If you're outside of China, try using a VPN with a Chinese server.";
       } else if (err.message.includes("Video unavailable")) {
         errorMessage = "This video is unavailable. It may have been removed or set to private by the owner.";
       } else if (err.message.includes("Video is private")) {
