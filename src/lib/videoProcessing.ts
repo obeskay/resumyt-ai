@@ -37,21 +37,21 @@ export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVi
 
 const downloadAndMux = (videoURL: string, outputFilePath: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    ffmpeg()
-      .input(ytdl(videoURL, { quality: 'highestvideo' }))
-      .input(ytdl(videoURL, { filter: 'audioonly' }))
+    const video = ytdl(videoURL, { quality: 'highestvideo', filter: 'audioandvideo' });
+    
+    ffmpeg(video)
       .outputOptions('-c:v copy')
       .outputOptions('-c:a aac')
       .save(outputFilePath)
       .on('progress', (progress) => {
-        console.log(`Processing: ${progress.percent}% done`);
+        console.log(`Processing: ${progress.percent ? progress.percent.toFixed(2) : 0}% done`);
       })
       .on('end', () => {
-        console.log('Download and muxing completed');
+        console.log('Download and processing completed');
         resolve();
       })
       .on('error', (err) => {
-        console.error('Error during download and muxing:', err);
+        console.error('Error during download and processing:', err);
         reject(err);
       });
   });
