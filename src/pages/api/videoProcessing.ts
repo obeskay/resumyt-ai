@@ -59,6 +59,12 @@ export default async function handler(
     } else if (errorMessage.includes("Invalid YouTube URL")) {
       statusCode = 400;
       errorType = "INVALID_URL";
+    } else if (errorMessage.includes("This video is private")) {
+      statusCode = 403;
+      errorType = "PRIVATE_VIDEO";
+    } else if (errorMessage.includes("age-restricted")) {
+      statusCode = 403;
+      errorType = "AGE_RESTRICTED";
     }
 
     const errorDetails = {
