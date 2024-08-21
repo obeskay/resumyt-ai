@@ -11,6 +11,7 @@ interface ProcessedVideoResult {
 export const processYouTubeVideo = async (
   videoURL: string
 ): Promise<ProcessedVideoResult> => {
+  let outputFilePath: string | null = null;
   try {
     console.log("Fetching video info...");
     const videoId = extractVideoId(videoURL);
@@ -18,21 +19,23 @@ export const processYouTubeVideo = async (
     console.log("Video Title:", videoTitle);
 
     console.log("Downloading audio...");
-    const outputFilePath = path.resolve("temp_audio.mp3");
+    outputFilePath = path.resolve("temp_audio.mp3");
     await downloadAudio(videoId, outputFilePath);
 
     console.log("Transcribing audio...");
     const transcription = await transcribeAudioFile(outputFilePath);
     console.log("Transcription completed");
 
-    // Clean up the temporary file
-    fs.unlinkSync(outputFilePath);
-    console.log("Temporary audio file deleted:", outputFilePath);
-
     return { title: videoTitle, transcription };
   } catch (error: any) {
     console.error("Error processing video:", error);
     throw new Error(`Error in processing video: ${error.message}`);
+  } finally {
+    // Clean up the temporary file
+    if (outputFilePath && fs.existsSync(outputFilePath)) {
+      fs.unlinkSync(outputFilePath);
+      console.log("Temporary audio file deleted:", outputFilePath);
+    }
   }
 };
 
@@ -54,7 +57,7 @@ const getVideoTitle = async (videoId: string): Promise<string> => {
   return data.title || "Unknown Title";
 };
 
-const downloadAudio = (
+const downloadAudio = async (
   videoId: string,
   outputFilePath: string
 ): Promise<void> => {
@@ -111,7 +114,12 @@ const downloadAudio = (
       clearTimeout(timeout);
       clearInterval(checkProgress);
       console.error("Error in ytdl stream:", err);
-      reject(err);
+      if (err.message.includes("Status code: 403")) {
+        console.error("Access to the video is forbidden. This could be due to regional restrictions or the video being private.");
+        reject(new Error("Access to the video is forbidden. Please check if the video is public and accessible in your region."));
+      } else {
+        reject(err);
+      }
     });
   });
 };
