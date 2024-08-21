@@ -52,6 +52,14 @@ export default async function handler(
       stack: error.stack,
     };
     console.error("Detailed error:", errorDetails);
-    res.status(500).json(errorDetails);
+    
+    if (errorMessage.includes("FFmpeg is not installed")) {
+      res.status(400).json({
+        error: "FFmpeg not installed",
+        message: "Please install FFmpeg to continue. You can download it from https://ffmpeg.org/download.html",
+      });
+    } else {
+      res.status(500).json(errorDetails);
+    }
   }
 }

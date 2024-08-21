@@ -3,14 +3,28 @@ import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
 import ffmpeg from 'fluent-ffmpeg';
+import { execSync } from 'child_process';
 
 interface ProcessedVideoResult {
   title: string;
   transcription: string;
 }
 
+function isFFmpegInstalled(): boolean {
+  try {
+    execSync('ffmpeg -version', { stdio: 'ignore' });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export const processYouTubeVideo = async (videoURL: string): Promise<ProcessedVideoResult> => {
   try {
+    if (!isFFmpegInstalled()) {
+      throw new Error('FFmpeg is not installed. Please install FFmpeg to continue.');
+    }
+
     console.log('Fetching video info...');
     const videoInfo = await ytdl.getInfo(videoURL);
     const videoTitle = videoInfo.videoDetails.title;
