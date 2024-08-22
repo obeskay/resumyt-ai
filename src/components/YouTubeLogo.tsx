@@ -1,10 +1,13 @@
-import React from 'react';
+import React from "react";
+import Image from "next/image";
 
 const YouTubeLogo: React.FC = () => (
-  <img
+  <Image
     src="/youtube-logo.svg"
     alt="YouTube logo"
-    className="w-6 h-6 ml-2"
+    width={24}
+    height={24}
+    className="ml-2"
     aria-hidden="true"
   />
 );
