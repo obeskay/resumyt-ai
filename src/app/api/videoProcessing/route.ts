@@ -28,8 +28,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (userError || !user) {
-      console.error('Error fetching user:', userError);
-      return NextResponse.json({ message: 'Unable to retrieve user' }, { status: 401 });
+      throw new UserFetchError('Unable to retrieve user');
     }
 
     // Check if the user has exceeded the free transcription limit
@@ -45,8 +44,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (videoError && videoError.code !== 'PGRST116') {
-      console.error('Error checking existing video:', videoError);
-      return NextResponse.json({ message: 'Error checking existing video' }, { status: 500 });
+      throw new VideoFetchError('Error checking existing video');
     }
 
     let videoId: number;
@@ -77,8 +75,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (summaryError && summaryError.code !== 'PGRST116') {
-      console.error('Error checking existing summary:', summaryError);
-      return NextResponse.json({ message: 'Error checking existing summary' }, { status: 500 });
+      throw new SummaryFetchError('Error checking existing summary');
     }
 
     if (existingSummary) {
@@ -88,7 +85,7 @@ export async function POST(req: NextRequest) {
     // If summary doesn't exist, start the summarization process
     const transcript = await fetchTranscript(vid);
     if (!transcript) {
-      return NextResponse.json({ message: 'No transcript found for this video' }, { status: 404 });
+      throw new TranscriptNotFoundError('No transcript found for this video');
     }
 
     const summary = await generateSummary(transcript);
@@ -105,8 +102,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (saveError) {
-      console.error('Error saving summary:', saveError);
-      return NextResponse.json({ message: 'Error saving summary to database' }, { status: 500 });
+      throw new DatabaseInsertError('Error saving summary to database');
     }
 
     // Increment the user's transcriptions_used count
@@ -116,13 +112,18 @@ export async function POST(req: NextRequest) {
       .eq('id', userId);
 
     if (updateError) {
-      console.error('Error updating transcriptions_used:', updateError);
+      throw new DatabaseUpdateError('Error updating transcriptions_used');
     }
 
     return NextResponse.json({ summary: savedSummary });
   } catch (error) {
-    console.error('Error processing video:', error);
-    return NextResponse.json({ message: 'Internal server error during video processing' }, { status: 500 });
+    if (error instanceof CustomError) {
+      console.error(`${error.name}: ${error.message}`, error.stack);
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    } else {
+      console.error('Unexpected error:', error);
+      return NextResponse.json({ message: 'Internal server error during video processing' }, { status: 500 });
+    }
   }
 }
 
