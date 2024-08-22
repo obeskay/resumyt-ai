@@ -4,6 +4,7 @@ import { YoutubeTranscript } from "youtube-transcript";
 import axios from "axios";
 import { rateLimit } from "@/lib/rateLimit";
 import {
+  CustomError,
   TranscriptNotFoundError,
   SummaryGenerationError,
   UserFetchError,
