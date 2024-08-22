@@ -1,19 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import requestIp from 'request-ip';
 import { supabase } from '@/lib/supabase';
 import { YoutubeTranscript } from 'youtube-transcript';
 import axios from 'axios';
+import { rateLimit } from '@/lib/rateLimit';
+import {
+  TranscriptNotFoundError,
+  SummaryGenerationError,
+  UserFetchError,
+  VideoFetchError,
+  SummaryFetchError,
+  DatabaseInsertError,
+  DatabaseUpdateError
+} from '@/lib/errors';
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export async function POST(req: NextRequest) {
-    const clientIp = requestIp.getClientIp(req);
-    if (!clientIp) {
-        return NextResponse.json({ error: 'IP address not found' }, { status: 400 });
-    }
-    // Validate and sanitize clientIp
-    // Continue with the rest of the processing...
-  const { vid, userId } = await request.json();
+  const rateLimitResult = await rateLimit(req);
+  if (rateLimitResult) {
+    return rateLimitResult;
+  }
+
+  const { vid, userId } = await req.json();
 
   if (!vid || typeof vid !== 'string' || !userId) {
     return NextResponse.json({ message: 'Missing or invalid video ID or user ID' }, { status: 400 });
