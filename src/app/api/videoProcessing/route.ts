@@ -10,7 +10,7 @@ import {
 } from "@/lib/errors";
 import { processVideo, generateSummary } from "@/lib/videoProcessing";
 import { rateLimit } from "@/lib/rateLimit";
-import { supabase } from "@/lib/supabase";
+import { supabase, getOrCreateAnonymousUser, AnonymousUser } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,27 +23,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { videoUrl, userId } = await req.json();
+    const { videoUrl } = await req.json();
+    const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
 
-    if (!videoUrl || !userId) {
+    if (!videoUrl) {
       return NextResponse.json(
-        { error: "Missing videoUrl or userId" },
+        { error: "Missing videoUrl" },
         { status: 400 }
       );
     }
 
-    // Fetch user data
-    const { data: user, error: userError } = await supabase
-      .from("users")
-      .select("id, quota_remaining")
-      .eq("id", userId)
-      .single();
+    // Get or create anonymous user
+    const user = await getOrCreateAnonymousUser(ip);
 
-    if (userError || !user) {
-      throw new UserFetchError("Failed to fetch user data");
+    if (!user) {
+      throw new UserFetchError("Failed to get or create anonymous user");
     }
 
-    if (user.quota_remaining <= 0) {
+    // Check quota
+    if (user.transcriptions_used >= 3) {
       return NextResponse.json(
         { error: "User quota exceeded" },
         { status: 403 }
@@ -67,16 +65,16 @@ export async function POST(req: NextRequest) {
     // Update database
     const { error: insertError } = await supabase
       .from("videos")
-      .insert({ user_id: userId, video_url: videoUrl, transcript, summary });
+      .insert({ user_id: user.id, video_url: videoUrl, transcript, summary });
 
     if (insertError) {
       throw new DatabaseInsertError("Failed to insert video data");
     }
 
     const { error: updateError } = await supabase
-      .from("users")
-      .update({ quota_remaining: user.quota_remaining - 1 })
-      .eq("id", userId);
+      .from("anonymous_users")
+      .update({ transcriptions_used: user.transcriptions_used + 1 })
+      .eq("id", user.id);
 
     if (updateError) {
       throw new DatabaseUpdateError("Failed to update user quota");
