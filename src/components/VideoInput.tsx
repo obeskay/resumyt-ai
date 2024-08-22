@@ -65,12 +65,12 @@ export default function VideoInput({
     setIsTranscribing(true);
     setIsSummarizing(true);
     try {
-      setVideoUrl(input);
-
       const videoId = extractVideoId(input);
       if (!videoId) {
         throw new Error("Invalid YouTube URL");
       }
+
+      setVideoUrl(input);
 
       // Simulate progress
       const progressInterval = setInterval(() => {
@@ -86,7 +86,7 @@ export default function VideoInput({
       const response = await fetch(`/api/videoProcessing`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vid: videoId, userId }),
+        body: JSON.stringify({ vid: videoId, userId, videoUrl: input }),
       });
 
       clearInterval(progressInterval);
