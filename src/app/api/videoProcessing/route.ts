@@ -16,7 +16,7 @@ import {
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export async function POST(req: NextRequest) {
-  const rateLimitResult = await rateLimit(req);
+  const rateLimitResult = rateLimit(req);
   if (rateLimitResult) {
     return rateLimitResult;
   }

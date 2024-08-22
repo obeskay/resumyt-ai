@@ -1,22 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Redis } from '@upstash/redis';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+interface RateLimitEntry {
+  count: number;
+  timestamp: number;
+}
 
-export async function rateLimit(req: NextRequest) {
+const rateLimitMap = new Map<string, RateLimitEntry>();
+
+export function rateLimit(req: NextRequest) {
   const ip = req.ip ?? '127.0.0.1';
-  const key = `ratelimit_${ip}`;
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute
   const limit = 5; // Number of allowed requests per minute
-  const current = await redis.incr(key);
-  
-  if (current === 1) {
-    await redis.expire(key, 60);
+
+  const entry = rateLimitMap.get(ip) || { count: 0, timestamp: now };
+
+  if (now - entry.timestamp > windowMs) {
+    entry.count = 0;
+    entry.timestamp = now;
   }
 
-  if (current > limit) {
+  entry.count++;
+  rateLimitMap.set(ip, entry);
+
+  if (entry.count > limit) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
