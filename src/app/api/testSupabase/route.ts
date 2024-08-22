@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
       message: 'Supabase connection test successful',
       user: {
         id: user.id,
-        ip_address: user.ip_address,
         transcriptions_used: user.transcriptions_used
       }
     });
