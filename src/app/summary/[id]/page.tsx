@@ -14,6 +14,7 @@ export default function SummaryPage() {
   const { id } = useParams();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [sharing, setSharing] = useState(false);
   const { toast } = useToast();
 
@@ -21,6 +22,7 @@ export default function SummaryPage() {
     async function fetchSummary() {
       try {
         setLoading(true);
+        setError(null);
         const { data, error } = await supabase
           .from('summaries')
           .select('*')
@@ -28,12 +30,14 @@ export default function SummaryPage() {
           .single();
 
         if (error) throw error;
+        if (!data) throw new Error('Summary not found');
         setSummary(data);
       } catch (error) {
         console.error('Error fetching summary:', error);
+        setError(error.message || 'Failed to fetch summary');
         toast({
           title: "Error",
-          description: "Failed to fetch summary. Please try again later.",
+          description: error.message || "Failed to fetch summary. Please try again later.",
           variant: "destructive",
         });
       } finally {
@@ -82,6 +86,8 @@ export default function SummaryPage() {
                 <Skeleton className="h-4 w-3/4 mb-4" />
                 <Skeleton className="h-4 w-1/2" />
               </>
+            ) : error ? (
+              <p className="text-red-500 text-sm md:text-base">Error: {error}</p>
             ) : summary ? (
               <>
                 <SummaryDisplay summary={summary.content} isLoading={false} />
@@ -94,7 +100,7 @@ export default function SummaryPage() {
                 </Button>
               </>
             ) : (
-              <p className="text-red-500 text-sm md:text-base">Error: Unable to fetch summary. Please try again later.</p>
+              <p className="text-gray-500 text-sm md:text-base">No summary found.</p>
             )}
           </CardContent>
         </Card>
