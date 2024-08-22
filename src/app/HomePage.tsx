@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import VideoInput from "../components/VideoInput";
 import SummaryDisplay from "../components/SummaryDisplay";
-import TranscriptionDisplay from "../components/TranscriptionDisplay";
 import { getOrCreateAnonymousUser } from "@/lib/supabase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ export default function HomePage() {
   const [showDialog, setShowDialog] = useState(false);
   const [transcriptionsLeft, setTranscriptionsLeft] = useState(3);
   const [summary, setSummary] = useState(null);
-  const [transcription, setTranscription] = useState(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [step, setStep] = useState(1);
   const { toast } = useToast();
@@ -76,9 +74,6 @@ export default function HomePage() {
     setStep(2);
   };
 
-  const handleTranscriptionGenerated = (generatedTranscription) => {
-    setTranscription(generatedTranscription);
-  };
 
   const handleSummarizationStart = () => {
     setIsSummarizing(true);
@@ -114,14 +109,12 @@ export default function HomePage() {
         {userInitialized && user && (
           <VideoInput
             onSuccess={handleSummaryGenerated}
-            onTranscriptionGenerated={handleTranscriptionGenerated}
             onStart={handleSummarizationStart}
             userId={user.id}
           />
         )}
         {step === 2 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <TranscriptionDisplay transcription={transcription} />
+          <div className="mt-8">
             <SummaryDisplay summary={summary} isLoading={isSummarizing} />
           </div>
         )}
