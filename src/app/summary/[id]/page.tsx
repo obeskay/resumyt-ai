@@ -8,7 +8,7 @@ import TranscriptDisplay from "@/components/TranscriptDisplay";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function SummaryPage() {
@@ -25,6 +25,7 @@ export default function SummaryPage() {
       try {
         setLoading(true);
         setError(null);
+        const supabase = getSupabase();
         const { data, error } = await supabase
           .from('summaries')
           .select('*')

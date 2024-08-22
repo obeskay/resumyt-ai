@@ -30,6 +30,9 @@ export function getSupabase() {
   return supabase;
 }
 
+// Export the Supabase client directly
+export const supabase = getSupabase();
+
 export async function getOrCreateAnonymousUser(
   ip: string
 ): Promise<AnonymousUser | null> {
