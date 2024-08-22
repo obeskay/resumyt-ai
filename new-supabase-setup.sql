@@ -1,125 +1,107 @@
--- Drop existing tables and functions
-DROP TABLE IF EXISTS transcriptions;
-DROP TABLE IF EXISTS summaries; 
-DROP TABLE IF EXISTS videos;
-DROP TABLE IF EXISTS users;
+-- Drop existing tables and functions with CASCADE
+DROP TABLE IF EXISTS transcriptions CASCADE;
+DROP TABLE IF EXISTS summaries CASCADE; 
+DROP TABLE IF EXISTS videos CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS anonymous_users CASCADE;
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-DROP FUNCTION IF EXISTS handle_new_user;
+DROP FUNCTION IF EXISTS handle_new_user CASCADE;
 
--- Create users table with role column
-CREATE TABLE public.users (
-  id UUID PRIMARY KEY REFERENCES auth.users(id),
-  ip_address TEXT,
-  usage_quota INTEGER DEFAULT 1000,
-  role TEXT NOT NULL DEFAULT 'anon',
+-- Remove all existing auth users
+DELETE FROM auth.users;
+
+-- Create anonymous_users table
+CREATE TABLE public.anonymous_users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ip_address TEXT UNIQUE NOT NULL,
+  transcriptions_used INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create handle_new_user trigger function
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.users (id, ip_address, role)
-  VALUES (NEW.id, NEW.raw_app_meta_data->>'ip_address', 'anon');
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Create trigger on auth.users table
-CREATE TRIGGER on_auth_user_created
-AFTER INSERT ON auth.users
-FOR EACH ROW
-EXECUTE FUNCTION public.handle_new_user();
-
--- Create other tables
+-- Create videos table
 CREATE TABLE videos (
   id SERIAL PRIMARY KEY,
   url TEXT NOT NULL,
   title TEXT,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  user_id UUID REFERENCES auth.users(id) NOT NULL
+  user_id UUID REFERENCES anonymous_users(id) NOT NULL
 );
 
+-- Create summaries table
 CREATE TABLE summaries (
   id SERIAL PRIMARY KEY,
   video_id INTEGER REFERENCES videos (id),
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  user_id UUID REFERENCES auth.users(id) NOT NULL
+  user_id UUID REFERENCES anonymous_users(id) NOT NULL
 );
 
+-- Create transcriptions table
 CREATE TABLE transcriptions (
   id SERIAL PRIMARY KEY,
   video_id INTEGER REFERENCES videos (id),
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  user_id UUID REFERENCES auth.users(id) NOT NULL
+  user_id UUID REFERENCES anonymous_users(id) NOT NULL
 );
 
--- Create policies for row-level security
--- Authenticated users can access their own data
-CREATE POLICY "Authenticated users can access their own data" 
-ON users
-FOR ALL
-USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Authenticated users can access their own videos"
-ON videos 
-FOR ALL
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Authenticated users can access their own summaries"
-ON summaries
-FOR ALL  
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Authenticated users can access their own transcriptions"
-ON transcriptions
-FOR ALL
-USING (auth.uid() = user_id);
-
--- Anonymous users can only read public data
-CREATE POLICY "Anonymous users can read public data"
-ON users
-FOR SELECT
-USING (role = 'anon');
-
-CREATE POLICY "Anonymous users can read public videos" 
-ON videos
-FOR SELECT
-USING (user_id IS NULL); 
-
-CREATE POLICY "Anonymous users can read public summaries"
-ON summaries
-FOR SELECT
-USING (user_id IS NULL);
-
-CREATE POLICY "Anonymous users can read public transcriptions"
-ON transcriptions  
-FOR SELECT
-USING (user_id IS NULL);
-
 -- Enable Row Level Security
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.anonymous_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.videos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.summaries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transcriptions ENABLE ROW LEVEL SECURITY;
 
+-- Create policies for row-level security
+
+-- Anyone can insert into anonymous_users table
+CREATE POLICY "Anyone can insert anonymous users"
+ON anonymous_users
+FOR INSERT
+TO public
+WITH CHECK (true);
+
+-- Anyone can read anonymous_users table
+CREATE POLICY "Anyone can read anonymous users"
+ON anonymous_users
+FOR SELECT
+TO public
+USING (true);
+
+-- Anyone can update anonymous_users table
+CREATE POLICY "Anyone can update anonymous users"
+ON anonymous_users
+FOR UPDATE
+TO public
+USING (true);
+
+-- Anyone can access videos
+CREATE POLICY "Anyone can access videos"
+ON videos 
+FOR ALL
+TO public
+USING (true);
+
+-- Anyone can access summaries
+CREATE POLICY "Anyone can access summaries"
+ON summaries
+FOR ALL
+TO public
+USING (true);
+
+-- Anyone can access transcriptions
+CREATE POLICY "Anyone can access transcriptions"
+ON transcriptions
+FOR ALL
+TO public
+USING (true);
+
 -- Grant necessary permissions
-GRANT SELECT ON public.users TO authenticated;
-GRANT INSERT, UPDATE ON public.users TO authenticated;
+GRANT ALL ON public.anonymous_users TO anon;
+GRANT ALL ON public.videos TO anon;
+GRANT ALL ON public.summaries TO anon;
+GRANT ALL ON public.transcriptions TO anon;
 
-GRANT ALL ON public.videos TO authenticated;
-GRANT SELECT ON public.videos TO anon;
-
--- Add RLS policy for videos table
-CREATE POLICY "Users can insert their own videos" ON public.videos
-FOR INSERT TO authenticated
-WITH CHECK (auth.uid() = user_id);
-
-
-GRANT ALL ON public.summaries TO authenticated;
-GRANT SELECT ON public.summaries TO anon;
-
-GRANT ALL ON public.transcriptions TO authenticated;
-GRANT SELECT ON public.transcriptions TO anon;
+-- Grant usage on sequences
+GRANT USAGE, SELECT ON SEQUENCE videos_id_seq TO anon;
+GRANT USAGE, SELECT ON SEQUENCE summaries_id_seq TO anon;
+GRANT USAGE, SELECT ON SEQUENCE transcriptions_id_seq TO anon;

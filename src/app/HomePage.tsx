@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary } from "react-error-boundary";
 import { useRouter } from "next/navigation";
 import MainLayout from "../components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,12 +21,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function ErrorFallback({error}: {error: Error}) {
-  console.error('Error in HomePage:', error);
+function ErrorFallback({ error }: { error: Error }) {
+  console.error("Error in HomePage:", error);
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">Something went wrong</h1>
-      <pre className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+        Something went wrong
+      </h1>
+      <pre
+        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        role="alert"
+      >
         {error.message}
       </pre>
     </div>
@@ -49,7 +54,7 @@ const HomePage = () => {
         setLoading(true);
 
         // Get the IP address
-        const response = await fetch('/api/getIp');
+        const response = await fetch("/api/getIp");
         const { ip } = await response.json();
 
         const anonymousUser = await getOrCreateAnonymousUser(ip);
@@ -94,7 +99,7 @@ const HomePage = () => {
     setTranscriptionsLeft((prev) => Math.max(0, prev - 1));
   };
 
-  const handleSummaryGenerated = (summaryId) => {
+  const handleSummaryGenerated = (summaryId: any) => {
     setIsSummarizing(false);
     handleTranscriptionUsed();
     router.push(`/summary/${summaryId}`);
@@ -108,66 +113,32 @@ const HomePage = () => {
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <MainLayout>
         <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-          YouTube Summarizer
-        </h1>
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-xl md:text-2xl">
-              User Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <>
-                <Skeleton className="h-4 w-full mb-4" />
-                <Skeleton className="h-4 w-3/4 mb-4" />
-                <Skeleton className="h-4 w-1/2" />
-              </>
-            ) : user ? (
-              <>
-                <p className="mb-2 text-sm md:text-base">
-                  Welcome, Anonymous User!
-                </p>
-                <p className="mb-2 text-sm md:text-base">User ID: {user.id}</p>
-                <p className="font-semibold text-sm md:text-base">
-                  Transcriptions left: {transcriptionsLeft}
-                </p>
-              </>
-            ) : (
-              <p className="text-red-500 text-sm md:text-base">
-                Error: Unable to create or retrieve anonymous user. Please
-                refresh the page.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        {userInitialized && user && (
-          <VideoInput
-            onSuccess={handleSummaryGenerated}
-            onStart={handleSummarizationStart}
-            userId={user.id}
-          />
-        )}
-      </div>
-      <Toaster />
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-xl">
-              Welcome to YouTube Summarizer!
-            </DialogTitle>
-            <DialogDescription className="text-sm md:text-base">
-              As an anonymous user, you have 3 free transcriptions. Create an
-              account to enjoy unlimited summaries and more features!
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={() => setShowDialog(false)} className="w-full">
-              Got it!
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+          {userInitialized && user && (
+            <VideoInput
+              onSuccess={handleSummaryGenerated}
+              onStart={handleSummarizationStart}
+              userId={user.id}
+            />
+          )}
+        </div>
+        <Toaster />
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl">
+                Welcome to YouTube Summarizer!
+              </DialogTitle>
+              <DialogDescription className="text-sm md:text-base">
+                As an anonymous user, you have 3 free transcriptions. Create an
+                account to enjoy unlimited summaries and more features!
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => setShowDialog(false)} className="w-full">
+                Got it!
+              </Button>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       </MainLayout>
     </ErrorBoundary>

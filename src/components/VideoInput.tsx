@@ -1,50 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useVideoStore } from "../store/videoStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import AuthModal from "./AuthModal";
 import LoadingSpinner from "./LoadingSpinner";
 import YouTubeLogo from "./YouTubeLogo";
+import { Progress } from "@/components/ui/progress";
+import { XCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface VideoInputProps {
-  onSuccess: () => void;
-  session: any; // Consider replacing 'any' with a more specific type if available
+  onSuccess: (summary: string) => void;
+  onStart: () => void;
+  userId: string | undefined;
 }
 
-export default function VideoInput({ onSuccess, session }: VideoInputProps) {
-  const [input, setInput] = useState<string>(
-    "https://www.youtube.com/watch?v=tswesZhemRw"
-  );
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+export default function VideoInput({
+  onSuccess,
+  onStart,
+  userId,
+}: VideoInputProps) {
+  const [input, setInput] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
   const {
     setVideoUrl,
-    setTranscription,
     setSummary,
     setIsTranscribing,
     setIsSummarizing,
-    isLoading,
-    userQuotaRemaining,
-    setUserQuotaRemaining,
     setIsLoading,
   } = useVideoStore();
 
-  // Asegurarse de que setUserQuotaRemaining y setIsLoading son funciones
-  const safeSetUserQuotaRemaining = typeof setUserQuotaRemaining === 'function' ? setUserQuotaRemaining : () => {};
-  const safeSetIsLoading = typeof setIsLoading === 'function' ? setIsLoading : () => {};
+  const safeSetIsLoading =
+    typeof setIsLoading === "function" ? setIsLoading : () => {};
 
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (session) {
-      setIsAuthenticated(true);
-      setUserQuotaRemaining?.(3);
-    }
-  }, [session, setUserQuotaRemaining]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,94 +50,149 @@ export default function VideoInput({ onSuccess, session }: VideoInputProps) {
       return;
     }
 
-    if (userQuotaRemaining <= 0 && !isAuthenticated) {
-      setShowAuthModal(true);
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "User not initialized. Please refresh the page.",
+        variant: "destructive",
+      });
       return;
     }
 
+    onStart();
     safeSetIsLoading(true);
+    setIsProcessing(true);
     setIsTranscribing(true);
     setIsSummarizing(true);
     try {
       setVideoUrl(input);
 
-      // Process video with custom API
-      const { transcription, summary } = await fetch(`/api/videoProcessing`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videoUrl: input }),
-      }).then((res) => res.json());
-
-      setTranscription(transcription);
-      setSummary(summary);
-
-      toast({
-        title: "Success",
-        description: "Video processed successfully!",
-      });
-
-      if (userQuotaRemaining > 0) {
-        safeSetUserQuotaRemaining(userQuotaRemaining - 1);
+      const videoId = extractVideoId(input);
+      if (!videoId) {
+        throw new Error("Invalid YouTube URL");
       }
 
-      onSuccess();
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setProgress((prevProgress) => {
+          if (prevProgress >= 90) {
+            clearInterval(progressInterval);
+            return prevProgress;
+          }
+          return prevProgress + 10;
+        });
+      }, 500);
+
+      const response = await fetch(`/api/videoProcessing`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vid: videoId, userId }),
+      });
+
+      clearInterval(progressInterval);
+      setProgress(100);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.summary) {
+        setSummary(data.summary.content);
+        toast({
+          title: "Success",
+          description: "Video summary generated successfully!",
+        });
+        onSuccess(data.summary.id);
+      } else {
+        throw new Error("Failed to generate summary");
+      }
     } catch (error: unknown) {
       console.error(error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
       toast({
         title: "Error",
-        description: errorMessage,
+        description: `Failed to process video: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
       safeSetIsLoading(false);
+      setIsProcessing(false);
       setIsTranscribing(false);
       setIsSummarizing(false);
-      setInput("");
+      setProgress(0);
     }
   };
 
+  const extractVideoId = (url: string): string | null => {
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
+  const handleClearInput = () => {
+    setInput("");
+  };
+
   return (
-    <section>
-      <h2 className="sr-only">Video Input Form</h2>
-      <motion.form
-        onSubmit={handleSubmit}
-        className="flex flex-col space-y-4 w-full max-w-md mx-auto"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="flex items-center bg-muted rounded-md p-2">
-          <Input
-            type="url"
-            placeholder="Enter YouTube URL"
-            value={input}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setInput(e.target.value)
-            }
-            disabled={isLoading}
-            className="bg-transparent text-foreground placeholder:text-muted-foreground"
-            aria-label="YouTube URL input"
-            required
-          />
-          <YouTubeLogo />
-        </div>
-        <div className="relative">
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-xl md:text-2xl">Generate Summary</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <motion.form
+          onSubmit={handleSubmit}
+          className="flex flex-col space-y-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex items-center bg-muted rounded-md p-2 relative">
+            <Input
+              type="url"
+              placeholder="Enter YouTube URL"
+              value={input}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInput(e.target.value)
+              }
+              disabled={isProcessing}
+              className="bg-transparent text-foreground placeholder:text-muted-foreground pr-8"
+              aria-label="YouTube URL input"
+              required
+            />
+            {input && (
+              <button
+                type="button"
+                onClick={handleClearInput}
+                className="absolute right-2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear input"
+              >
+                <XCircle size={16} />
+              </button>
+            )}
+            <YouTubeLogo className="absolute right-3 top-1/2 transform -translate-y-1/2" />
+          </div>
+          <p className="text-sm text-muted-foreground text-right">
+            {input.length}/2000 characters
+          </p>
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={isProcessing}
             className="w-full bg-primary hover:bg-primary/80 transition-colors text-primary-foreground"
-            aria-busy={isLoading}
+            aria-busy={isProcessing}
             aria-label="Generate video summary"
           >
-            {isLoading ? <LoadingSpinner /> : "Generate Summary"}
+            {isProcessing ? <LoadingSpinner /> : "Generate Summary"}
           </Button>
-        </div>
-      </motion.form>
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
-    </section>
+          {isProcessing && <Progress value={progress} className="w-full" />}
+        </motion.form>
+      </CardContent>
+    </Card>
   );
 }
