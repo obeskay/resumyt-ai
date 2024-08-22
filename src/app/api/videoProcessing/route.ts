@@ -38,10 +38,17 @@ export async function POST(req: NextRequest) {
     // Initialize progress
     progressMap.set(vid, 0);
 
+    // Get the IP address from the request
+    const ip = req.headers.get('x-forwarded-for') || req.ip || 'unknown';
+
     // Get or create the user in the database
     const { data: user, error: userError } = await supabase
       .from("anonymous_users")
-      .upsert({ id: userId, transcriptions_used: 0 })
+      .upsert({ 
+        id: userId, 
+        transcriptions_used: 0,
+        ip_address: ip
+      })
       .select()
       .single();
 
