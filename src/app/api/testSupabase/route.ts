@@ -21,7 +21,8 @@ export async function GET(request: NextRequest) {
       message: 'Supabase connection test successful',
       user: {
         id: user.id,
-        transcriptions_used: user.transcriptions_used
+        // Only include transcriptions_used if it exists on the user object
+        ...(user.transcriptions_used !== undefined && { transcriptions_used: user.transcriptions_used })
       }
     });
   } catch (error) {
