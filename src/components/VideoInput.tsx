@@ -94,9 +94,7 @@ export default function VideoInput({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(
-          errorData.message || `HTTP error! status: ${response.status}`
-        );
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -113,8 +111,12 @@ export default function VideoInput({
       }
     } catch (error: unknown) {
       console.error(error);
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
+      let errorMessage = "An unknown error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        errorMessage = String(error.message);
+      }
       toast({
         title: "Error",
         description: `Failed to process video: ${errorMessage}`,
