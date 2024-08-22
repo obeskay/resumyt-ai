@@ -15,6 +15,9 @@ import {
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
+// Add a map to store progress for each video processing task
+const progressMap = new Map<string, number>();
+
 export async function POST(req: NextRequest) {
   const rateLimitResult = rateLimit(req);
   if (rateLimitResult) {
@@ -28,6 +31,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Initialize progress
+    progressMap.set(vid, 0);
+
     // Get or create the user in the database
     const { data: user, error: userError } = await supabase
       .from('anonymous_users')
@@ -39,11 +45,12 @@ export async function POST(req: NextRequest) {
       throw new UserFetchError('Unable to retrieve or create user');
     }
 
+    progressMap.set(vid, 10);
+
     // Check if the user has exceeded the free transcription limit
     if (user.transcriptions_used >= 3) {
       return NextResponse.json({ message: 'Free transcription limit exceeded' }, { status: 403 });
     }
-
 
     // Check if video exists in the database
     let { data: video, error: videoError } = await supabase
@@ -76,6 +83,8 @@ export async function POST(req: NextRequest) {
       videoId = video.id;
     }
 
+    progressMap.set(vid, 20);
+
     // Check if summary exists in the database
     const { data: existingSummary, error: summaryError } = await supabase
       .from('summaries')
@@ -88,8 +97,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingSummary) {
+      progressMap.set(vid, 100);
       return NextResponse.json({ summary: existingSummary });
     }
+
+    progressMap.set(vid, 30);
 
     // If summary doesn't exist, start the summarization process
     const transcript = await fetchTranscript(vid);
@@ -97,7 +109,11 @@ export async function POST(req: NextRequest) {
       throw new TranscriptNotFoundError('No transcript found for this video');
     }
 
+    progressMap.set(vid, 50);
+
     const summary = await generateSummary(transcript);
+
+    progressMap.set(vid, 80);
 
     // Save the summary to the database
     const { data: savedSummary, error: saveError } = await supabase
@@ -124,6 +140,7 @@ export async function POST(req: NextRequest) {
       throw new DatabaseUpdateError('Error updating transcriptions_used');
     }
 
+    progressMap.set(vid, 100);
     return NextResponse.json({ summary: savedSummary });
   } catch (error) {
     if (error instanceof CustomError) {
@@ -133,6 +150,9 @@ export async function POST(req: NextRequest) {
       console.error('Unexpected error:', error);
       return NextResponse.json({ message: 'Internal server error during video processing' }, { status: 500 });
     }
+  } finally {
+    // Clean up progress map
+    setTimeout(() => progressMap.delete(vid), 600000); // Remove after 10 minutes
   }
 }
 
@@ -171,4 +191,15 @@ async function generateSummary(transcript: string): Promise<string> {
     console.error('Error generating summary with OpenRouter:', error);
     throw new Error('Failed to generate summary using AI');
   }
+}
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const vid = url.searchParams.get('vid');
+
+  if (!vid) {
+    return NextResponse.json({ message: 'Missing video ID' }, { status: 400 });
+  }
+
+  const progress = progressMap.get(vid) || 0;
+  return NextResponse.json({ progress });
 }
