@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
   TranscriptNotFoundError,
@@ -17,12 +17,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     // Apply rate limiting
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
-    const result = await rateLimit(ip);
-    if (!result.success) {
+    const result = await rateLimit(req);
+    if (result) {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
         { status: 429 }
