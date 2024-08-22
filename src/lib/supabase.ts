@@ -5,10 +5,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase environment variables')
   throw new Error('Missing Supabase environment variables')
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+
+// Log the Supabase URL and key (first 5 characters) for debugging
+console.log('Supabase URL:', supabaseUrl)
+console.log('Supabase Anon Key (first 5 chars):', supabaseAnonKey.substring(0, 5))
 
 export async function getOrCreateAnonymousUser(ip: string): Promise<AnonymousUser | null> {
   console.log('Attempting to get or create anonymous user for IP:', ip)
