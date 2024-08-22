@@ -13,25 +13,25 @@ const getSupabaseKey = () => {
   return key;
 };
 
-let supabase: ReturnType<typeof createClient<Database>> | null = null;
+let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
 
 export function getSupabase() {
-  if (supabase) return supabase;
+  if (supabaseInstance) return supabaseInstance;
 
   const supabaseUrl = getSupabaseUrl();
   const supabaseKey = getSupabaseKey();
 
-  supabase = createClient<Database>(supabaseUrl, supabaseKey);
+  supabaseInstance = createClient<Database>(supabaseUrl, supabaseKey);
 
   // Log the Supabase URL and key (first 5 characters) for debugging
   console.log("Supabase URL:", supabaseUrl);
   console.log("Supabase Anon Key (first 5 chars):", supabaseKey.substring(0, 5));
 
-  return supabase;
+  return supabaseInstance;
 }
 
-// Export the Supabase client directly
-export const supabase = getSupabase();
+// Export the getSupabase function instead of a direct instance
+export { getSupabase as supabase };
 
 export async function getOrCreateAnonymousUser(
   ip: string
