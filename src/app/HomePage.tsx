@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, ErrorInfo } from "react";
+import { ErrorBoundary } from 'react-error-boundary';
 import { useRouter } from "next/navigation";
 import MainLayout from "../components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
@@ -19,7 +20,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const HomePage = ({ ip }: { ip: string }) => {
+function ErrorFallback({error}: {error: Error}) {
+  console.error('Error in HomePage:', error);
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-3xl">
+      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">Something went wrong</h1>
+      <pre className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        {error.message}
+      </pre>
+    </div>
+  );
+}
+
+const HomePage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userInitialized, setUserInitialized] = useState(false);
@@ -87,8 +100,9 @@ const HomePage = ({ ip }: { ip: string }) => {
   };
 
   return (
-    <MainLayout>
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <MainLayout>
+        <div className="container mx-auto px-4 py-8 max-w-3xl">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
           YouTube Summarizer
         </h1>
@@ -149,8 +163,9 @@ const HomePage = ({ ip }: { ip: string }) => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </MainLayout>
+        </Dialog>
+      </MainLayout>
+    </ErrorBoundary>
   );
 };
 
