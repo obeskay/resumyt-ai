@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, ErrorInfo } from "react";
+import { useState, useEffect } from "react";
+import { User } from "@supabase/supabase-js";
 import { ErrorBoundary } from 'react-error-boundary';
 import { useRouter } from "next/navigation";
 import MainLayout from "../components/MainLayout";
@@ -33,7 +34,7 @@ function ErrorFallback({error}: {error: Error}) {
 }
 
 const HomePage = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userInitialized, setUserInitialized] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
