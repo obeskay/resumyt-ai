@@ -25,12 +25,29 @@ export const isUserAuthenticated = async () => {
 
 export const signInAnonymous = async () => {
   try {
-    const { data, error } = await supabase.auth.signInAnonymously()
+    const { data: { session }, error } = await supabase.auth.signInAnonymously()
     if (error) {
       console.warn('Error signing in anonymously:', error)
       return null
     }
-    return data.session
+    
+    if (session) {
+      // Create or retrieve anonymous user in the database
+      const { data: anonymousUser, error: dbError } = await supabase
+        .from('anonymous_users')
+        .upsert({ id: session.user.id, transcriptions_used: 0 })
+        .select()
+        .single()
+
+      if (dbError) {
+        console.warn('Error creating/retrieving anonymous user:', dbError)
+        return null
+      }
+
+      return { session, anonymousUser }
+    }
+
+    return null
   } catch (error) {
     console.warn('Error signing in anonymously:', error)
     return null

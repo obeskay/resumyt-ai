@@ -28,21 +28,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Get the user from the database
+    // Get or create the user in the database
     const { data: user, error: userError } = await supabase
       .from('anonymous_users')
-      .select('*')
-      .eq('id', userId)
+      .upsert({ id: userId, transcriptions_used: 0 })
+      .select()
       .single();
 
-    if (userError || !user) {
-      throw new UserFetchError('Unable to retrieve user');
+    if (userError) {
+      throw new UserFetchError('Unable to retrieve or create user');
     }
 
     // Check if the user has exceeded the free transcription limit
     if (user.transcriptions_used >= 3) {
       return NextResponse.json({ message: 'Free transcription limit exceeded' }, { status: 403 });
     }
+
 
     // Check if video exists in the database
     let { data: video, error: videoError } = await supabase
