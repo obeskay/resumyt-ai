@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import MainLayout from "../components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import VideoInput from "../components/VideoInput";
-import SummaryDisplay from "../components/SummaryDisplay";
 import { getOrCreateAnonymousUser } from "@/lib/supabase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,9 @@ export default function HomePage() {
   const [userInitialized, setUserInitialized] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [transcriptionsLeft, setTranscriptionsLeft] = useState(3);
-  const [summary, setSummary] = useState(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
-  const [step, setStep] = useState(1);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     async function initializeUser(retries = 3) {
@@ -67,17 +66,14 @@ export default function HomePage() {
     setTranscriptionsLeft(prev => Math.max(0, prev - 1));
   };
 
-  const handleSummaryGenerated = (generatedSummary) => {
-    setSummary(generatedSummary);
+  const handleSummaryGenerated = (summaryId) => {
     setIsSummarizing(false);
     handleTranscriptionUsed();
-    setStep(2);
+    router.push(`/summary/${summaryId}`);
   };
-
 
   const handleSummarizationStart = () => {
     setIsSummarizing(true);
-    setSummary(null);
   };
 
   return (
@@ -112,11 +108,6 @@ export default function HomePage() {
             onStart={handleSummarizationStart}
             userId={user.id}
           />
-        )}
-        {step === 2 && (
-          <div className="mt-8">
-            <SummaryDisplay summary={summary} isLoading={isSummarizing} />
-          </div>
         )}
       </div>
       <Toaster />
