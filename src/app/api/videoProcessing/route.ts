@@ -1,85 +1,114 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { TranscriptNotFoundError, SummaryGenerationError, UserFetchError, VideoFetchError, SummaryFetchError, DatabaseInsertError, DatabaseUpdateError } from '@/lib/errors';
-import { processVideo, transcribeVideo, generateSummary } from '@/lib/videoProcessing';
-import { rateLimit } from '@/lib/rateLimit';
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import {
+  TranscriptNotFoundError,
+  SummaryGenerationError,
+  UserFetchError,
+  VideoFetchError,
+  SummaryFetchError,
+  DatabaseInsertError,
+  DatabaseUpdateError,
+} from "@/lib/errors";
+import {
+  processVideo,
+  transcribeVideo,
+  generateSummary,
+} from "@/lib/videoProcessing";
+import { rateLimit } from "@/lib/rateLimit";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function POST(req: Request) {
   try {
     // Apply rate limiting
-    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
     const { success } = await rateLimit(ip);
     if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429 }
+      );
     }
 
     const { videoUrl, userId } = await req.json();
 
     if (!videoUrl || !userId) {
-      return NextResponse.json({ error: 'Missing videoUrl or userId' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing videoUrl or userId" },
+        { status: 400 }
+      );
     }
 
     // Fetch user data
     const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('id, quota_remaining')
-      .eq('id', userId)
+      .from("users")
+      .select("id, quota_remaining")
+      .eq("id", userId)
       .single();
 
     if (userError || !user) {
-      throw new UserFetchError('Failed to fetch user data');
+      throw new UserFetchError("Failed to fetch user data");
     }
 
     if (user.quota_remaining <= 0) {
-      return NextResponse.json({ error: 'User quota exceeded' }, { status: 403 });
+      return NextResponse.json(
+        { error: "User quota exceeded" },
+        { status: 403 }
+      );
     }
 
     // Process video
     const { videoId, transcript } = await processVideo(videoUrl);
 
     if (!transcript) {
-      throw new TranscriptNotFoundError('Failed to generate transcript');
+      throw new TranscriptNotFoundError("Failed to generate transcript");
     }
 
     // Generate summary
     const summary = await generateSummary(transcript);
 
     if (!summary) {
-      throw new SummaryGenerationError('Failed to generate summary');
+      throw new SummaryGenerationError("Failed to generate summary");
     }
 
     // Update database
     const { error: insertError } = await supabase
-      .from('videos')
+      .from("videos")
       .insert({ user_id: userId, video_url: videoUrl, transcript, summary });
 
     if (insertError) {
-      throw new DatabaseInsertError('Failed to insert video data');
+      throw new DatabaseInsertError("Failed to insert video data");
     }
 
     const { error: updateError } = await supabase
-      .from('users')
+      .from("users")
       .update({ quota_remaining: user.quota_remaining - 1 })
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (updateError) {
-      throw new DatabaseUpdateError('Failed to update user quota');
+      throw new DatabaseUpdateError("Failed to update user quota");
     }
 
     return NextResponse.json({ summary, transcript });
   } catch (error) {
-    console.error('Error in video processing:', error);
-    if (error instanceof TranscriptNotFoundError || 
-        error instanceof SummaryGenerationError || 
-        error instanceof UserFetchError || 
-        error instanceof VideoFetchError || 
-        error instanceof SummaryFetchError || 
-        error instanceof DatabaseInsertError || 
-        error instanceof DatabaseUpdateError) {
+    console.error("Error in video processing:", error);
+    if (
+      error instanceof TranscriptNotFoundError ||
+      error instanceof SummaryGenerationError ||
+      error instanceof UserFetchError ||
+      error instanceof VideoFetchError ||
+      error instanceof SummaryFetchError ||
+      error instanceof DatabaseInsertError ||
+      error instanceof DatabaseUpdateError
+    ) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
   }
 }
