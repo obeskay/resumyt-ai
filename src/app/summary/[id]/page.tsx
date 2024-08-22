@@ -8,11 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function SummaryPage() {
   const { id } = useParams();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     async function fetchSummary() {
@@ -28,6 +31,11 @@ export default function SummaryPage() {
         setSummary(data);
       } catch (error) {
         console.error('Error fetching summary:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch summary. Please try again later.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -36,15 +44,27 @@ export default function SummaryPage() {
     if (id) {
       fetchSummary();
     }
-  }, [id]);
+  }, [id, toast]);
 
-  const handleShare = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      alert('Summary link copied to clipboard!');
-    }).catch(err => {
-      console.error('Failed to copy: ', err);
-    });
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const url = window.location.href;
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Success",
+        description: "Summary link copied to clipboard!",
+      });
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast({
+        title: "Error",
+        description: "Failed to copy link. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSharing(false);
+    }
   };
 
   return (
@@ -65,7 +85,13 @@ export default function SummaryPage() {
             ) : summary ? (
               <>
                 <SummaryDisplay summary={summary.content} isLoading={false} />
-                <Button onClick={handleShare} className="mt-4">Share Summary</Button>
+                <Button 
+                  onClick={handleShare} 
+                  className="mt-4" 
+                  disabled={sharing}
+                >
+                  {sharing ? 'Sharing...' : 'Share Summary'}
+                </Button>
               </>
             ) : (
               <p className="text-red-500 text-sm md:text-base">Error: Unable to fetch summary. Please try again later.</p>
