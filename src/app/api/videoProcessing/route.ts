@@ -9,11 +9,7 @@ import {
   DatabaseInsertError,
   DatabaseUpdateError,
 } from "@/lib/errors";
-import {
-  processVideo,
-  transcribeVideo,
-  generateSummary,
-} from "@/lib/videoProcessing";
+import { processVideo, generateSummary } from "@/lib/videoProcessing";
 import { rateLimit } from "@/lib/rateLimit";
 
 const supabase = createClient(
