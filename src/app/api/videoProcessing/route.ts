@@ -10,7 +10,8 @@ import {
 } from "@/lib/errors";
 import { processVideo, generateSummary } from "@/lib/videoProcessing";
 import { rateLimit } from "@/lib/rateLimit";
-import { supabase, getOrCreateAnonymousUser, AnonymousUser } from "@/lib/supabase";
+import { supabase, getOrCreateAnonymousUser } from "@/lib/supabase";
+import { AnonymousUser } from "@/lib/database.types";
 
 export async function POST(req: NextRequest) {
   try {

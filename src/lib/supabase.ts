@@ -10,9 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
-export type AnonymousUser = Database['public']['Tables']['anonymous_users']['Row']
-
-export async function getOrCreateAnonymousUser(ip: string): Promise<User | null> {
+export async function getOrCreateAnonymousUser(ip: string): Promise<AnonymousUser | null> {
   console.log('Attempting to get or create anonymous user for IP:', ip)
 
   try {
@@ -33,11 +31,7 @@ export async function getOrCreateAnonymousUser(ip: string): Promise<User | null>
 
     if (existingUser) {
       console.log('Existing user found:', existingUser)
-      return {
-        id: existingUser.id,
-        ip_address: existingUser.ip_address,
-        transcriptions_used: existingUser.transcriptions_used || 0
-      } as User
+      return existingUser
     }
 
     console.log('No existing user found. Attempting to create a new anonymous user.')
@@ -60,11 +54,7 @@ export async function getOrCreateAnonymousUser(ip: string): Promise<User | null>
         }
       } else {
         console.log('New user created:', newUser)
-        return {
-          id: newUser.id,
-          ip_address: newUser.ip_address,
-          transcriptions_used: newUser.transcriptions_used || 0
-        } as User
+        return newUser
       }
     }
   } catch (error) {
@@ -75,7 +65,7 @@ export async function getOrCreateAnonymousUser(ip: string): Promise<User | null>
   return null
 }
 
-export async function getAnonymousUserByIp(ip: string): Promise<User | null> {
+export async function getAnonymousUserByIp(ip: string): Promise<AnonymousUser | null> {
   console.log('Attempting to get anonymous user for IP:', ip)
 
   try {
@@ -92,11 +82,7 @@ export async function getAnonymousUserByIp(ip: string): Promise<User | null> {
     }
 
     console.log('User found:', user)
-    return {
-      id: user.id,
-      ip_address: user.ip_address,
-      transcriptions_used: user.transcriptions_used || 0
-    } as User
+    return user
   } catch (error) {
     console.error('Unexpected error in getAnonymousUserByIp:', error)
     return null

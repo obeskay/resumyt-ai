@@ -23,6 +23,7 @@ export interface Database {
           video_url: string | null
           transcription: string | null
           summary: string | null
+          user_id: string | null
         }
         Insert: {
           id?: string
@@ -30,6 +31,7 @@ export interface Database {
           video_url?: string | null
           transcription?: string | null
           summary?: string | null
+          user_id?: string | null
         }
         Update: {
           id?: string
@@ -37,6 +39,27 @@ export interface Database {
           video_url?: string | null
           transcription?: string | null
           summary?: string | null
+          user_id?: string | null
+        }
+      }
+      anonymous_users: {
+        Row: {
+          id: string
+          ip_address: string
+          transcriptions_used: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          ip_address: string
+          transcriptions_used?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          ip_address?: string
+          transcriptions_used?: number
+          created_at?: string
         }
       }
     }
@@ -57,3 +80,5 @@ export interface Database {
     }
   }
 }
+
+export type AnonymousUser = Database['public']['Tables']['anonymous_users']['Row']
