@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       user: {
         id: user.id,
         // Only include transcriptions_used if it exists on the user object
-        ...(user.transcriptions_used !== undefined && { transcriptions_used: user.transcriptions_used })
+        ...(('transcriptions_used' in user) && { transcriptions_used: (user as any).transcriptions_used })
       }
     });
   } catch (error) {
