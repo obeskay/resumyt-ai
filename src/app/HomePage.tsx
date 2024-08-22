@@ -47,7 +47,11 @@ const HomePage = () => {
       try {
         setLoading(true);
 
-        const anonymousUser = await getOrCreateAnonymousUser();
+        // Get the IP address
+        const response = await fetch('/api/getIp');
+        const { ip } = await response.json();
+
+        const anonymousUser = await getOrCreateAnonymousUser(ip);
         if (!anonymousUser) {
           throw new Error("Failed to create or retrieve anonymous user");
         }
