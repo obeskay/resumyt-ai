@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import requestIp from 'request-ip';
 import { supabase } from '@/lib/supabase';
 import { YoutubeTranscript } from 'youtube-transcript';
 import axios from 'axios';
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
+    const clientIp = requestIp.getClientIp(req);
+    if (!clientIp) {
+        return NextResponse.json({ error: 'IP address not found' }, { status: 400 });
+    }
+    // Validate and sanitize clientIp
+    // Continue with the rest of the processing...
   const { vid, userId } = await request.json();
 
   if (!vid || typeof vid !== 'string' || !userId) {
