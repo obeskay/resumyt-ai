@@ -18,33 +18,36 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch('/api/summarize', {
-        method: 'POST',
+      const response = await fetch("/api/summarize", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ videoUrl }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to summarize video');
+        throw new Error("Failed to summarize video");
       }
 
       const data = await response.json();
       setSummary(data.summary);
     } catch (error) {
       console.error("Error summarizing video:", error);
-      setSummary("An error occurred while summarizing the video. Please try again.");
+      setSummary(
+        "An error occurred while summarizing the video. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-gray-100 dark:to-gray-900 text-foreground py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* <div className="text-2xl font-bold mb-4">Debug: Page is rendering</div> */}
         <motion.div
           className="flex justify-between items-center mb-12"
           initial={{ opacity: 0, y: -20 }}
@@ -68,12 +71,12 @@ export default function Home() {
         </motion.div>
 
         <motion.h2
-          className="text-5xl font-bold gradient-text mb-8"
+          className="text-5xl mb-8 text-center w-auto mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Resume gratis
+          <span className="gradient-text font-bold ">Resume gratis</span>
           <br />
           videos de YouTube
         </motion.h2>

@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
+import ProgressBar from "@/components/ProgressBar";
 
 export default function SummaryPage() {
   const params = useParams();
@@ -24,6 +26,12 @@ export default function SummaryPage() {
 
   useEffect(() => {
     async function fetchSummaryAndTranscript() {
+      if (!id || typeof id !== 'string') {
+        setError("Invalid video ID");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
@@ -39,7 +47,7 @@ export default function SummaryPage() {
             )
           `
           )
-          .eq("video_id", id)
+          .eq("video_id", id as string)
           .single();
 
         if (error) throw error;
@@ -48,7 +56,6 @@ export default function SummaryPage() {
         setTranscript(data.transcript);
         setVideoTitle(data.videos.title);
       } catch (error) {
-        console.error("Error fetching summary and transcript:", error);
         setError(error.message || "Failed to fetch summary and transcript");
         toast({
           title: "Error",
@@ -62,9 +69,7 @@ export default function SummaryPage() {
       }
     }
 
-    if (id) {
-      fetchSummaryAndTranscript();
-    }
+    fetchSummaryAndTranscript();
   }, [id, toast]);
 
   const handleShare = async () => {
@@ -77,7 +82,6 @@ export default function SummaryPage() {
         description: "Summary link copied to clipboard!",
       });
     } catch (err) {
-      console.error("Failed to copy:", err);
       toast({
         title: "Error",
         description: "Failed to copy link. Please try again.",
@@ -90,7 +94,10 @@ export default function SummaryPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
+      <motion.div
+        layoutId="video-input-container"
+        className="container mx-auto px-4 py-8 max-w-3xl"
+      >
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
           Video Summary and Transcript
         </h1>
@@ -156,7 +163,16 @@ export default function SummaryPage() {
             )}
           </CardContent>
         </Card>
-      </div>
+        <div className="mt-8">
+          {id && typeof id === 'string' ? (
+            <ProgressBar summaryId={id} />
+          ) : (
+            <div className="w-full bg-muted rounded-full h-2.5 dark:bg-muted overflow-hidden">
+              <div className="bg-gradient-light dark:bg-gradient-dark h-2.5 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+            </div>
+          )}
+        </div>
+      </motion.div>
     </MainLayout>
   );
 }
