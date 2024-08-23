@@ -75,7 +75,7 @@ export async function getOrCreateAnonymousUser(
     while (retries > 0) {
       const { data: newUser, error: createError } = await supabase
         .from("anonymous_users")
-        .insert({ ip_address: ip, transcriptions_used: 0 })
+        .insert({ ip_address: ip, transcriptions_used: 0, pricing_plan_id: 1, quota_remaining: 100 }) // Set default pricing plan to 1 (Free) with 100 quota
         .select()
         .single();
 
@@ -138,6 +138,49 @@ export async function testSupabaseConnection(): Promise<boolean> {
     return true;
   } catch (error) {
     console.error("Supabase connection test failed:", error);
+    return false;
+  }
+}
+
+export async function updateUserPlan(
+  userId: string,
+  newPlanId: number
+): Promise<boolean> {
+  console.log(`Attempting to update user ${userId} to plan ${newPlanId}`);
+
+  try {
+    const supabase = getSupabase();
+
+    // Fetch the new plan details
+    const { data: planData, error: planError } = await supabase
+      .from("pricing_plans")
+      .select("quota")
+      .eq("id", newPlanId)
+      .single();
+
+    if (planError) {
+      console.error("Error fetching plan details:", planError);
+      return false;
+    }
+
+    const newQuota = planData.quota;
+
+    // Update the user's plan and quota
+    const { error } = await supabase
+      .from("anonymous_users")
+      .update({ pricing_plan_id: newPlanId, quota_remaining: newQuota })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating user plan:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      return false;
+    }
+
+    console.log(`Successfully updated user ${userId} to plan ${newPlanId} with new quota ${newQuota}`);
+    return true;
+  } catch (error) {
+    console.error("Unexpected error in updateUserPlan:", error);
     return false;
   }
 }

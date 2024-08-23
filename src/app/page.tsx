@@ -2,106 +2,61 @@
 
 import { useEffect } from "react";
 import { useTheme } from "next-themes";
-import { Switch } from "@/components/ui/switch";
-import { motion, AnimatePresence } from "framer-motion";
 import VideoInput from "@/components/VideoInput";
 import { useVideoStore } from "@/store/videoStore";
+import Image from "next/image";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
-  const { summary, userQuotaRemaining } = useVideoStore();
+  const { summary } = useVideoStore();
 
   useEffect(() => {
-    // Any initialization logic if needed
-  }, []);
+    setTheme("dark");
+  }, [setTheme]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-gray-100 dark:to-gray-900 text-foreground py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background text-foreground py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <motion.div
-          className="flex justify-between items-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-4xl font-bold">
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-4xl font-bold text-foreground">
             Resum<span className="text-primary">YT</span>
           </h1>
-          <div className="flex items-center">
-            <span className="mr-2 text-sm">
-              {theme === "dark" ? "Dark" : "Light"}
-            </span>
-            <Switch
-              checked={theme === "dark"}
-              onCheckedChange={() =>
-                setTheme(theme === "dark" ? "light" : "dark")
-              }
-            />
-          </div>
-        </motion.div>
+          <Image src="/youtube-logo.svg" alt="YouTube Logo" width={80} height={40} />
+        </div>
 
-        <motion.h2
-          className="text-5xl mb-8 text-center w-auto mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
+        <h2 className="text-5xl mb-8 text-center">
           <span className="gradient-text font-bold">Resume gratis</span>
           <br />
-          videos de YouTube
-        </motion.h2>
+          <span className="text-foreground">videos de YouTube</span>
+        </h2>
 
         <VideoInput />
 
-        <AnimatePresence>
-          {summary && (
-            <motion.div
-              className="bg-card rounded-lg p-6 mb-12 mt-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h3 className="text-2xl font-bold mb-4">Resumen del video:</h3>
-              <p>{summary}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <motion.div
-          className="bg-card rounded-lg p-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
+        <div className="bg-card rounded-lg p-6 mt-8">
           <ul className="space-y-4">
-            <li className="flex items-start">
-              <span className="text-primary mr-2">•</span>
+            <li className="flex items-start text-muted-foreground">
+              <span className="text-secondary mr-2">•</span>
               <span>
                 Ahorra tiempo al obtener información relevante de videos de
                 YouTube con nuestro servicio de resumen.
               </span>
             </li>
-            <li className="flex items-start">
-              <span className="text-primary mr-2">•</span>
+            <li className="flex items-start text-muted-foreground">
+              <span className="text-secondary mr-2">•</span>
               <span>
                 Obtén un resumen de los videos de YouTube que te interesen en
                 segundos.
               </span>
             </li>
           </ul>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="mt-8 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Resúmenes restantes: {userQuotaRemaining}
-          </p>
-        </motion.div>
+        {summary && (
+          <div className="bg-card rounded-lg p-6 mt-8">
+            <h3 className="text-2xl font-bold mb-4 text-foreground">Resumen del video:</h3>
+            <p className="text-muted-foreground">{summary}</p>
+          </div>
+        )}
       </div>
     </div>
   );

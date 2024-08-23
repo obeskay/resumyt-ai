@@ -109,6 +109,10 @@ Recent improvements and additions include:
 4. Improved error handling and user feedback throughout the application.
 5. Streamlined video summarization process with better state management.
 6. Preparation for user authentication system (components and pages added but not fully implemented).
+7. Fixed duplicate key violation error in video and summary storage:
+   - Modified the `summarize/route.ts` to extract YouTube video ID and use it as the primary key for database operations.
+   - Updated video and summary insertion to use upsert operations, preventing duplicate entries.
+   - Improved error handling for database operations.
 
 ## Next Steps
 
@@ -120,6 +124,7 @@ Recent improvements and additions include:
 2. **Enhance Error Handling**:
    - Implement more granular error handling for different types of failures.
    - Utilize the custom error types defined in src/lib/errors.ts throughout the application.
+   - Add additional logging for debugging and monitoring purposes.
 
 3. **Improve Performance and Scalability**:
    - Implement caching for frequently requested summaries.
@@ -138,6 +143,7 @@ Recent improvements and additions include:
    - Add unit tests for critical functions, especially those related to user initialization and video processing.
    - Implement integration tests for the main application flow.
    - Add end-to-end tests to ensure the entire user journey works as expected.
+   - Create specific tests for the recently fixed duplicate key violation scenario.
 
 7. **Improve Accessibility and User Experience**:
    - Ensure all components meet WCAG 2.1 AA standards.
@@ -148,25 +154,34 @@ Recent improvements and additions include:
    - Conduct a thorough security audit of both the anonymous and authenticated user systems.
    - Implement additional measures to prevent abuse and ensure proper rate limiting.
    - Review and enhance data protection measures, especially for user information.
+   - Implement additional checks to prevent potential SQL injection or other database-related vulnerabilities.
 
 9. **Deployment and DevOps**:
    - Set up a CI/CD pipeline for automated testing and deployment.
    - Optimize the build process and implement environment-specific configurations.
    - Implement monitoring and logging solutions for production environment.
+   - Set up alerts for database-related errors and performance issues.
 
 10. **Documentation and User Guides**:
     - Create comprehensive API documentation.
     - Write user guides and FAQs for both anonymous and authenticated usage.
     - Develop developer documentation for future maintenance and contributions.
+    - Document the database schema and any constraints or indexes.
 
 11. **Code Refactoring and Optimization**:
     - Review and refactor code for consistency and adherence to best practices.
     - Optimize imports and remove any unused code or dependencies.
     - Implement code splitting and lazy loading for improved performance.
+    - Consider extracting common database operations into a separate utility module for better maintainability.
 
 12. **Feature Enhancements**:
     - Implement multi-language support for summaries.
     - Add support for other video platforms beyond YouTube.
     - Explore AI-powered features like sentiment analysis or key point extraction.
+
+13. **Database Optimization**:
+    - Review and optimize database indexes for improved query performance.
+    - Implement a database migration strategy for future schema changes.
+    - Consider implementing a caching layer to reduce database load for frequently accessed data.
 
 Remember to continuously update this summary as the project evolves and new features are implemented or planned.

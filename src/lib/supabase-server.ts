@@ -26,37 +26,34 @@ export async function ensureVideoExists(supabase: ReturnType<typeof createClient
     throw new Error('Invalid YouTube URL');
   }
 
-  // First, try to get the existing video
-  let { data: existingVideo, error: selectError } = await supabase
+  // First, try to upsert the video
+  const { error: upsertError } = await supabase
+    .from('videos')
+    .upsert(
+      { id: videoId, url: videoUrl, user_id: userId },
+      { onConflict: 'id' }
+    );
+
+  if (upsertError) {
+    console.error('Error upserting video record:', upsertError);
+    throw upsertError;
+  }
+
+  // Then, select the video to return its id
+  const { data: video, error: selectError } = await supabase
     .from('videos')
     .select('id')
     .eq('id', videoId)
     .single();
 
-  if (selectError && selectError.code !== 'PGRST116') {
-    console.error('Error checking for existing video:', selectError);
+  if (selectError) {
+    console.error('Error selecting video record:', selectError);
     throw selectError;
   }
 
-  if (existingVideo) {
-    return existingVideo.id;
+  if (!video) {
+    throw new Error('Failed to retrieve video record');
   }
 
-  // If the video doesn't exist, create it
-  const { data: newVideo, error: insertError } = await supabase
-    .from('videos')
-    .insert({ id: videoId, url: videoUrl, user_id: userId })
-    .select('id')
-    .single();
-
-  if (insertError) {
-    console.error('Error creating video record:', insertError);
-    throw insertError;
-  }
-
-  if (!newVideo) {
-    throw new Error('Failed to create video record');
-  }
-
-  return newVideo.id;
+  return video.id;
 }

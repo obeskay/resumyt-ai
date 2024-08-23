@@ -1,57 +1,107 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useVideoStore } from '@/store/videoStore';
+import React, { useCallback } from "react";
+import { useVideoStore } from "@/store/videoStore";
+import { useToast } from "@/components/ui/use-toast";
+import { PricingPlansDialog } from "@/components/PricingPlansDialog";
 
-const VideoInput: React.FC = () => {
-  const { videoUrl, setVideoUrl, isLoading, summarizeVideo } = useVideoStore();
+const VideoInput: React.FC = React.memo(() => {
+  const {
+    videoUrl,
+    setVideoUrl,
+    isLoading,
+    summarizeVideo,
+    userQuotaRemaining,
+  } = useVideoStore();
+  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    await summarizeVideo();
-  };
+
+    if (!videoUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a YouTube URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (userQuotaRemaining <= 0) {
+      toast({
+        title: "Daily Limit Reached",
+        description:
+          "You have reached your daily limit for video summaries. Please upgrade your plan to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await summarizeVideo();
+    } catch (error) {
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  }, [videoUrl, userQuotaRemaining, summarizeVideo, toast]);
 
   return (
-    <motion.div 
-      layoutId="video-input-container"
-      className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md dark:bg-gray-800"
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            URL del video de YouTube
-          </label>
+    <div className="max-w-3xl mx-auto mt-10">
+      <form onSubmit={handleSubmit} className="flex flex-col">
+        <div className="flex">
           <input
             type="url"
-            id="url"
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
             required
-            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="flex-grow px-4 py-2 bg-card border border-input rounded-l-md text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="https://www.youtube.com/watch?v=..."
           />
+          <button
+            type="submit"
+            disabled={isLoading || userQuotaRemaining <= 0}
+            className="px-6 py-2 bg-primary text-primary-foreground font-bold rounded-r-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Resumiendo..." : "RESUMIR"}
+          </button>
         </div>
-        <motion.button
-          type="submit"
-          disabled={isLoading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {isLoading ? 'Resumiendo...' : 'Resumir'}
-        </motion.button>
       </form>
       {isLoading && (
         <div className="mt-4">
-          <div className="w-full bg-muted rounded-full h-2.5 dark:bg-muted overflow-hidden">
-            <div className="bg-gradient-light dark:bg-gradient-dark h-2.5 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full animate-pulse"
+              style={{ width: "100%" }}
+            ></div>
           </div>
-          <p className="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Resumiendo...
+          <p className="text-center mt-2 text-sm text-muted-foreground">
+            Resumiendo el video...
           </p>
         </div>
       )}
-    </motion.div>
+      <div className="text-center mt-4">
+        {userQuotaRemaining > 0 ? (
+          <p className="text-sm text-muted-foreground">
+            You have {userQuotaRemaining} summaries remaining today.
+          </p>
+        ) : (
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">
+              You have reached your daily limit for video summaries.
+            </p>
+            <PricingPlansDialog />
+          </div>
+        )}
+      </div>
+    </div>
   );
-};
+});
+
+VideoInput.displayName = "VideoInput";
 
 export default VideoInput;
