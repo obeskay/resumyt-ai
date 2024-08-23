@@ -36,18 +36,67 @@ export async function processVideo(
   }
 }
 
+import { google } from 'googleapis';
+import { getSubtitles } from 'youtube-transcript-api';
+
 export async function transcribeVideo(videoId: string): Promise<string> {
   try {
-    // Here you would implement the actual video transcription logic
-    // For now, we'll return a sample transcript
-    const transcript = `This is a sample transcript for video ${videoId}. In a real implementation, this would contain the actual transcription of the video content.`;
-    if (!transcript) {
-      throw new TranscriptNotFoundError("Failed to generate transcript");
+    // First, try to get the transcript using the YouTube API
+    const transcript = await getTranscriptFromYouTubeAPI(videoId);
+    
+    if (transcript) {
+      return transcript;
     }
-    return transcript;
+
+    // If YouTube API fails, fall back to youtube-transcript-api
+    const fallbackTranscript = await getTranscriptFromYouTubeTranscriptAPI(videoId);
+    
+    if (fallbackTranscript) {
+      return fallbackTranscript;
+    }
+
+    throw new TranscriptNotFoundError("Failed to generate transcript");
   } catch (error) {
     console.error("Error transcribing video:", error);
     throw new TranscriptNotFoundError("Failed to transcribe video");
+  }
+}
+
+async function getTranscriptFromYouTubeAPI(videoId: string): Promise<string | null> {
+  const youtube = google.youtube({
+    version: 'v3',
+    auth: process.env.YOUTUBE_API_KEY,
+  });
+
+  try {
+    const response = await youtube.captions.list({
+      part: ['snippet'],
+      videoId: videoId,
+    });
+
+    if (response.data.items && response.data.items.length > 0) {
+      const captionId = response.data.items[0].id;
+      if (captionId) {
+        const transcript = await youtube.captions.download({
+          id: captionId,
+        });
+        return transcript.data as string;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching transcript from YouTube API:", error);
+  }
+
+  return null;
+}
+
+async function getTranscriptFromYouTubeTranscriptAPI(videoId: string): Promise<string | null> {
+  try {
+    const transcriptArray = await getSubtitles({ videoID: videoId, lang: 'en' });
+    return transcriptArray.map(item => item.text).join(' ');
+  } catch (error) {
+    console.error("Error fetching transcript from youtube-transcript-api:", error);
+    return null;
   }
 }
 
