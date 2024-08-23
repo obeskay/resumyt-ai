@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { toast } from "@/components/ui/use-toast";
 
 interface VideoState {
   videoUrl: string
@@ -38,7 +39,17 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to summarize video');
+        const errorData = await response.json();
+        if (response.status === 403 && errorData.error === 'Daily limit reached') {
+          toast({
+            title: "Daily Limit Reached",
+            description: "You have reached your daily limit for video summaries. Please try again tomorrow.",
+            variant: "destructive",
+          });
+          setUserQuotaRemaining(0);
+          return;
+        }
+        throw new Error(errorData.error || 'Failed to summarize video');
       }
 
       const data = await response.json();
@@ -46,6 +57,11 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       setUserQuotaRemaining(data.userQuotaRemaining);
     } catch (error) {
       console.error('Error summarizing video:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
+        variant: "destructive",
+      });
       setSummary('An error occurred while summarizing the video. Please try again.');
     } finally {
       setIsLoading(false);
