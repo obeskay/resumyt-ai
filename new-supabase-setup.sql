@@ -15,12 +15,13 @@ CREATE TABLE public.anonymous_users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   ip_address TEXT UNIQUE NOT NULL,
   transcriptions_used INTEGER DEFAULT 0,
+  quota_remaining INTEGER DEFAULT 100,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Create videos table
 CREATE TABLE videos (
-  id SERIAL PRIMARY KEY,
+  id VARCHAR(255) PRIMARY KEY,
   url TEXT NOT NULL,
   title TEXT,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
@@ -30,16 +31,22 @@ CREATE TABLE videos (
 -- Create summaries table
 CREATE TABLE summaries (
   id SERIAL PRIMARY KEY,
-  video_id INTEGER REFERENCES videos (id),
+  video_id VARCHAR(255) REFERENCES videos (id),
   content TEXT NOT NULL,
+  transcript TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  user_id UUID REFERENCES anonymous_users(id) NOT NULL
+  user_id UUID REFERENCES anonymous_users(id) NOT NULL,
+  UNIQUE(user_id, video_id)
 );
+
+-- Create indexes for faster lookups
+CREATE INDEX idx_summaries_user_id ON summaries(user_id);
+CREATE INDEX idx_summaries_video_id ON summaries(video_id);
 
 -- Create transcriptions table
 CREATE TABLE transcriptions (
   id SERIAL PRIMARY KEY,
-  video_id INTEGER REFERENCES videos (id),
+  video_id VARCHAR(255) REFERENCES videos (id),
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
   user_id UUID REFERENCES anonymous_users(id) NOT NULL
@@ -102,6 +109,5 @@ GRANT ALL ON public.summaries TO anon;
 GRANT ALL ON public.transcriptions TO anon;
 
 -- Grant usage on sequences
-GRANT USAGE, SELECT ON SEQUENCE videos_id_seq TO anon;
 GRANT USAGE, SELECT ON SEQUENCE summaries_id_seq TO anon;
 GRANT USAGE, SELECT ON SEQUENCE transcriptions_id_seq TO anon;

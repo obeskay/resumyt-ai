@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { testSupabaseConnection, getOrCreateAnonymousUser } from '@/lib/supabase';
+import { getSupabase, getOrCreateAnonymousUser } from '@/lib/supabase';
 import requestIp from 'request-ip';
 
 export async function GET(request: NextRequest) {
   try {
-    const connectionTest = await testSupabaseConnection();
-    if (!connectionTest) {
-      return NextResponse.json({ message: 'Supabase connection test failed' }, { status: 500 });
+    const supabase = getSupabase();
+    const { data, error } = await supabase.from('anonymous_users').select('count').single();
+    
+    if (error) {
+      console.error('Supabase connection test failed:', error);
+      return NextResponse.json({ message: 'Supabase connection test failed', error: error.message }, { status: 500 });
     }
 
     const userIp = requestIp.getClientIp(request as any) || '127.0.0.1';
@@ -19,10 +22,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ 
       message: 'Supabase connection test successful',
+      rowCount: data.count,
       user: {
         id: user.id,
-        // Only include transcriptions_used if it exists on the user object
-        ...(('transcriptions_used' in user) && { transcriptions_used: (user as any).transcriptions_used })
+        transcriptions_used: user.transcriptions_used
       }
     });
   } catch (error) {

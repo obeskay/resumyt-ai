@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User } from "@supabase/supabase-js";
 import { ErrorBoundary } from "react-error-boundary";
 import { useRouter } from "next/navigation";
 import MainLayout from "../components/MainLayout";
@@ -9,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import VideoInput from "../components/VideoInput";
 import { getOrCreateAnonymousUser } from "@/lib/supabase";
+import { Database } from "@/types/supabase";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +18,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+
+type AnonymousUser = Database['public']['Tables']['anonymous_users']['Row'];
 
 function ErrorFallback({ error }: { error: Error }) {
   console.error("Error in HomePage:", error);
@@ -39,7 +39,7 @@ function ErrorFallback({ error }: { error: Error }) {
 }
 
 const HomePage = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AnonymousUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [userInitialized, setUserInitialized] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -99,10 +99,10 @@ const HomePage = () => {
     setTranscriptionsLeft((prev) => Math.max(0, prev - 1));
   };
 
-  const handleSummaryGenerated = (summaryId: any) => {
+  const handleSummaryGenerated = (videoId: string, summary: string, transcript: string) => {
     setIsSummarizing(false);
     handleTranscriptionUsed();
-    router.push(`/summary/${summaryId}`);
+    router.push(`/summary/${videoId}`);
   };
 
   const handleSummarizationStart = () => {
@@ -118,6 +118,7 @@ const HomePage = () => {
               onSuccess={handleSummaryGenerated}
               onStart={handleSummarizationStart}
               userId={user.id}
+              transcriptionsLeft={transcriptionsLeft}
             />
           )}
         </div>
@@ -144,18 +145,5 @@ const HomePage = () => {
     </ErrorBoundary>
   );
 };
-
-//Obtains the ip in server (nextjs:) and serve to HomePage
-export async function getServerSideProps(context: {
-  req: { headers: { "x-real-ip": string } };
-}) {
-  const ip = context.req.headers["x-real-ip"];
-
-  return {
-    props: {
-      ip,
-    },
-  };
-}
 
 export default HomePage;

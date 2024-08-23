@@ -64,6 +64,7 @@ export const signIn = async (email: string, password: string) => {
       console.error('Error signing in:', error)
       return null
     }
+    await transferAnonymousDataToRegisteredUser(data.session.user.id)
     return data.session
   } catch (error) {
     console.error('Error signing in:', error)
@@ -81,9 +82,49 @@ export const signUp = async (email: string, password: string) => {
       console.error('Error signing up:', error)
       return null
     }
+    await transferAnonymousDataToRegisteredUser(data.user.id)
     return data.session
   } catch (error) {
     console.error('Error signing up:', error)
     return null
+  }
+}
+
+const transferAnonymousDataToRegisteredUser = async (userId: string) => {
+  try {
+    // Get the anonymous user's data
+    const { data: anonymousUser, error: anonymousError } = await supabase
+      .from('anonymous_users')
+      .select('id')
+      .single()
+
+    if (anonymousError) {
+      console.error('Error fetching anonymous user:', anonymousError)
+      return
+    }
+
+    if (anonymousUser) {
+      // Transfer summaries from anonymous user to registered user
+      const { error: transferError } = await supabase
+        .from('summaries')
+        .update({ user_id: userId })
+        .match({ user_id: anonymousUser.id })
+
+      if (transferError) {
+        console.error('Error transferring summaries:', transferError)
+      }
+
+      // Delete the anonymous user entry
+      const { error: deleteError } = await supabase
+        .from('anonymous_users')
+        .delete()
+        .match({ id: anonymousUser.id })
+
+      if (deleteError) {
+        console.error('Error deleting anonymous user:', deleteError)
+      }
+    }
+  } catch (error) {
+    console.error('Error transferring anonymous data:', error)
   }
 }
