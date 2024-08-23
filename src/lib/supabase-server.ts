@@ -1,28 +1,22 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { Database } from "./database.types";
 
-export function createClient() {
-  return () => {
-    const cookieStore = cookies();
+export const createClient = () => {
+  const cookieStore = cookies();
+  
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL');
+  }
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
 
-    return createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set(name, value, options);
-          },
-          remove(name: string, options: CookieOptions) {
-            cookieStore.set(name, '', { ...options, maxAge: 0 });
-          },
-        },
-      }
-    );
-  };
-}
+  return createServerComponentClient<Database>({
+    cookies: () => cookieStore,
+  });
+};
 
-export const getSupabase = createClient();
+export const getSupabase = () => {
+  return createClient();
+};
