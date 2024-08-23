@@ -19,26 +19,37 @@ export const createClient = cache(() => {
 export const getSupabase = createClient;
 
 export async function ensureVideoExists(supabase: ReturnType<typeof createClient>, videoUrl: string, userId: string) {
-  const { data: existingVideo } = await supabase
+  // First, try to get the existing video
+  let { data: existingVideo, error: selectError } = await supabase
     .from('videos')
     .select('id')
     .eq('url', videoUrl)
     .single();
 
-  if (!existingVideo) {
-    const { data: newVideo, error } = await supabase
-      .from('videos')
-      .insert({ url: videoUrl, user_id: userId })
-      .select('id')
-      .single();
-
-    if (error) {
-      console.error('Error creating video record:', error);
-      throw error;
-    }
-
-    return newVideo.id;
+  if (selectError && selectError.code !== 'PGRST116') {
+    console.error('Error checking for existing video:', selectError);
+    throw selectError;
   }
 
-  return existingVideo.id;
+  if (existingVideo) {
+    return existingVideo.id;
+  }
+
+  // If the video doesn't exist, create it
+  const { data: newVideo, error: insertError } = await supabase
+    .from('videos')
+    .insert({ url: videoUrl, user_id: userId })
+    .select('id')
+    .single();
+
+  if (insertError) {
+    console.error('Error creating video record:', insertError);
+    throw insertError;
+  }
+
+  if (!newVideo) {
+    throw new Error('Failed to create video record');
+  }
+
+  return newVideo.id;
 }
