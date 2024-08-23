@@ -1,7 +1,8 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from 'react';
 
-export function createClient() {
+export const createClient = cache(() => {
   const cookieStore = cookies();
 
   return createServerClient(
@@ -21,13 +22,6 @@ export function createClient() {
       },
     }
   );
-}
+});
 
-export function getSupabase() {
-  let client: ReturnType<typeof createClient>;
-  return () => {
-    if (client) return client;
-    client = createClient();
-    return client;
-  };
-}
+export const getSupabase = () => createClient();
