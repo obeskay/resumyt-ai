@@ -8,10 +8,9 @@ import {
   DatabaseInsertError,
   DatabaseUpdateError,
 } from "@/lib/errors";
-import { processVideo, generateSummary } from "@/lib/videoProcessing";
+import { processVideo } from "@/lib/videoProcessing";
 import { rateLimit } from "@/lib/rateLimit";
-import { supabase, getOrCreateAnonymousUser } from "@/lib/supabase";
-import { AnonymousUser } from "@/lib/database.types";
+import { getSupabase, getOrCreateAnonymousUser } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,28 +49,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Process video
-    const { videoId, transcript } = await processVideo(videoUrl);
+    const { videoId, transcript, summary } = await processVideo(videoUrl, user.id);
 
-    if (!transcript) {
-      throw new TranscriptNotFoundError("Failed to generate transcript");
+    if (!transcript || !summary) {
+      throw new SummaryGenerationError("Failed to generate transcript or summary");
     }
 
-    // Generate summary
-    const summary = await generateSummary(transcript);
-
-    if (!summary) {
-      throw new SummaryGenerationError("Failed to generate summary");
-    }
-
-    // Update database
-    const { error: insertError } = await supabase
-      .from("videos")
-      .insert({ user_id: user.id, video_url: videoUrl, transcript, summary });
-
-    if (insertError) {
-      throw new DatabaseInsertError("Failed to insert video data");
-    }
-
+    // Update user quota
+    const supabase = getSupabase();
     const { error: updateError } = await supabase
       .from("anonymous_users")
       .update({ transcriptions_used: user.transcriptions_used + 1 })

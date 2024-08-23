@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "./database.types";
+import { Database } from "../types/supabase";
 
 const getSupabaseUrl = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -8,8 +8,15 @@ const getSupabaseUrl = () => {
 };
 
 const getSupabaseKey = () => {
+  console.log("Environment:", process.env.NODE_ENV);
+  console.log("All environment variables:", process.env);
+  
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!key) throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  if (!key) {
+    console.error("NEXT_PUBLIC_SUPABASE_ANON_KEY is not set");
+    throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  }
+  console.log("Supabase Anon Key (first 5 chars):", key.substring(0, 5));
   return key;
 };
 
@@ -23,9 +30,8 @@ export function getSupabase() {
 
   supabaseInstance = createClient<Database>(supabaseUrl, supabaseKey);
 
-  // Log the Supabase URL and key (first 5 characters) for debugging
+  // Log the Supabase URL for debugging
   console.log("Supabase URL:", supabaseUrl);
-  console.log("Supabase Anon Key (first 5 chars):", supabaseKey.substring(0, 5));
 
   return supabaseInstance;
 }
@@ -35,7 +41,7 @@ export { getSupabase as supabase };
 
 export async function getOrCreateAnonymousUser(
   ip: string
-): Promise<AnonymousUser | null> {
+): Promise<Database['public']['Tables']['anonymous_users']['Row'] | null> {
   console.log("Attempting to get or create anonymous user for IP:", ip);
 
   try {
@@ -95,7 +101,7 @@ export async function getOrCreateAnonymousUser(
 
 export async function getAnonymousUserByIp(
   ip: string
-): Promise<AnonymousUser | null> {
+): Promise<Database['public']['Tables']['anonymous_users']['Row'] | null> {
   console.log("Attempting to get anonymous user for IP:", ip);
 
   try {

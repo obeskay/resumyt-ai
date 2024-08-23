@@ -1,16 +1,36 @@
 import { createClient, ensureVideoExists } from "@/lib/supabase-server";
-import OpenAI from "openai";
 import {
   VideoFetchError,
   TranscriptNotFoundError,
   SummaryGenerationError,
   DatabaseInsertError,
 } from "./errors";
+import { YoutubeTranscript } from "youtube-transcript";
+import axios from "axios";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_API_BASE_URL,
-});
+export async function summarizeVideo(videoUrl: string): Promise<string> {
+  try {
+    const videoId = extractYouTubeId(videoUrl);
+    if (!videoId) {
+      throw new VideoFetchError("Invalid YouTube URL");
+    }
+
+    const transcript = await transcribeVideo(videoId);
+    const summary = await generateSummary(transcript);
+
+    return summary;
+  } catch (error) {
+    console.error("Error summarizing video:", error);
+    if (
+      error instanceof VideoFetchError ||
+      error instanceof TranscriptNotFoundError ||
+      error instanceof SummaryGenerationError
+    ) {
+      throw error;
+    }
+    throw new VideoFetchError("Failed to summarize video");
+  }
+}
 
 export async function processVideo(
   videoUrl: string,
@@ -29,60 +49,57 @@ export async function processVideo(
     return { videoId, transcript, summary };
   } catch (error) {
     console.error("Error processing video:", error);
-    if (error instanceof VideoFetchError || error instanceof TranscriptNotFoundError || error instanceof SummaryGenerationError || error instanceof DatabaseInsertError) {
+    if (
+      error instanceof VideoFetchError ||
+      error instanceof TranscriptNotFoundError ||
+      error instanceof SummaryGenerationError ||
+      error instanceof DatabaseInsertError
+    ) {
       throw error;
     }
     throw new VideoFetchError("Failed to process video");
   }
 }
 
-import { getSubtitles } from 'youtube-transcript-api';
-
 export async function transcribeVideo(videoId: string): Promise<string> {
   try {
-    const transcript = await getTranscriptFromYouTubeTranscriptAPI(videoId);
-    
-    if (transcript) {
-      return transcript;
-    }
-
-    throw new TranscriptNotFoundError("Failed to generate transcript");
+    const transcriptArray = await YoutubeTranscript.fetchTranscript(videoId);
+    return transcriptArray.map((item) => item.text).join(" ");
   } catch (error) {
     console.error("Error transcribing video:", error);
     throw new TranscriptNotFoundError("Failed to transcribe video");
   }
 }
 
-async function getTranscriptFromYouTubeTranscriptAPI(videoId: string): Promise<string> {
-  try {
-    const transcriptArray = await getSubtitles({ videoID: videoId, lang: 'en' });
-    return transcriptArray.map(item => item.text).join(' ');
-  } catch (error) {
-    console.error("Error fetching transcript from youtube-transcript-api:", error);
-    throw new TranscriptNotFoundError("Failed to fetch transcript");
-  }
-}
-
 export async function generateSummary(transcript: string): Promise<string> {
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful assistant that summarizes video transcripts.",
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: "openai/gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a helpful assistant that summarizes video transcripts.",
+          },
+          {
+            role: "user",
+            content: `Summarize the following transcript of video, don't mention the transcript neither the process:\n\n${transcript}`,
+          },
+        ],
+        max_tokens: 750,
+        temperature: 0.25,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
         },
-        {
-          role: "user",
-          content: `Summarize the following transcript:\n\n${transcript}`,
-        },
-      ],
-      max_tokens: 150,
-      temperature: 0.5,
-    });
+      }
+    );
 
-    const summary = response.choices[0]?.message?.content?.trim();
+    const summary = response.data.choices[0]?.message?.content?.trim();
     if (!summary) {
       throw new SummaryGenerationError("Failed to generate summary");
     }

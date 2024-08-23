@@ -13,15 +13,17 @@ import { XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface VideoInputProps {
-  onSuccess: (summary: string) => void;
+  onSuccess: (videoId: string, summary: string, transcript: string) => void;
   onStart: () => void;
   userId: string | undefined;
+  transcriptionsLeft: number;
 }
 
 export default function VideoInput({
   onSuccess,
   onStart,
   userId,
+  transcriptionsLeft,
 }: VideoInputProps) {
   const [input, setInput] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -54,6 +56,15 @@ export default function VideoInput({
       toast({
         title: "Error",
         description: "User not initialized. Please refresh the page.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (transcriptionsLeft <= 0) {
+      toast({
+        title: "Error",
+        description: "You have no transcriptions left. Please create an account for unlimited summaries.",
         variant: "destructive",
       });
       return;
@@ -99,15 +110,15 @@ export default function VideoInput({
 
       const data = await response.json();
 
-      if (data.summary) {
-        setSummary(data.summary.content);
+      if (data.summary && data.transcript) {
+        setSummary(data.summary);
         toast({
           title: "Success",
           description: "Video summary generated successfully!",
         });
-        onSuccess(data.summary.id);
+        onSuccess(videoId, data.summary, data.transcript);
       } else {
-        throw new Error("Failed to generate summary");
+        throw new Error("Failed to generate summary or transcript");
       }
     } catch (error: unknown) {
       console.error(error);
@@ -185,7 +196,7 @@ export default function VideoInput({
           </p>
           <Button
             type="submit"
-            disabled={isProcessing}
+            disabled={isProcessing || transcriptionsLeft <= 0}
             className="w-full bg-primary hover:bg-primary/80 transition-colors text-primary-foreground"
             aria-busy={isProcessing}
             aria-label="Generate video summary"
@@ -193,6 +204,9 @@ export default function VideoInput({
             {isProcessing ? <LoadingSpinner /> : "Generate Summary"}
           </Button>
           {isProcessing && <Progress value={progress} className="w-full" />}
+          <p className="text-sm text-muted-foreground text-center">
+            Transcriptions left: {transcriptionsLeft}
+          </p>
         </motion.form>
       </CardContent>
     </Card>
