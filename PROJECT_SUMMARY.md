@@ -4,9 +4,15 @@
 
 ```
 resumyt/
+├── public/
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── youtube-logo.svg
 ├── src/
 │   ├── app/
 │   │   ├── api/
+│   │   │   ├── summarize/
+│   │   │   │   └── route.ts
 │   │   │   ├── testSupabase/
 │   │   │   │   └── route.ts
 │   │   │   └── videoProcessing/
@@ -25,16 +31,18 @@ resumyt/
 │   │   ├── AuthModal.tsx
 │   │   ├── LoadingSpinner.tsx
 │   │   ├── MainLayout.tsx
+│   │   ├── ProgressBar.tsx
 │   │   ├── SummaryDisplay.tsx
 │   │   ├── theme-provider.tsx
+│   │   ├── TranscriptDisplay.tsx
 │   │   ├── TranscriptionDisplay.tsx
 │   │   ├── VideoInput.tsx
 │   │   └── YouTubeLogo.tsx
 │   ├── lib/
 │   │   ├── auth.ts
-│   │   ├── database.types.ts
 │   │   ├── errors.ts
 │   │   ├── rateLimit.ts
+│   │   ├── supabase-server.ts
 │   │   ├── supabase.ts
 │   │   ├── utils.ts
 │   │   └── videoProcessing.ts
@@ -44,13 +52,16 @@ resumyt/
 │   │   └── auth/
 │   │       ├── signin.tsx
 │   │       └── signup.tsx
-│   └── store/
-│       └── videoStore.ts
-├── public/
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── youtube-logo.svg
+│   ├── store/
+│   │   └── videoStore.ts
+│   └── types/
+│       └── supabase.d.ts
+├── tests/
+│   ├── components.test.tsx
+│   ├── videoProcessing.test.ts
+│   └── videoProcessingRoute.test.ts
 ├── .dockerignore
+├── .env
 ├── .eslintrc.json
 ├── .gitignore
 ├── components.json
@@ -60,6 +71,7 @@ resumyt/
 ├── package.json
 ├── package-lock.json
 ├── postcss.config.mjs
+├── PROJECT_SUMMARY.md
 ├── README.md
 ├── supabase-setup.md
 ├── tailwind.config.js
