@@ -1,44 +1,13 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import ProgressBar from './ProgressBar';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { useVideoStore } from '@/store/videoStore';
 
 const VideoInput: React.FC = () => {
-  const [url, setUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [summaryId, setSummaryId] = useState<string | null>(null);
-  const router = useRouter();
+  const { videoUrl, setVideoUrl, isLoading, summarizeVideo } = useVideoStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setSummaryId(null);
-
-    try {
-      const response = await fetch('/api/summarize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to summarize video');
-      }
-
-      const data = await response.json();
-      setSummaryId(data.summaryId);
-
-      // Wait for a short time to allow the progress bar to appear before redirecting
-      setTimeout(() => {
-        router.push(`/summary/${data.summaryId}`);
-      }, 1000);
-    } catch (error) {
-      // Remove console.log and handle error silently or display to user
-      setIsLoading(false);
-      setSummaryId(null);
-    }
+    await summarizeVideo();
   };
 
   return (
@@ -49,13 +18,13 @@ const VideoInput: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            YouTube Video URL
+            URL del video de YouTube
           </label>
           <input
             type="url"
             id="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
             required
             className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="https://www.youtube.com/watch?v=..."
@@ -68,20 +37,16 @@ const VideoInput: React.FC = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          {isLoading ? 'Summarizing...' : 'Summarize'}
+          {isLoading ? 'Resumiendo...' : 'Resumir'}
         </motion.button>
       </form>
       {isLoading && (
         <div className="mt-4">
-          {summaryId ? (
-            <ProgressBar summaryId={summaryId} />
-          ) : (
-            <div className="w-full bg-muted rounded-full h-2.5 dark:bg-muted overflow-hidden">
-              <div className="bg-gradient-light dark:bg-gradient-dark h-2.5 rounded-full animate-pulse" style={{ width: '100%' }}></div>
-            </div>
-          )}
+          <div className="w-full bg-muted rounded-full h-2.5 dark:bg-muted overflow-hidden">
+            <div className="bg-gradient-light dark:bg-gradient-dark h-2.5 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+          </div>
           <p className="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Summarizing...
+            Resumiendo...
           </p>
         </div>
       )}

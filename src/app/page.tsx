@@ -1,53 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Switch } from "@/components/ui/switch";
 import { motion, AnimatePresence } from "framer-motion";
+import VideoInput from "@/components/VideoInput";
+import { useVideoStore } from "@/store/videoStore";
 
 export default function Home() {
-  const [videoUrl, setVideoUrl] = useState("");
-  const [summary, setSummary] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { summary, userQuotaRemaining } = useVideoStore();
 
-  useEffect(() => setMounted(true), []);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/summarize", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ videoUrl }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to summarize video");
-      }
-
-      const data = await response.json();
-      setSummary(data.summary);
-    } catch (error) {
-      console.error("Error summarizing video:", error);
-      setSummary(
-        "An error occurred while summarizing the video. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (!mounted) return <div>Loading...</div>;
+  useEffect(() => {
+    // Any initialization logic if needed
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-gray-100 dark:to-gray-900 text-foreground py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        {/* <div className="text-2xl font-bold mb-4">Debug: Page is rendering</div> */}
         <motion.div
           className="flex justify-between items-center mb-12"
           initial={{ opacity: 0, y: -20 }}
@@ -76,40 +46,17 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <span className="gradient-text font-bold ">Resume gratis</span>
+          <span className="gradient-text font-bold">Resume gratis</span>
           <br />
           videos de YouTube
         </motion.h2>
 
-        <motion.form
-          onSubmit={handleSubmit}
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <div className="flex flex-col sm:flex-row">
-            <input
-              type="text"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className="flex-grow px-4 py-3 rounded-t-md sm:rounded-l-md sm:rounded-tr-none bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary mb-2 sm:mb-0"
-            />
-            <button
-              type="submit"
-              className="bg-primary text-white px-6 py-3 rounded-b-md sm:rounded-r-md sm:rounded-bl-none hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isLoading}
-            >
-              {isLoading ? "Resumiendo..." : "RESUMIR"}
-            </button>
-          </div>
-        </motion.form>
+        <VideoInput />
 
         <AnimatePresence>
           {summary && (
             <motion.div
-              className="bg-card rounded-lg p-6 mb-12"
+              className="bg-card rounded-lg p-6 mb-12 mt-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -143,6 +90,17 @@ export default function Home() {
               </span>
             </li>
           </ul>
+        </motion.div>
+
+        <motion.div
+          className="mt-8 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Resúmenes restantes: {userQuotaRemaining}
+          </p>
         </motion.div>
       </div>
     </div>
