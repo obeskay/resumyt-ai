@@ -1,9 +1,10 @@
-import { createClient } from "@/lib/supabase-server";
+import { createClient, ensureVideoExists } from "@/lib/supabase-server";
 import OpenAI from "openai";
 import {
   VideoFetchError,
   TranscriptNotFoundError,
   SummaryGenerationError,
+  DatabaseInsertError,
 } from "./errors";
 
 const openai = new OpenAI({
@@ -15,7 +16,6 @@ export async function processVideo(
   videoUrl: string,
   userId: string
 ): Promise<{ videoId: string; transcript: string; summary: string }> {
-  const supabase = createClient();
   try {
     const videoId = extractYouTubeId(videoUrl);
     if (!videoId) {
@@ -24,11 +24,14 @@ export async function processVideo(
 
     const transcript = await transcribeVideo(videoId);
     const summary = await generateSummary(transcript);
-    await saveSummary(videoId, transcript, summary, userId);
+    await saveSummary(videoId, videoUrl, transcript, summary, userId);
 
     return { videoId, transcript, summary };
   } catch (error) {
     console.error("Error processing video:", error);
+    if (error instanceof VideoFetchError || error instanceof TranscriptNotFoundError || error instanceof SummaryGenerationError || error instanceof DatabaseInsertError) {
+      throw error;
+    }
     throw new VideoFetchError("Failed to process video");
   }
 }
@@ -80,15 +83,19 @@ export async function generateSummary(transcript: string): Promise<string> {
 
 async function saveSummary(
   videoId: string,
+  videoUrl: string,
   transcript: string,
   content: string,
   userId: string
 ): Promise<void> {
+  const supabase = createClient();
   try {
-    const supabase = createClient();
+    // Ensure the video exists in the database
+    const dbVideoId = await ensureVideoExists(supabase, videoUrl, userId);
+
     const { error } = await supabase.from("summaries").upsert(
       {
-        video_id: videoId,
+        video_id: dbVideoId,
         transcript: transcript,
         content: content,
         user_id: userId,
@@ -103,7 +110,7 @@ async function saveSummary(
     }
   } catch (error) {
     console.error("Error saving summary:", error);
-    throw new Error("Failed to save summary");
+    throw new DatabaseInsertError("Failed to save summary");
   }
 }
 
