@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "../types/supabase";
+import { Database, Tables } from "../types/supabase";
 
 const getSupabaseUrl = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -101,7 +101,7 @@ export async function getOrCreateAnonymousUser(
 
 export async function getAnonymousUserByIp(
   ip: string
-): Promise<Database['public']['Tables']['anonymous_users']['Row'] | null> {
+): Promise<Tables['anonymous_users']['Row'] | null> {
   console.log("Attempting to get anonymous user for IP:", ip);
 
   try {
