@@ -42,7 +42,7 @@ export const InfiniteMovingCards = ({
       }
     }
     addAnimation();
-  }, []);
+  }, [getDirection, getSpeed]);
   const getDirection = () => {
     if (containerRef.current) {
       if (direction === "left") {
