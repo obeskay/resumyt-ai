@@ -3,6 +3,7 @@ import { useVideoStore } from "@/store/videoStore";
 import { useToast } from "@/components/ui/use-toast";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
 
 interface VideoInputProps {
   userId: string;
@@ -41,16 +42,16 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/summarize', {
-        method: 'POST',
+      const response = await fetch("/api/summarize", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ videoUrl, userId }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate summary');
+        throw new Error("Failed to generate summary");
       }
 
       const data = await response.json();
@@ -81,13 +82,13 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isLoading) {
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = "";
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [isLoading]);
 
@@ -103,13 +104,14 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
             className="flex-grow px-4 py-2 bg-card border border-input rounded-l-md text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="https://www.youtube.com/watch?v=..."
           />
-          <button
+          <Button
+            size={"lg"}
             type="submit"
             disabled={isLoading}
-            className="px-6 py-2 bg-primary text-primary-foreground font-bold rounded-r-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-l-none"
           >
-            {isLoading ? "Resumiendo..." : "RESUMIR"}
-          </button>
+            Summarize
+          </Button>
         </div>
       </form>
       {isLoading && <LoadingIndicator />}

@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { getSupabase, updateUserPlan, getAnonymousUserByIp } from '@/lib/supabase';
-import { motion } from 'framer-motion';
+import {
+  getSupabase,
+  updateUserPlan,
+  getAnonymousUserByIp,
+} from "@/lib/supabase";
+import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -25,19 +36,19 @@ export function PricingPlansDialog() {
     async function fetchPricingPlans() {
       const supabase = getSupabase();
       const { data, error } = await supabase
-        .from('pricing_plans')
-        .select('*')
-        .order('price', { ascending: true });
+        .from("pricing_plans")
+        .select("*")
+        .order("price", { ascending: true });
 
       if (error) {
-        console.error('Error fetching pricing plans:', error);
+        console.error("Error fetching pricing plans:", error);
       } else {
-        setPlans(data);
+        setPlans(data as any);
       }
     }
 
     async function fetchUserId() {
-      const response = await fetch('/api/getIp');
+      const response = await fetch("/api/getIp");
       const { ip } = await response.json();
       const user = await getAnonymousUserByIp(ip);
       if (user) {
@@ -98,14 +109,19 @@ export function PricingPlansDialog() {
               className="bg-white p-6 rounded-lg shadow-md"
             >
               <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-              <p className="text-2xl font-semibold mb-4">${plan.price.toFixed(2)}/month</p>
+              <p className="text-2xl font-semibold mb-4">
+                ${plan.price.toFixed(2)}/month
+              </p>
               <p className="mb-4">Quota: {plan.quota} summaries/month</p>
               <ul className="list-disc list-inside mb-4">
                 {Object.values(plan.features).map((feature, i) => (
                   <li key={i}>{feature}</li>
                 ))}
               </ul>
-              <Button className="w-full" onClick={() => handleSelectPlan(plan.id)}>
+              <Button
+                className="w-full"
+                onClick={() => handleSelectPlan(plan.id)}
+              >
                 Select Plan
               </Button>
             </motion.div>
