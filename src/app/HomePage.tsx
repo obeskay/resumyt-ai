@@ -7,7 +7,7 @@ import MainLayout from "../components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import VideoInput from "../components/VideoInput";
-import { getOrCreateAnonymousUser } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { Database } from "@/types/supabase";
 import {
   Dialog,
@@ -43,7 +43,6 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [userInitialized, setUserInitialized] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const [transcriptionsLeft, setTranscriptionsLeft] = useState(3);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -57,14 +56,32 @@ const HomePage = () => {
         const response = await fetch("/api/getIp");
         const { ip } = await response.json();
 
-        const anonymousUser = await getOrCreateAnonymousUser(ip);
-        if (!anonymousUser) {
-          throw new Error("Failed to create or retrieve anonymous user");
-        }
-        setUser(anonymousUser);
+        const supabase = getSupabase();
+        const { data: user, error } = await supabase
+          .from('anonymous_users')
+          .select('*')
+          .eq('ip_address', ip)
+          .single();
 
-        const usedTranscriptions = anonymousUser.transcriptions_used || 0;
-        setTranscriptionsLeft(Math.max(0, 3 - usedTranscriptions));
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // User not found, create a new one
+            const { data: newUser, error: insertError } = await supabase
+              .from('anonymous_users')
+              .insert({ ip_address: ip })
+              .select()
+              .single();
+
+            if (insertError) {
+              throw new Error(`Failed to create anonymous user: ${insertError.message}`);
+            }
+            setUser(newUser);
+          } else {
+            throw new Error(`Failed to fetch anonymous user: ${error.message}`);
+          }
+        } else {
+          setUser(user);
+        }
 
         if (!localStorage.getItem("dialogShown")) {
           setShowDialog(true);
@@ -95,13 +112,8 @@ const HomePage = () => {
     initializeUser();
   }, [toast]);
 
-  const handleTranscriptionUsed = () => {
-    setTranscriptionsLeft((prev) => Math.max(0, prev - 1));
-  };
-
   const handleSummaryGenerated = (videoId: string, summary: string, transcript: string) => {
     setIsSummarizing(false);
-    handleTranscriptionUsed();
     router.push(`/summary/${videoId}`);
   };
 
@@ -114,12 +126,19 @@ const HomePage = () => {
       <MainLayout>
         <div className="container mx-auto px-4 py-8 max-w-3xl">
           {userInitialized && user && (
-            <VideoInput
-              onSuccess={handleSummaryGenerated}
-              onStart={handleSummarizationStart}
-              userId={user.id}
-              transcriptionsLeft={transcriptionsLeft}
-            />
+            <>
+              <div className="mb-4 text-center">
+                <p className="text-sm text-gray-600">
+                  Remaining quota: {user.quota_remaining} summaries
+                </p>
+              </div>
+              <VideoInput
+                onSuccess={handleSummaryGenerated}
+                onStart={handleSummarizationStart}
+                userId={user.id}
+                quotaRemaining={user.quota_remaining}
+              />
+            </>
           )}
         </div>
         <Toaster />
@@ -130,8 +149,8 @@ const HomePage = () => {
                 Welcome to YouTube Summarizer!
               </DialogTitle>
               <DialogDescription className="text-sm md:text-base">
-                As an anonymous user, you have 3 free transcriptions. Create an
-                account to enjoy unlimited summaries and more features!
+                You can summarize videos based on your remaining quota. Create an
+                account to enjoy more features and increase your quota!
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
