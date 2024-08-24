@@ -20,8 +20,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <>
       <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <header className="py-4 border-b">
-          <div className="container mx-auto px-4 flex justify-between items-center">
+        <header className="py-2">
+          <div className="container mx-auto flex justify-between items-center">
             <Link href="/" passHref>
               <motion.h1
                 initial={{ opacity: 0, x: -20 }}
@@ -42,7 +42,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </motion.button>
           </div>
         </header>
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow container mx-auto">{children}</main>
         <Toaster />
       </div>
     </>

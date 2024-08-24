@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import MainLayout from "@/components/MainLayout";
 import SummaryDisplay from "@/components/SummaryDisplay";
@@ -12,6 +12,7 @@ import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import ProgressBar from "@/components/ProgressBar";
 import { Database } from "@/types/supabase";
+import { cn } from "@/lib/utils";
 
 // Extract the Summary type from the supabase database
 type Summary = Database["public"]["Tables"]["summaries"]["Row"] & {
@@ -62,8 +63,8 @@ export default function SummaryPage() {
 
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
-        setSummary(data as Summary);
-        setVideoTitle(data.videos?.title || "Unknown Video");
+        setSummary(data as any);
+        setVideoTitle("Unknown Video");
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "An unknown error occurred";
@@ -111,7 +112,7 @@ export default function SummaryPage() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
-        className="flex-grow flex flex-col justify-start items-center pt-8"
+        className="w-full flex-grow flex flex-col justify-start items-center pt-8"
       >
         <AnimatePresence>
           {videoTitle && (
@@ -125,7 +126,7 @@ export default function SummaryPage() {
             </motion.h2>
           )}
         </AnimatePresence>
-        <Card className="mb-8 shadow-lg">
+        <Card className="max-w-3xl w-full">
           <CardHeader>
             <CardTitle className="text-xl md:text-2xl">Summary</CardTitle>
           </CardHeader>
@@ -134,13 +135,23 @@ export default function SummaryPage() {
               {loading ? (
                 <motion.div
                   key="loading"
+                  className="space-y-4 w-full"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <Skeleton className="h-4 w-full mb-4" />
+                  {/* <Skeleton className="h-4 w-full mb-4" />
                   <Skeleton className="h-4 w-3/4 mb-4" />
-                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-1/2" /> */}
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <Skeleton
+                      key={index}
+                      className={cn(
+                        "h-4",
+                        index % 2 === 0 ? "w-full" : "w-3/4"
+                      )}
+                    />
+                  ))}
                 </motion.div>
               ) : error ? (
                 <motion.p
@@ -158,13 +169,10 @@ export default function SummaryPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
+                  className="space-y-6 w-full"
                 >
-                  <SummaryDisplay summary={summary.content} isLoading={false} />
-                  <Button
-                    onClick={handleShare}
-                    className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground"
-                    disabled={sharing}
-                  >
+                  <SummaryDisplay summary={summary.content} />
+                  <Button onClick={handleShare} disabled={sharing}>
                     {sharing ? "Sharing..." : "Share Summary"}
                   </Button>
                 </motion.div>
@@ -174,7 +182,7 @@ export default function SummaryPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-gray-500 text-sm md:text-base"
+                  className="text-sm md:text-base"
                 >
                   No summary found.
                 </motion.p>
@@ -182,23 +190,6 @@ export default function SummaryPage() {
             </AnimatePresence>
           </CardContent>
         </Card>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8"
-        >
-          {id && typeof id === "string" ? (
-            <ProgressBar summaryId={id} />
-          ) : (
-            <div className="w-full bg-muted rounded-full h-2.5 dark:bg-muted overflow-hidden">
-              <div
-                className="bg-gradient-light dark:bg-gradient-dark h-2.5 rounded-full animate-pulse"
-                style={{ width: "100%" }}
-              ></div>
-            </div>
-          )}
-        </motion.div>
       </motion.div>
     </MainLayout>
   );

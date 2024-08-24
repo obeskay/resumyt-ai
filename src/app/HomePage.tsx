@@ -115,18 +115,19 @@ const HomePage = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5 }}
-          className="flex-grow flex flex-col justify-center items-center"
+          className="flex-grow flex flex-col justify-center items-center w-full"
         >
           <AnimatePresence>
             {!loading && user && (
               <motion.div
+                className="space-y-6"
                 key="user-content"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <div className="mb-4 text-center">
-                  <p className="text-sm text-gray-600">
+                <div className="text-center">
+                  <p className="text-sm">
                     Remaining quota: {user.quota_remaining} summaries
                   </p>
                 </div>
