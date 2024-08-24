@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "YouTube 摘要生成器",
+    "description": "获取 YouTube 视频的快速摘要",
+    "inputPlaceholder": "输入 YouTube 链接",
+    "summarizeButton": "生成摘要"
+  },
+  "summary": {
+    "title": "视频摘要",
+    "loadingMessage": "正在生成摘要...",
+    "errorMessage": "生成摘要时出错。请重试。"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signOut": "退出"
+  }
+}

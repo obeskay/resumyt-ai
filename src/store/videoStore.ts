@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { toast } from "@/components/ui/use-toast";
 
+type SummaryFormat = 'bullet-points' | 'paragraph' | 'page' | null;
+
 interface VideoState {
   videoUrl: string
   transcription: string
@@ -8,11 +10,13 @@ interface VideoState {
   isLoading: boolean
   videoTitle: string
   videoThumbnail: string
+  summaryFormat: SummaryFormat
   setVideoUrl: (url: string) => void
   setTranscription: (transcription: string) => void
   setSummary: (summary: string) => void
   setIsLoading: (isLoading: boolean) => void
   setVideoMetadata: (title: string, thumbnail: string) => void
+  setSummaryFormat: (format: SummaryFormat) => void
   summarizeVideo: (userId: string) => Promise<{ videoId: string; summary: string; transcript: string } | null>
   fetchVideoMetadata: (url: string) => Promise<void>
 }
@@ -24,13 +28,15 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   isLoading: false,
   videoTitle: '',
   videoThumbnail: '',
+  summaryFormat: null,
   setVideoUrl: (url) => set({ videoUrl: url }),
   setTranscription: (transcription) => set({ transcription }),
   setSummary: (summary) => set({ summary }),
   setIsLoading: (isLoading) => set({ isLoading }),
   setVideoMetadata: (title, thumbnail) => set({ videoTitle: title, videoThumbnail: thumbnail }),
+  setSummaryFormat: (format) => set({ summaryFormat: format }),
   summarizeVideo: async (userId: string) => {
-    const { videoUrl, setIsLoading, setSummary } = get();
+    const { videoUrl, setIsLoading, setSummary, summaryFormat } = get();
     setIsLoading(true);
     try {
       const response = await fetch('/api/summarize', {
@@ -38,7 +44,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ videoUrl, userId }),
+        body: JSON.stringify({ videoUrl, userId, summaryFormat }),
       });
 
       if (!response.ok) {

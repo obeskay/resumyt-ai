@@ -47,6 +47,7 @@ CREATE TABLE summaries (
   video_id VARCHAR(255) REFERENCES videos (id),
   content TEXT NOT NULL,
   transcript TEXT NOT NULL,
+  format TEXT NOT NULL, -- Added format column
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   user_id UUID REFERENCES anonymous_users(id) NOT NULL,
   UNIQUE(user_id, video_id)

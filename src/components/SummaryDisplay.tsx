@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import ReactMarkdown from 'react-markdown';
 
 interface SummaryDisplayProps {
   summary: string | null;
@@ -16,9 +17,9 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="w-full"
+        className="w-full prose prose-gray dark:prose-invert max-w-none"
       >
-        <p className="text-sm md:text-base whitespace-pre-wrap">{summary}</p>
+        <ReactMarkdown>{summary}</ReactMarkdown>
       </motion.div>
     </motion.div>
   );

@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "Resumidor de YouTube",
+    "description": "Obtenha resumos rápidos de vídeos do YouTube",
+    "inputPlaceholder": "Insira a URL do YouTube",
+    "summarizeButton": "Resumir"
+  },
+  "summary": {
+    "title": "Resumo do Vídeo",
+    "loadingMessage": "Gerando resumo...",
+    "errorMessage": "Erro ao gerar o resumo. Por favor, tente novamente."
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signOut": "Sair"
+  }
+}
