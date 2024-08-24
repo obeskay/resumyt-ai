@@ -17,7 +17,7 @@ import { Database } from "@/types/supabase";
 type Summary = Database["public"]["Tables"]["summaries"]["Row"] & {
   videos?: {
     title: string | null;
-  };
+  } | null;
 };
 
 export default function SummaryPage() {
@@ -62,7 +62,7 @@ export default function SummaryPage() {
 
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
-        setSummary(data);
+        setSummary(data as Summary);
         setVideoTitle(data.videos?.title || "Unknown Video");
       } catch (error: unknown) {
         const errorMessage =
