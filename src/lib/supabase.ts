@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database, Tables } from "../types/supabase";
+import type { Database } from "../types/supabase";
 
 const getSupabaseUrl = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -39,7 +39,9 @@ export function getSupabase() {
 // Export the getSupabase function instead of a direct instance
 export { getSupabase as supabase };
 
-export async function getOrCreateAnonymousUser(ip: string): Promise<Tables['anonymous_users']['Row'] | null> {
+export async function getOrCreateAnonymousUser(
+  ip: string
+): Promise<Database["public"]["Tables"]["anonymous_users"]["Row"] | null> {
   console.log("Attempting to get or create anonymous user for IP:", ip);
 
   try {
@@ -102,7 +104,9 @@ export async function getOrCreateAnonymousUser(ip: string): Promise<Tables['anon
   return null;
 }
 
-export async function getAnonymousUserByIp(ip: string): Promise<Tables['anonymous_users']['Row'] | null> {
+export async function getAnonymousUserByIp(
+  ip: string
+): Promise<Database["public"]["Tables"]["anonymous_users"]["Row"] | null> {
   console.log("Attempting to get anonymous user for IP:", ip);
 
   try {
