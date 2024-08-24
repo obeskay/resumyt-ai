@@ -1,5 +1,6 @@
-import { Database } from '@supabase/supabase-js'
+import { SupabaseClient } from '@supabase/supabase-js'
 
+export type Database = SupabaseClient['database']
 export type Tables = Database['public']['Tables']
 
 export type PricingPlan = Tables['pricing_plans']['Row']
