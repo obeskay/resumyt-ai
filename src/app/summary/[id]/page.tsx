@@ -57,7 +57,7 @@ export default function SummaryPage() {
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
         setSummary(data);
-        setVideoTitle(data.videos ? data.videos.title : null);
+        setVideoTitle(data.videos?.title || null);
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
         setError(errorMessage);
