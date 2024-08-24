@@ -15,12 +15,9 @@ import { getSupabase, getOrCreateAnonymousUser } from "@/lib/supabase";
 export async function POST(req: NextRequest) {
   try {
     // Apply rate limiting
-    const result = await rateLimit(req);
-    if (result) {
-      return NextResponse.json(
-        { error: "Rate limit exceeded" },
-        { status: 429 }
-      );
+    const rateLimitResult = await rateLimit(req);
+    if (rateLimitResult) {
+      return rateLimitResult;
     }
 
     const { videoUrl } = await req.json();
@@ -40,33 +37,14 @@ export async function POST(req: NextRequest) {
       throw new UserFetchError("Failed to get or create anonymous user");
     }
 
-    // Check quota
-    if (user.transcriptions_used >= 3) {
-      return NextResponse.json(
-        { error: "User quota exceeded" },
-        { status: 403 }
-      );
-    }
-
     // Process video
-    const { videoId, transcript, summary } = await processVideo(videoUrl, user.id);
+    const { videoId, transcriptOrMetadata, summary } = await processVideo(videoUrl, user.id);
 
-    if (!transcript || !summary) {
+    if (!transcriptOrMetadata || !summary) {
       throw new SummaryGenerationError("Failed to generate transcript or summary");
     }
 
-    // Update user quota
-    const supabase = getSupabase();
-    const { error: updateError } = await supabase
-      .from("anonymous_users")
-      .update({ transcriptions_used: user.transcriptions_used + 1 })
-      .eq("id", user.id);
-
-    if (updateError) {
-      throw new DatabaseUpdateError("Failed to update user quota");
-    }
-
-    return NextResponse.json({ summary, transcript });
+    return NextResponse.json({ summary, transcript: transcriptOrMetadata });
   } catch (error) {
     console.error("Error in video processing:", error);
     if (

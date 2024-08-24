@@ -1,30 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSupabase } from "./supabase";
 
-interface RateLimitEntry {
-  count: number;
-  timestamp: number;
-}
+export async function rateLimit(req: NextRequest) {
+  const supabase = getSupabase();
+  const ip = req.ip ?? "::1";
 
-const rateLimitMap = new Map<string, RateLimitEntry>();
+  // Check user's quota_remaining
+  const { data: user, error } = await supabase
+    .from("anonymous_users")
+    .select("quota_remaining")
+    .eq("ip_address", ip)
+    .single();
 
-export function rateLimit(req: NextRequest) {
-  const ip = req.ip ?? "127.0.0.1";
-  const now = Date.now();
-  const windowMs = 60 * 1000; // 1 minute
-  const limit = 60; // Number of allowed requests per minute
-
-  const entry = rateLimitMap.get(ip) || { count: 0, timestamp: now };
-
-  if (now - entry.timestamp > windowMs) {
-    entry.count = 0;
-    entry.timestamp = now;
+  if (error) {
+    console.error("Error fetching user quota:", error);
+    return NextResponse.json(
+      { error: "Error checking quota" },
+      { status: 500 }
+    );
   }
 
-  entry.count++;
-  rateLimitMap.set(ip, entry);
+  if (user.quota_remaining <= 0) {
+    return NextResponse.json({ error: "Quota exceeded" }, { status: 429 });
+  }
 
-  if (entry.count > limit) {
-    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+  // Decrement quota_remaining
+  const { error: updateError } = await supabase
+    .from("anonymous_users")
+    .update({ quota_remaining: user.quota_remaining - 1 })
+    .eq("ip_address", ip);
+
+  if (updateError) {
+    console.error("Error updating user quota:", updateError);
+    return NextResponse.json(
+      { error: "Error updating quota" },
+      { status: 500 }
+    );
   }
 
   return null;

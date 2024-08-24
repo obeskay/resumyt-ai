@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { summarizeVideo } from '@/lib/videoProcessing';
 import { VideoFetchError, TranscriptNotFoundError, SummaryGenerationError, DatabaseInsertError, DatabaseUpdateError } from '@/lib/errors';
 import { getSupabase } from '@/lib/supabase';
-import { AnonymousUser, SummaryInsert, DatabaseError } from '@/types/supabase';
+import { SummaryInsert } from '@/types/supabase';
+import { rateLimit } from '@/lib/rateLimit';
 
 interface ErrorResponse {
   error: string;
@@ -25,36 +26,14 @@ function extractYouTubeId(url: string): string | null {
   return match && match[2].length === 11 ? match[2] : null;
 }
 
-async function getOrCreateAnonymousUser(ipAddress: string): Promise<AnonymousUser> {
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from('anonymous_users')
-    .select('*')
-    .eq('ip_address', ipAddress)
-    .single();
-
-  if (error && (error as DatabaseError).code === 'PGRST116') {
-    // User not found, create a new one
-    const { data: newUser, error: insertError } = await supabase
-      .from('anonymous_users')
-      .insert({ ip_address: ipAddress })
-      .select()
-      .single();
-
-    if (insertError) {
-      throw new Error(`Failed to create anonymous user: ${insertError.message}`);
-    }
-
-    return newUser as AnonymousUser;
-  } else if (error) {
-    throw new Error(`Failed to fetch anonymous user: ${error.message}`);
-  }
-
-  return data as AnonymousUser;
-}
-
 export async function POST(req: NextRequest) {
   try {
+    // Check rate limit
+    const rateLimitResult = await rateLimit(req);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+
     const { videoUrl } = await req.json();
     
     if (!videoUrl || !isValidYouTubeUrl(videoUrl)) {
@@ -67,7 +46,19 @@ export async function POST(req: NextRequest) {
     }
 
     const ipAddress = req.headers.get('x-forwarded-for') || req.ip || 'unknown';
-    const user = await getOrCreateAnonymousUser(ipAddress);
+    const supabase = getSupabase();
+
+    // Check user's quota
+    const { data: user, error: userError } = await supabase
+      .from('anonymous_users')
+      .select('id, quota_remaining')
+      .eq('ip_address', ipAddress)
+      .single();
+
+    if (userError) {
+      console.error('Failed to fetch user:', userError);
+      return createErrorResponse('Failed to fetch user', userError.message, 500);
+    }
 
     if (user.quota_remaining <= 0) {
       return createErrorResponse('Quota exhausted', 'You have reached your quota limit for video summaries', 403);
@@ -81,8 +72,6 @@ export async function POST(req: NextRequest) {
       console.error('Generated summary is null or empty');
       throw new SummaryGenerationError("Failed to generate summary: Summary is null or empty");
     }
-
-    const supabase = getSupabase();
 
     // Update the user's quota
     const { error: updateError } = await supabase
@@ -137,7 +126,12 @@ export async function POST(req: NextRequest) {
 
     console.log('Summary inserted successfully:', insertedSummary);
 
-    return NextResponse.json({ summary, quotaRemaining: user.quota_remaining - 1 });
+    return NextResponse.json({
+      summary,
+      transcript,
+      videoId,
+      quotaRemaining: user.quota_remaining - 1
+    });
   } catch (error) {
     console.error('Error in summarize API:', error);
 

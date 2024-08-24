@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { motion, AnimatePresence } from "framer-motion";
 import MainLayout from "../components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
@@ -20,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
-type AnonymousUser = Database['public']['Tables']['anonymous_users']['Row'];
+type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
 function ErrorFallback({ error }: { error: Error }) {
   console.error("Error in HomePage:", error);
@@ -55,21 +54,23 @@ const HomePage = () => {
 
         const supabase = getSupabase();
         const { data: user, error } = await supabase
-          .from('anonymous_users')
-          .select('*')
-          .eq('ip_address', ip)
+          .from("anonymous_users")
+          .select("*")
+          .eq("ip_address", ip)
           .single();
 
         if (error) {
-          if (error.code === 'PGRST116') {
+          if (error.code === "PGRST116") {
             const { data: newUser, error: insertError } = await supabase
-              .from('anonymous_users')
+              .from("anonymous_users")
               .insert({ ip_address: ip })
               .select()
               .single();
 
             if (insertError) {
-              throw new Error(`Failed to create anonymous user: ${insertError.message}`);
+              throw new Error(
+                `Failed to create anonymous user: ${insertError.message}`
+              );
             }
             setUser(newUser);
           } else {
@@ -86,12 +87,15 @@ const HomePage = () => {
       } catch (error) {
         console.error("Error initializing user:", error);
         if (retries > 0) {
-          console.log(`Retrying user initialization. Attempts left: ${retries - 1}`);
+          console.log(
+            `Retrying user initialization. Attempts left: ${retries - 1}`
+          );
           await initializeUser(retries - 1);
         } else {
           toast({
             title: "Error",
-            description: "Failed to initialize user. Please refresh the page or try again later.",
+            description:
+              "Failed to initialize user. Please refresh the page or try again later.",
             variant: "destructive",
           });
         }
@@ -113,7 +117,6 @@ const HomePage = () => {
           transition={{ duration: 0.5 }}
           className="flex-grow flex flex-col justify-center items-center"
         >
-          <div className="w-full max-w-3xl">
           <AnimatePresence>
             {!loading && user && (
               <motion.div
@@ -145,12 +148,16 @@ const HomePage = () => {
                     Welcome to YouTube Summarizer!
                   </DialogTitle>
                   <DialogDescription className="text-sm md:text-base">
-                    You can summarize videos based on your remaining quota. Create an
-                    account to enjoy more features and increase your quota!
+                    You can summarize videos based on your remaining quota.
+                    Create an account to enjoy more features and increase your
+                    quota!
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <Button onClick={() => setShowDialog(false)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Button
+                    onClick={() => setShowDialog(false)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
                     Got it!
                   </Button>
                 </DialogFooter>

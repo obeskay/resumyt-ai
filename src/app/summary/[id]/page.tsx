@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
 import ProgressBar from "@/components/ProgressBar";
 
 export default function SummaryPage() {
@@ -100,10 +99,6 @@ export default function SummaryPage() {
         transition={{ duration: 0.5 }}
         className="flex-grow flex flex-col justify-start items-center pt-8"
       >
-        <div className="w-full max-w-3xl">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-          Video Summary and Transcript
-        </h1>
         <AnimatePresence>
           {videoTitle && (
             <motion.h2
