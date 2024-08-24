@@ -18,55 +18,64 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-
-      if (!videoUrl.trim()) {
-        toast({
-          title: "Error",
-          description: "Please enter a YouTube URL",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (quotaRemaining <= 0) {
-        toast({
-          title: "Error",
-          description: "You have reached your quota limit",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setIsLoading(true);
-
-      try {
-        const response = await fetch('/api/summarize', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ videoUrl, userId }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to generate summary');
-        }
-
-        const data = await response.json();
-        router.push(`/summary-result/${data.videoId}`);
-      } catch (err) {
-        toast({
-          title: "Error",
-          description: "Failed to generate summary. Please try again.",
-          variant: "destructive",
-        });
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+      if (await validateSubmission()) {
+        await submitVideo();
       }
     },
     [videoUrl, userId, quotaRemaining, toast, router]
   );
+
+  const validateSubmission = async (): Promise<boolean> => {
+    if (!videoUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a YouTube URL",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (quotaRemaining <= 0) {
+      toast({
+        title: "Error",
+        description: "You have reached your quota limit",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const submitVideo = async () => {
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/summarize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoUrl, userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate summary');
+      }
+
+      const data = await response.json();
+      router.push(`/summary-result/${data.videoId}`);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to generate summary. Please try again.",
+        variant: "destructive",
+      });
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto mt-10">
