@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useVideoStore } from "@/store/videoStore";
 import { useToast } from "@/components/ui/use-toast";
 import LoadingIndicator from "@/components/LoadingIndicator";
@@ -15,17 +15,7 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (await validateSubmission()) {
-        await submitVideo();
-      }
-    },
-    [validateSubmission, submitVideo]
-  );
-
-  const validateSubmission = async (): Promise<boolean> => {
+  const validateSubmission = useCallback(async (): Promise<boolean> => {
     if (!videoUrl.trim()) {
       toast({
         title: "Error",
@@ -45,9 +35,9 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
     }
 
     return true;
-  };
+  }, [videoUrl, quotaRemaining, toast]);
 
-  const submitVideo = async () => {
+  const submitVideo = useCallback(async () => {
     setIsLoading(true);
 
     try {
@@ -75,7 +65,17 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [videoUrl, userId, router, toast]);
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (await validateSubmission()) {
+        await submitVideo();
+      }
+    },
+    [validateSubmission, submitVideo]
+  );
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
