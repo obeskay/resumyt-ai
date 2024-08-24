@@ -115,8 +115,9 @@ const HomePage = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5 }}
-          className="max-w-3xl mx-auto"
+          className="flex-grow flex flex-col justify-center items-center"
         >
+          <div className="w-full max-w-3xl">
           <AnimatePresence>
             {!loading && user && (
               <motion.div

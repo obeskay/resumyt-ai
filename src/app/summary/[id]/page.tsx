@@ -97,8 +97,9 @@ export default function SummaryPage() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
-        className="max-w-3xl mx-auto"
+        className="flex-grow flex flex-col justify-start items-center pt-8"
       >
+        <div className="w-full max-w-3xl">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
           Video Summary and Transcript
         </h1>
