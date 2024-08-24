@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - supabase
+
+  supabase:
+    image: supabase/supabase-docker:latest
+    ports:
+      - "54321:54321"
+    environment:
+      - POSTGRES_PASSWORD=your_postgres_password
+
+volumes:
+  supabase-data:
