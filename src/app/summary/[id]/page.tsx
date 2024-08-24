@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import MainLayout from "@/components/MainLayout";
 import SummaryDisplay from "@/components/SummaryDisplay";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ export default function SummaryPage() {
   const [error, setError] = useState(null);
   const [sharing, setSharing] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchSummaryAndTranscript() {

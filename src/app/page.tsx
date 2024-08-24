@@ -6,12 +6,13 @@ import VideoInput from "@/components/VideoInput";
 import { useVideoStore } from "@/store/videoStore";
 import Image from "next/image";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
-  const { summary, videoUrl, setVideoUrl, summarizeVideo, isLoading } =
-    useVideoStore();
+  const { videoUrl, setVideoUrl, summarizeVideo, isLoading } = useVideoStore();
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setTheme("dark");
@@ -21,9 +22,10 @@ export default function Home() {
     setError(null);
     setVideoUrl(url);
     try {
-      // Assuming we have a user ID, replace 'user123' with actual user ID
       const result = await summarizeVideo("user123");
-      if (!result) {
+      if (result && result.id) {
+        router.push(`/summary/${result.id}`);
+      } else {
         setError("Failed to summarize video. Please try again.");
       }
     } catch (error) {
