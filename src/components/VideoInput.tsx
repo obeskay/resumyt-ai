@@ -6,19 +6,23 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import QuotaMessage from "@/components/QuotaMessage";
 
 interface VideoInputProps {
-  onSubmit: (url: string) => Promise<void>;
-  isLoading: boolean;
-  error: string | null;
+  onSuccess: (videoId: string, summary: string, transcript: string) => void;
+  onStart: () => void;
+  userId: string;
+  quotaRemaining: number;
 }
 
 const VideoInput: React.FC<VideoInputProps> = React.memo(
-  ({ onSubmit, isLoading, error }) => {
+  ({ onSuccess, onStart, userId, quotaRemaining }) => {
     const { videoUrl, setVideoUrl } = useVideoStore();
     const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = useCallback(
       async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
 
         if (!videoUrl.trim()) {
           toast({
@@ -29,18 +33,37 @@ const VideoInput: React.FC<VideoInputProps> = React.memo(
           return;
         }
 
-        if (!videoUrl.trim()) {
+        if (quotaRemaining <= 0) {
           toast({
             title: "Error",
-            description: "Please enter a YouTube URL",
+            description: "You have reached your quota limit",
             variant: "destructive",
           });
           return;
         }
 
-        await onSubmit(videoUrl);
+        setIsLoading(true);
+        onStart();
+
+        try {
+          // Here you would call your API to generate the summary
+          // For now, let's simulate it with a timeout
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Simulated response
+          const videoId = "simulated-video-id";
+          const summary = "This is a simulated summary.";
+          const transcript = "This is a simulated transcript.";
+
+          onSuccess(videoId, summary, transcript);
+        } catch (err) {
+          setError("Failed to generate summary. Please try again.");
+          console.error(err);
+        } finally {
+          setIsLoading(false);
+        }
       },
-      [videoUrl, onSubmit, toast]
+      [videoUrl, onSuccess, onStart, quotaRemaining, toast]
     );
 
     return (
