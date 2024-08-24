@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "./ui/toaster";
+import YouTubeLogo from "./YouTubeLogo";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -22,15 +23,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <div className="min-h-screen bg-background text-foreground flex flex-col">
         <header className="py-2">
           <div className="container mx-auto flex justify-between items-center">
-            <Link href="/" passHref>
-              <motion.h1
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="text-4xl font-bold"
-              >
-                ResumeYT
-              </motion.h1>
+            <Link href="/" className="flex items-center gap-2">
+              <YouTubeLogo />
+              <div className="flex items-center cursor-pointer overflow-clip">
+                <motion.h1 className="text-4xl font-bold">ResumeYT</motion.h1>
+              </div>
             </Link>
             <motion.button
               whileHover={{ scale: 1.05 }}
