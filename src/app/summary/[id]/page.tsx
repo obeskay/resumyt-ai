@@ -11,14 +11,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import ProgressBar from "@/components/ProgressBar";
+import { Summary } from "@/types/supabase";
 
 export default function SummaryPage() {
   const params = useParams();
   const id = params?.id;
-  const [summary, setSummary] = useState(null);
-  const [videoTitle, setVideoTitle] = useState(null);
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [videoTitle, setVideoTitle] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]: any = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -39,26 +40,30 @@ export default function SummaryPage() {
           .from("summaries")
           .select(
             `
+            id,
+            video_id,
             content,
+            transcript,
+            created_at,
+            user_id,
             videos (
               title
             )
           `
           )
-          .eq("video_id", id as string)
+          .eq("video_id", id)
           .single();
 
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
-        setSummary(data.content);
-        setVideoTitle(data.videos.title);
-      } catch (error: any) {
-        setError(error.message || "Failed to fetch summary and transcript");
+        setSummary(data);
+        setVideoTitle(data.videos?.title || null);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        setError(errorMessage);
         toast({
           title: "Error",
-          description:
-            error.message ||
-            "Failed to fetch summary and transcript. Please try again later.",
+          description: errorMessage || "Failed to fetch summary and transcript. Please try again later.",
           variant: "destructive",
         });
       } finally {
@@ -67,7 +72,7 @@ export default function SummaryPage() {
     }
 
     fetchSummaryAndTranscript();
-  }, [id, toast, router]);
+  }, [id, toast]);
 
   const handleShare = async () => {
     setSharing(true);
@@ -145,7 +150,7 @@ export default function SummaryPage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <SummaryDisplay summary={summary} isLoading={false} />
+                  <SummaryDisplay summary={summary.content} isLoading={false} />
                   <Button
                     onClick={handleShare}
                     className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground"
