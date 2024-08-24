@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { useRouter } from "next/navigation";
 import MainLayout from "../components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
@@ -41,18 +40,14 @@ function ErrorFallback({ error }: { error: Error }) {
 const HomePage = () => {
   const [user, setUser] = useState<AnonymousUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userInitialized, setUserInitialized] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const [isSummarizing, setIsSummarizing] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     async function initializeUser(retries = 3) {
       try {
         setLoading(true);
 
-        // Get the IP address
         const response = await fetch("/api/getIp");
         const { ip } = await response.json();
 
@@ -65,7 +60,6 @@ const HomePage = () => {
 
         if (error) {
           if (error.code === 'PGRST116') {
-            // User not found, create a new one
             const { data: newUser, error: insertError } = await supabase
               .from('anonymous_users')
               .insert({ ip_address: ip })
@@ -87,20 +81,15 @@ const HomePage = () => {
           setShowDialog(true);
           localStorage.setItem("dialogShown", "true");
         }
-
-        setUserInitialized(true);
       } catch (error) {
         console.error("Error initializing user:", error);
         if (retries > 0) {
-          console.log(
-            `Retrying user initialization. Attempts left: ${retries - 1}`
-          );
+          console.log(`Retrying user initialization. Attempts left: ${retries - 1}`);
           await initializeUser(retries - 1);
         } else {
           toast({
             title: "Error",
-            description:
-              "Failed to initialize user. Please refresh the page or try again later.",
+            description: "Failed to initialize user. Please refresh the page or try again later.",
             variant: "destructive",
           });
         }
@@ -112,20 +101,11 @@ const HomePage = () => {
     initializeUser();
   }, [toast]);
 
-  const handleSummaryGenerated = (videoId: string, summary: string, transcript: string) => {
-    setIsSummarizing(false);
-    router.push(`/summary/${videoId}`);
-  };
-
-  const handleSummarizationStart = () => {
-    setIsSummarizing(true);
-  };
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <MainLayout>
         <div className="container mx-auto px-4 py-8 max-w-3xl">
-          {userInitialized && user && (
+          {!loading && user && (
             <>
               <div className="mb-4 text-center">
                 <p className="text-sm text-gray-600">
@@ -133,8 +113,6 @@ const HomePage = () => {
                 </p>
               </div>
               <VideoInput
-                onSuccess={handleSummaryGenerated}
-                onStart={handleSummarizationStart}
                 userId={user.id}
                 quotaRemaining={user.quota_remaining}
               />
