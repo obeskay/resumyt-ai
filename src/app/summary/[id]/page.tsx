@@ -14,7 +14,11 @@ import ProgressBar from "@/components/ProgressBar";
 import { Database } from "@/types/supabase";
 
 // Extract the Summary type from the supabase database
-type Summary = Database["public"]["Tables"]["summaries"]["Row"];
+type Summary = Database["public"]["Tables"]["summaries"]["Row"] & {
+  videos?: {
+    title: string | null;
+  };
+};
 
 export default function SummaryPage() {
   const params = useParams();
@@ -59,7 +63,7 @@ export default function SummaryPage() {
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
         setSummary(data);
-        setVideoTitle(data.videos?.title || "Unknown Video" || null);
+        setVideoTitle(data.videos?.title || "Unknown Video");
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "An unknown error occurred";
