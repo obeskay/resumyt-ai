@@ -46,16 +46,20 @@ const VideoInput: React.FC<VideoInputProps> = React.memo(
         onStart();
 
         try {
-          // Here you would call your API to generate the summary
-          // For now, let's simulate it with a timeout
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
-          // Simulated response
-          const videoId = "simulated-video-id";
-          const summary = "This is a simulated summary.";
-          const transcript = "This is a simulated transcript.";
+          const response = await fetch('/api/summarize', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ videoUrl, userId }),
+          });
 
-          onSuccess(videoId, summary, transcript);
+          if (!response.ok) {
+            throw new Error('Failed to generate summary');
+          }
+
+          const data = await response.json();
+          onSuccess(data.videoId, data.summary, data.transcript);
         } catch (err) {
           setError("Failed to generate summary. Please try again.");
           console.error(err);
