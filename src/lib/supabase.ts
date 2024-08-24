@@ -10,7 +10,7 @@ const getSupabaseUrl = () => {
 const getSupabaseKey = () => {
   console.log("Environment:", process.env.NODE_ENV);
   console.log("All environment variables:", process.env);
-  
+
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!key) {
     console.error("NEXT_PUBLIC_SUPABASE_ANON_KEY is not set");
@@ -41,16 +41,16 @@ export { getSupabase as supabase };
 
 export async function getOrCreateAnonymousUser(
   ip: string
-): Promise<Tables['anonymous_users']['Row'] | null> {
+): Promise<Tables["anonymous_users"]["Row"] | null> {
   console.log("Attempting to get or create anonymous user for IP:", ip);
 
   try {
     const supabase = getSupabase();
     // Check if a user with this IP already exists
     const { data: existingUser, error: fetchError } = await supabase
-      .from('anonymous_users')
-      .select('*')
-      .eq('ip_address', ip)
+      .from("anonymous_users")
+      .select("*")
+      .eq("ip_address", ip)
       .single();
 
     if (fetchError) {
@@ -74,8 +74,13 @@ export async function getOrCreateAnonymousUser(
     let retries = 3;
     while (retries > 0) {
       const { data: newUser, error: createError } = await supabase
-        .from('anonymous_users')
-        .insert({ ip_address: ip, transcriptions_used: 0, pricing_plan_id: 1, quota_remaining: 100 })
+        .from("anonymous_users")
+        .insert({
+          ip_address: ip,
+          transcriptions_used: 0,
+          pricing_plan_id: 1,
+          quota_remaining: 100,
+        })
         .select()
         .single();
 
@@ -101,7 +106,7 @@ export async function getOrCreateAnonymousUser(
 
 export async function getAnonymousUserByIp(
   ip: string
-): Promise<Tables['anonymous_users']['Row'] | null> {
+): Promise<Tables["anonymous_users"]["Row"] | null> {
   console.log("Attempting to get anonymous user for IP:", ip);
 
   try {
@@ -177,7 +182,9 @@ export async function updateUserPlan(
       return false;
     }
 
-    console.log(`Successfully updated user ${userId} to plan ${newPlanId} with new quota ${newQuota}`);
+    console.log(
+      `Successfully updated user ${userId} to plan ${newPlanId} with new quota ${newQuota}`
+    );
     return true;
   } catch (error) {
     console.error("Unexpected error in updateUserPlan:", error);
