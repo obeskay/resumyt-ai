@@ -6,11 +6,15 @@ interface VideoState {
   transcription: string
   summary: string
   isLoading: boolean
+  videoTitle: string
+  videoThumbnail: string
   setVideoUrl: (url: string) => void
   setTranscription: (transcription: string) => void
   setSummary: (summary: string) => void
   setIsLoading: (isLoading: boolean) => void
+  setVideoMetadata: (title: string, thumbnail: string) => void
   summarizeVideo: (userId: string) => Promise<{ videoId: string; summary: string; transcript: string } | null>
+  fetchVideoMetadata: (url: string) => Promise<void>
 }
 
 export const useVideoStore = create<VideoState>((set, get) => ({
@@ -18,10 +22,13 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   transcription: '',
   summary: '',
   isLoading: false,
+  videoTitle: '',
+  videoThumbnail: '',
   setVideoUrl: (url) => set({ videoUrl: url }),
   setTranscription: (transcription) => set({ transcription }),
   setSummary: (summary) => set({ summary }),
   setIsLoading: (isLoading) => set({ isLoading }),
+  setVideoMetadata: (title, thumbnail) => set({ videoTitle: title, videoThumbnail: thumbnail }),
   summarizeVideo: async (userId: string) => {
     const { videoUrl, setIsLoading, setSummary } = get();
     setIsLoading(true);
@@ -65,6 +72,31 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       return null;
     } finally {
       setIsLoading(false);
+    }
+  },
+  fetchVideoMetadata: async (url: string) => {
+    try {
+      const response = await fetch('/api/videoProcessing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoUrl: url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch video metadata');
+      }
+
+      const data = await response.json();
+      set({ videoTitle: data.title, videoThumbnail: data.thumbnail });
+    } catch (error) {
+      console.error('Error fetching video metadata:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch video metadata. Please try again.",
+        variant: "destructive",
+      });
     }
   },
 }))

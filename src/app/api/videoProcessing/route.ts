@@ -1,66 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
-import {
-  TranscriptNotFoundError,
-  SummaryGenerationError,
-  UserFetchError,
-  VideoFetchError,
-  SummaryFetchError,
-  DatabaseInsertError,
-  DatabaseUpdateError,
-} from "@/lib/errors";
-import { processVideo } from "@/lib/videoProcessing";
-import { rateLimit } from "@/lib/rateLimit";
-import { getSupabase, getOrCreateAnonymousUser } from "@/lib/supabase";
+import { NextResponse } from 'next/server';
+import ytdl from 'ytdl-core';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    // Apply rate limiting
-    const rateLimitResult = await rateLimit(req);
-    if (rateLimitResult) {
-      return rateLimitResult;
-    }
-
-    const { videoUrl } = await req.json();
-    const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+    const { videoUrl } = await request.json();
 
     if (!videoUrl) {
-      return NextResponse.json(
-        { error: "Missing videoUrl" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Video URL is required' }, { status: 400 });
     }
 
-    // Get or create anonymous user
-    const user = await getOrCreateAnonymousUser(ip);
+    const videoInfo = await ytdl.getInfo(videoUrl);
+    const videoDetails = videoInfo.videoDetails;
 
-    if (!user) {
-      throw new UserFetchError("Failed to get or create anonymous user");
-    }
+    const title = videoDetails.title;
+    const thumbnail = videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url;
 
-    // Process video
-    const { videoId, transcriptOrMetadata, summary } = await processVideo(videoUrl, user.id);
-
-    if (!transcriptOrMetadata || !summary) {
-      throw new SummaryGenerationError("Failed to generate transcript or summary");
-    }
-
-    return NextResponse.json({ summary, transcript: transcriptOrMetadata });
+    return NextResponse.json({ title, thumbnail });
   } catch (error) {
-    console.error("Error in video processing:", error);
-    if (
-      error instanceof TranscriptNotFoundError ||
-      error instanceof SummaryGenerationError ||
-      error instanceof UserFetchError ||
-      error instanceof VideoFetchError ||
-      error instanceof SummaryFetchError ||
-      error instanceof DatabaseInsertError ||
-      error instanceof DatabaseUpdateError
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    return NextResponse.json(
-      { error: "An unexpected error occurred" },
-      { status: 500 }
-    );
+    console.error('Error processing video:', error);
+    return NextResponse.json({ error: 'Failed to process video' }, { status: 500 });
   }
 }
