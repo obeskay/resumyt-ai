@@ -139,4 +139,4 @@ export interface Database {
 }
 
 export type Tables = Database['public']['Tables']
-export { Tables }
+export type { Tables }
