@@ -58,7 +58,6 @@ export default function Home() {
         </h2>
 
         <VideoInput
-          videoUrl={videoUrl}
           onSubmit={handleVideoSubmit}
           isLoading={isLoading}
           error={error}
