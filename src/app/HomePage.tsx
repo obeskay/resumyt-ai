@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { motion, AnimatePresence } from "framer-motion";
 import MainLayout from "../components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
@@ -24,12 +25,7 @@ type AnonymousUser = Database['public']['Tables']['anonymous_users']['Row'];
 function ErrorFallback({ error }: { error: Error }) {
   console.error("Error in HomePage:", error);
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="container mx-auto px-4 py-8 max-w-3xl"
-    >
+    <div className="container mx-auto px-4 py-8 max-w-3xl">
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
         Something went wrong
       </h1>
@@ -39,7 +35,7 @@ function ErrorFallback({ error }: { error: Error }) {
       >
         {error.message}
       </pre>
-    </motion.div>
+    </div>
   );
 }
 
