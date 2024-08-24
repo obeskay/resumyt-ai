@@ -5,6 +5,7 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import Image from "next/image";
 
 interface VideoInputProps {
   userId: string;
@@ -12,7 +13,7 @@ interface VideoInputProps {
 }
 
 const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
-  const { videoUrl, setVideoUrl } = useVideoStore();
+  const { videoUrl, setVideoUrl, videoTitle, videoThumbnail, fetchVideoMetadata } = useVideoStore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -79,8 +80,14 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
     [validateSubmission, submitVideo]
   );
 
+  useEffect(() => {
+    if (videoUrl.trim()) {
+      fetchVideoMetadata(videoUrl);
+    }
+  }, [videoUrl, fetchVideoMetadata]);
+
   return (
-    <div className="w-full">
+    <div className="w-full space-y-4">
       <form onSubmit={handleSubmit} className="relative">
         <Input
           type="url"
@@ -100,6 +107,18 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
         </Button>
       </form>
       {isLoading && <LoadingIndicator />}
+      {videoTitle && videoThumbnail && (
+        <div className="bg-popover p-4 rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold mb-2">{videoTitle}</h3>
+          <Image
+            src={videoThumbnail}
+            alt={videoTitle}
+            width={320}
+            height={180}
+            className="rounded-md"
+          />
+        </div>
+      )}
     </div>
   );
 };
