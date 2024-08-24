@@ -5,7 +5,8 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import Image from "next/image";
+import YouTubeThumbnail from "./YouTubeThumbnail";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface VideoInputProps {
   userId: string;
@@ -13,7 +14,13 @@ interface VideoInputProps {
 }
 
 const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
-  const { videoUrl, setVideoUrl, videoTitle, videoThumbnail, fetchVideoMetadata } = useVideoStore();
+  const {
+    videoUrl,
+    setVideoUrl,
+    videoTitle,
+    videoThumbnail,
+    fetchVideoMetadata,
+  } = useVideoStore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -87,38 +94,55 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
   }, [videoUrl, fetchVideoMetadata]);
 
   return (
-    <div className="w-full space-y-4">
-      <form onSubmit={handleSubmit} className="relative">
+    <div className="w-full space-y-6">
+      <motion.form
+        onSubmit={handleSubmit}
+        className="relative"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <Input
           type="url"
           value={videoUrl}
           onChange={(e) => setVideoUrl(e.target.value)}
           required
-          className="bg-popover"
+          className="bg-popover pr-24"
           placeholder="https://www.youtube.com/watch?v=..."
         />
         <Button
-          size="lg"
+          size="sm"
           type="submit"
           disabled={isLoading}
-          className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-red-500 hover:bg-red-600 text-white px-6 h-10"
+          className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-red-500 hover:bg-red-600 text-white px-4 h-8"
         >
           RESUMIR
         </Button>
-      </form>
+      </motion.form>
       {isLoading && <LoadingIndicator />}
-      {videoTitle && videoThumbnail && (
-        <div className="bg-popover p-4 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold mb-2">{videoTitle}</h3>
-          <Image
-            src={videoThumbnail}
-            alt={videoTitle}
-            width={320}
-            height={180}
-            className="rounded-md"
-          />
-        </div>
-      )}
+      <AnimatePresence>
+        {videoTitle && videoThumbnail && (
+          <motion.div
+            key="video-info"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="bg-popover p-4 rounded-lg shadow-md"
+          >
+            <h3 className="text-xl font-semibold mb-4 text-center">
+              {videoTitle}
+            </h3>
+            <div className="max-w-sm mx-auto">
+              <YouTubeThumbnail
+                src={videoThumbnail}
+                alt={videoTitle}
+                layoutId="video-thumbnail"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -12,11 +12,13 @@ import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import { Database } from "@/types/supabase";
 import { cn } from "@/lib/utils";
+import YouTubeThumbnail from "@/components/YouTubeThumbnail";
 
 // Extract the Summary type from the supabase database
 type Summary = Database["public"]["Tables"]["summaries"]["Row"] & {
   videos?: {
     title: string | null;
+    thumbnail_url: string | null;
   } | null;
 };
 
@@ -25,6 +27,7 @@ export default function SummaryPage() {
   const id = params?.id;
   const [summary, setSummary] = useState<Summary | null>(null);
   const [videoTitle, setVideoTitle] = useState<string | null>(null);
+  const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
@@ -53,7 +56,8 @@ export default function SummaryPage() {
             created_at,
             user_id,
             videos (
-              title
+              title,
+              thumbnail_url
             )
           `
           )
@@ -63,7 +67,8 @@ export default function SummaryPage() {
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
         setSummary(data as any);
-        setVideoTitle("Unknown Video");
+        setVideoTitle(data.videos?.title || "Unknown Video");
+        setVideoThumbnail(data.videos?.thumbnail_url || null);
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "An unknown error occurred";
@@ -114,15 +119,24 @@ export default function SummaryPage() {
         className="w-full flex-grow flex flex-col justify-start items-center pt-8"
       >
         <AnimatePresence>
-          {videoTitle && (
-            <motion.h2
+          {videoTitle && videoThumbnail && (
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-2xl md:text-3xl font-semibold mb-4 text-center"
+              className="mb-8 text-center"
             >
-              {videoTitle}
-            </motion.h2>
+              <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+                {videoTitle}
+              </h2>
+              <div className="max-w-sm mx-auto">
+                <YouTubeThumbnail
+                  src={videoThumbnail}
+                  alt={videoTitle}
+                  layoutId="video-thumbnail"
+                />
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
         <Card className="max-w-3xl w-full">
@@ -139,9 +153,6 @@ export default function SummaryPage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  {/* <Skeleton className="h-4 w-full mb-4" />
-                  <Skeleton className="h-4 w-3/4 mb-4" />
-                  <Skeleton className="h-4 w-1/2" /> */}
                   {Array.from({ length: 8 }).map((_, index) => (
                     <Skeleton
                       key={index}
