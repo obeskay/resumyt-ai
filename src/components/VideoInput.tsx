@@ -64,7 +64,7 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
       }
 
       const data = await response.json();
-      router.push(`/summary-result/${data.videoId}`);
+      router.push(`/summary/${data.videoId}`);
     } catch (err) {
       toast({
         title: "Error",
@@ -76,6 +76,20 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isLoading) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isLoading]);
 
   return (
     <div className="max-w-3xl mx-auto mt-10">
