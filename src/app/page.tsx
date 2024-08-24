@@ -9,7 +9,8 @@ import { toast } from "@/components/ui/use-toast";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
-  const { summary, videoUrl, setVideoUrl, summarizeVideo, isLoading } = useVideoStore();
+  const { summary, videoUrl, setVideoUrl, summarizeVideo, isLoading } =
+    useVideoStore();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,16 +22,23 @@ export default function Home() {
     setVideoUrl(url);
     try {
       // Assuming we have a user ID, replace 'user123' with actual user ID
-      const result = await summarizeVideo('user123');
+      const result = await summarizeVideo("user123");
       if (!result) {
         setError("Failed to summarize video. Please try again.");
       }
     } catch (error) {
-      console.error('Error summarizing video:', error);
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      console.error("Error summarizing video:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      );
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     }
@@ -57,11 +65,7 @@ export default function Home() {
           <span className="text-foreground">videos de YouTube</span>
         </h2>
 
-        <VideoInput
-          onSubmit={handleVideoSubmit}
-          isLoading={isLoading}
-          error={error}
-        />
+        <VideoInput />
 
         <div className="bg-card rounded-lg p-6 mt-8">
           <ul className="space-y-4">
