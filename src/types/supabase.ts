@@ -19,7 +19,6 @@ export type DatabaseError = {
 }
 
 export type { Database }
-}
 
 declare global {
   namespace Supabase {
