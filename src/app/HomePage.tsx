@@ -120,7 +120,7 @@ const HomePage = () => {
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
               Resume gratis <br />
-              <span className="text-3xl sm:text-4xl md:text-5xl font-normal bg-gradient-to-tr from-secondary to-secondary-foreground text-transparent bg-clip-text">
+              <span className="text-3xl sm:text-4xl md:text-5xl bg-gradient-to-tr from-secondary to-secondary-foreground text-transparent bg-clip-text">
                 videos de YouTube
               </span>
             </h1>
