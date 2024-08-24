@@ -22,7 +22,7 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
         await submitVideo();
       }
     },
-    [videoUrl, userId, quotaRemaining, toast, router, validateSubmission, submitVideo]
+    [validateSubmission, submitVideo]
   );
 
   const validateSubmission = async (): Promise<boolean> => {
