@@ -42,7 +42,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </motion.button>
           </div>
         </header>
-        <main className="flex-grow container mx-auto">{children}</main>
+        <main className="relative flex-grow container mx-auto flex flex-col h-full">
+          {children}
+        </main>
         <Toaster />
       </div>
     </>

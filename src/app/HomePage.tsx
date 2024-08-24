@@ -24,12 +24,12 @@ type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 function ErrorFallback({ error }: { error: Error }) {
   console.error("Error in HomePage:", error);
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <div className="container mx-auto">
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
         Something went wrong
       </h1>
       <pre
-        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        className="bg-red-100 border border-red-400 text-red-700 p-4 rounded relative"
         role="alert"
       >
         {error.message}
@@ -110,40 +110,46 @@ const HomePage = () => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <MainLayout>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
-          className="flex-grow flex flex-col justify-center items-center w-full"
-        >
-          <AnimatePresence>
-            {!loading && user && (
-              <motion.div
-                className="space-y-6"
-                key="user-content"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <div className="text-center">
-                  <p className="text-sm">
+        <div className="flex-grow flex flex-col justify-center items-center w-full h-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="text-center space-y-6 max-w-lg w-full"
+          >
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
+              Resume gratis <br />
+              <span className="text-3xl sm:text-4xl md:text-5xl font-normal bg-gradient-to-tr from-secondary to-secondary-foreground text-transparent bg-clip-text">
+                videos de YouTube
+              </span>
+            </h1>
+            <AnimatePresence>
+              {!loading && user && (
+                <motion.div
+                  className="space-y-6 w-full"
+                  key="user-content"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                >
+                  <VideoInput
+                    userId={user.id}
+                    quotaRemaining={user.quota_remaining}
+                  />
+                  <p className="text-sm text-foreground/60">
                     Remaining quota: {user.quota_remaining} summaries
                   </p>
-                </div>
-                <VideoInput
-                  userId={user.id}
-                  quotaRemaining={user.quota_remaining}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
         <Toaster />
         <AnimatePresence>
           {showDialog && (
             <Dialog open={showDialog} onOpenChange={setShowDialog}>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                   <DialogTitle className="text-xl">
                     Welcome to YouTube Summarizer!

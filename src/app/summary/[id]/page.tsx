@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
-import ProgressBar from "@/components/ProgressBar";
 import { Database } from "@/types/supabase";
 import { cn } from "@/lib/utils";
 

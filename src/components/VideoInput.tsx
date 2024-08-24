@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 interface VideoInputProps {
   userId: string;
@@ -78,41 +79,25 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
     [validateSubmission, submitVideo]
   );
 
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isLoading) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [isLoading]);
-
   return (
-    <div className="max-w-3xl mx-auto mt-10">
-      <form onSubmit={handleSubmit} className="flex flex-col">
-        <div className="flex">
-          <input
-            type="url"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            required
-            className="flex-grow px-4 py-2 bg-card border border-input rounded-l-md text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="https://www.youtube.com/watch?v=..."
-          />
-          <Button
-            size={"lg"}
-            type="submit"
-            disabled={isLoading}
-            className="rounded-l-none"
-          >
-            Summarize
-          </Button>
-        </div>
+    <div className="w-full">
+      <form onSubmit={handleSubmit} className="relative">
+        <Input
+          type="url"
+          value={videoUrl}
+          onChange={(e) => setVideoUrl(e.target.value)}
+          required
+          className="bg-popover"
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
+        <Button
+          size="lg"
+          type="submit"
+          disabled={isLoading}
+          className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-red-500 hover:bg-red-600 text-white px-6 h-10"
+        >
+          RESUMIR
+        </Button>
       </form>
       {isLoading && <LoadingIndicator />}
     </div>
