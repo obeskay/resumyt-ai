@@ -26,7 +26,7 @@ export default function SummaryPage() {
   useEffect(() => {
     async function fetchSummaryAndTranscript() {
       if (!id || typeof id !== "string") {
-        setError("Invalid video ID");
+        setError(() => "Invalid video ID");
         setLoading(false);
         return;
       }
@@ -67,7 +67,7 @@ export default function SummaryPage() {
     }
 
     fetchSummaryAndTranscript();
-  }, [id, toast]);
+  }, [id, toast, router]);
 
   const handleShare = async () => {
     setSharing(true);
