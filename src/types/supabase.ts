@@ -18,6 +18,9 @@ export type DatabaseError = {
   message: string;
 }
 
+export type { Database }
+}
+
 declare global {
   namespace Supabase {
     interface Database {
