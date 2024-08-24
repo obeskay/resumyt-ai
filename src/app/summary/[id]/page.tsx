@@ -18,7 +18,7 @@ export default function SummaryPage() {
   const [summary, setSummary] = useState(null);
   const [videoTitle, setVideoTitle] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError]: any = useState(null);
   const [sharing, setSharing] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function SummaryPage() {
   useEffect(() => {
     async function fetchSummaryAndTranscript() {
       if (!id || typeof id !== "string") {
-        setError(() => "Invalid video ID");
+        setError("Invalid video ID");
         setLoading(false);
         return;
       }
