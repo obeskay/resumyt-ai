@@ -41,16 +41,16 @@ export { getSupabase as supabase };
 
 export async function getOrCreateAnonymousUser(
   ip: string
-): Promise<Database['public']['Tables']['anonymous_users']['Row'] | null> {
+): Promise<Tables['anonymous_users']['Row'] | null> {
   console.log("Attempting to get or create anonymous user for IP:", ip);
 
   try {
     const supabase = getSupabase();
     // Check if a user with this IP already exists
     const { data: existingUser, error: fetchError } = await supabase
-      .from("anonymous_users")
-      .select("*")
-      .eq("ip_address", ip)
+      .from('anonymous_users')
+      .select('*')
+      .eq('ip_address', ip)
       .single();
 
     if (fetchError) {
@@ -74,8 +74,8 @@ export async function getOrCreateAnonymousUser(
     let retries = 3;
     while (retries > 0) {
       const { data: newUser, error: createError } = await supabase
-        .from("anonymous_users")
-        .insert({ ip_address: ip, transcriptions_used: 0, pricing_plan_id: 1, quota_remaining: 100 }) // Set default pricing plan to 1 (Free) with 100 quota
+        .from('anonymous_users')
+        .insert({ ip_address: ip, transcriptions_used: 0, pricing_plan_id: 1, quota_remaining: 100 })
         .select()
         .single();
 
