@@ -67,7 +67,7 @@ export default function Home() {
           <span className="text-foreground">videos de YouTube</span>
         </h2>
 
-        <VideoInput />
+        <VideoInput userId="user123" quotaRemaining={5} />
 
         <div className="bg-card rounded-lg p-6 mt-8">
           <ul className="space-y-4">
