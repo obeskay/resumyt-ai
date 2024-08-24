@@ -53,7 +53,7 @@ const VideoInput: React.FC<VideoInputProps> = ({ userId, quotaRemaining }) => {
         }
 
         const data = await response.json();
-        router.push(`/summary/${data.videoId}`);
+        router.push(`/summary-result/${data.videoId}`);
       } catch (err) {
         toast({
           title: "Error",
