@@ -25,7 +25,7 @@ export default function SummaryPage() {
 
   useEffect(() => {
     async function fetchSummaryAndTranscript() {
-      if (!id || typeof id !== 'string') {
+      if (!id || typeof id !== "string") {
         setError("Invalid video ID");
         setLoading(false);
         return;
@@ -52,7 +52,7 @@ export default function SummaryPage() {
         if (!data) throw new Error("Summary not found");
         setSummary(data.content);
         setVideoTitle(data.videos.title);
-      } catch (error) {
+      } catch (error: any) {
         setError(error.message || "Failed to fetch summary and transcript");
         toast({
           title: "Error",
@@ -137,11 +137,14 @@ export default function SummaryPage() {
           </CardContent>
         </Card>
         <div className="mt-8">
-          {id && typeof id === 'string' ? (
+          {id && typeof id === "string" ? (
             <ProgressBar summaryId={id} />
           ) : (
             <div className="w-full bg-muted rounded-full h-2.5 dark:bg-muted overflow-hidden">
-              <div className="bg-gradient-light dark:bg-gradient-dark h-2.5 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+              <div
+                className="bg-gradient-light dark:bg-gradient-dark h-2.5 rounded-full animate-pulse"
+                style={{ width: "100%" }}
+              ></div>
             </div>
           )}
         </div>
