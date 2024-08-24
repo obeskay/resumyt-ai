@@ -137,3 +137,5 @@ export interface Database {
     };
   };
 }
+
+export type Tables = Database['public']['Tables']
