@@ -17,13 +17,19 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 
 type AnonymousUser = Database['public']['Tables']['anonymous_users']['Row'];
 
 function ErrorFallback({ error }: { error: Error }) {
   console.error("Error in HomePage:", error);
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="container mx-auto px-4 py-8 max-w-3xl"
+    >
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
         Something went wrong
       </h1>
@@ -33,7 +39,7 @@ function ErrorFallback({ error }: { error: Error }) {
       >
         {error.message}
       </pre>
-    </div>
+    </motion.div>
   );
 }
 
@@ -104,40 +110,57 @@ const HomePage = () => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <MainLayout>
-        <div className="container mx-auto px-4 py-8 max-w-3xl">
-          {!loading && user && (
-            <>
-              <div className="mb-4 text-center">
-                <p className="text-sm text-gray-600">
-                  Remaining quota: {user.quota_remaining} summaries
-                </p>
-              </div>
-              <VideoInput
-                userId={user.id}
-                quotaRemaining={user.quota_remaining}
-              />
-            </>
-          )}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+          className="container mx-auto px-4 py-8 max-w-3xl"
+        >
+          <AnimatePresence>
+            {!loading && user && (
+              <motion.div
+                key="user-content"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <div className="mb-4 text-center">
+                  <p className="text-sm text-gray-600">
+                    Remaining quota: {user.quota_remaining} summaries
+                  </p>
+                </div>
+                <VideoInput
+                  userId={user.id}
+                  quotaRemaining={user.quota_remaining}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
         <Toaster />
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle className="text-xl">
-                Welcome to YouTube Summarizer!
-              </DialogTitle>
-              <DialogDescription className="text-sm md:text-base">
-                You can summarize videos based on your remaining quota. Create an
-                account to enjoy more features and increase your quota!
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={() => setShowDialog(false)} className="w-full">
-                Got it!
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <AnimatePresence>
+          {showDialog && (
+            <Dialog open={showDialog} onOpenChange={setShowDialog}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-xl">
+                    Welcome to YouTube Summarizer!
+                  </DialogTitle>
+                  <DialogDescription className="text-sm md:text-base">
+                    You can summarize videos based on your remaining quota. Create an
+                    account to enjoy more features and increase your quota!
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button onClick={() => setShowDialog(false)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Got it!
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        </AnimatePresence>
       </MainLayout>
     </ErrorBoundary>
   );

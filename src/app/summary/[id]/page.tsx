@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ProgressBar from "@/components/ProgressBar";
 
 export default function SummaryPage() {
@@ -92,51 +92,91 @@ export default function SummaryPage() {
   return (
     <MainLayout>
       <motion.div
-        layoutId="video-input-container"
+        layoutId="summary-container"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.5 }}
         className="container mx-auto px-4 py-8 max-w-3xl"
       >
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
           Video Summary and Transcript
         </h1>
-        {videoTitle && (
-          <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-center">
-            {videoTitle}
-          </h2>
-        )}
-        <Card className="mb-8">
+        <AnimatePresence>
+          {videoTitle && (
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-2xl md:text-3xl font-semibold mb-4 text-center"
+            >
+              {videoTitle}
+            </motion.h2>
+          )}
+        </AnimatePresence>
+        <Card className="mb-8 shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl md:text-2xl">Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <>
-                <Skeleton className="h-4 w-full mb-4" />
-                <Skeleton className="h-4 w-3/4 mb-4" />
-                <Skeleton className="h-4 w-1/2" />
-              </>
-            ) : error ? (
-              <p className="text-red-500 text-sm md:text-base">
-                Error: {error}
-              </p>
-            ) : summary ? (
-              <>
-                <SummaryDisplay summary={summary} isLoading={false} />
-                <Button
-                  onClick={handleShare}
-                  className="mt-4"
-                  disabled={sharing}
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  {sharing ? "Sharing..." : "Share Summary"}
-                </Button>
-              </>
-            ) : (
-              <p className="text-gray-500 text-sm md:text-base">
-                No summary found.
-              </p>
-            )}
+                  <Skeleton className="h-4 w-full mb-4" />
+                  <Skeleton className="h-4 w-3/4 mb-4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </motion.div>
+              ) : error ? (
+                <motion.p
+                  key="error"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-red-500 text-sm md:text-base"
+                >
+                  Error: {error}
+                </motion.p>
+              ) : summary ? (
+                <motion.div
+                  key="summary"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <SummaryDisplay summary={summary} isLoading={false} />
+                  <Button
+                    onClick={handleShare}
+                    className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground"
+                    disabled={sharing}
+                  >
+                    {sharing ? "Sharing..." : "Share Summary"}
+                  </Button>
+                </motion.div>
+              ) : (
+                <motion.p
+                  key="not-found"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-gray-500 text-sm md:text-base"
+                >
+                  No summary found.
+                </motion.p>
+              )}
+            </AnimatePresence>
           </CardContent>
         </Card>
-        <div className="mt-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8"
+        >
           {id && typeof id === "string" ? (
             <ProgressBar summaryId={id} />
           ) : (
@@ -147,7 +187,7 @@ export default function SummaryPage() {
               ></div>
             </div>
           )}
-        </div>
+        </motion.div>
       </motion.div>
     </MainLayout>
   );
