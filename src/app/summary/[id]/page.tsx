@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import MainLayout from "@/components/MainLayout";
 import SummaryDisplay from "@/components/SummaryDisplay";
-import TranscriptDisplay from "@/components/TranscriptDisplay";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +16,6 @@ export default function SummaryPage() {
   const params = useParams();
   const id = params?.id;
   const [summary, setSummary] = useState(null);
-  const [transcript, setTranscript] = useState(null);
   const [videoTitle, setVideoTitle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,7 +39,6 @@ export default function SummaryPage() {
           .select(
             `
             content,
-            transcript,
             videos (
               title
             )
@@ -53,7 +50,6 @@ export default function SummaryPage() {
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
         setSummary(data.content);
-        setTranscript(data.transcript);
         setVideoTitle(data.videos.title);
       } catch (error) {
         setError(error.message || "Failed to fetch summary and transcript");
@@ -135,30 +131,6 @@ export default function SummaryPage() {
             ) : (
               <p className="text-gray-500 text-sm md:text-base">
                 No summary found.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl md:text-2xl">Transcript</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <>
-                <Skeleton className="h-4 w-full mb-4" />
-                <Skeleton className="h-4 w-3/4 mb-4" />
-                <Skeleton className="h-4 w-1/2" />
-              </>
-            ) : error ? (
-              <p className="text-red-500 text-sm md:text-base">
-                Error: {error}
-              </p>
-            ) : transcript ? (
-              <TranscriptDisplay transcript={transcript} isLoading={false} />
-            ) : (
-              <p className="text-gray-500 text-sm md:text-base">
-                No transcript found.
               </p>
             )}
           </CardContent>
