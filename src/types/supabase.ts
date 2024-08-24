@@ -1,53 +1,42 @@
-export type Tables = Supabase.Database["public"]["Tables"];
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
-export type PricingPlan = Tables["pricing_plans"]["Row"];
-export type AnonymousUser = Tables["anonymous_users"]["Row"];
-export type Video = Tables["videos"]["Row"];
-export type Summary = Tables["summaries"]["Row"];
-export type Transcription = Tables["transcriptions"]["Row"];
-
-export type AnonymousUserInsert = Tables["anonymous_users"]["Insert"];
-export type SummaryInsert = Tables["summaries"]["Insert"];
-
-export type DatabaseError = {
-  code: string;
-  details: string;
-  hint: string;
-  message: string;
-};
-
-declare global {
-  namespace Supabase {
-    interface Database {
-      public: {
-        Tables: {
-          pricing_plans: {
-            Row: {
-              id: number;
-              name: string;
-              price: number;
-              quota: number;
-              features: Record<string, string>;
-              created_at: string;
-            };
-            Insert: {
-              id?: number;
-              name: string;
-              price: number;
-              quota: number;
-              features: Record<string, string>;
-              created_at?: string;
-            };
-            Update: {
-              id?: number;
-              name?: string;
-              price?: number;
-              quota?: number;
-              features?: Record<string, string>;
-              created_at?: string;
-            };
-          };
-          anonymous_users: {
+export interface Database {
+  public: {
+    Tables: {
+      pricing_plans: {
+        Row: {
+          id: number
+          name: string
+          price: number
+          quota: number
+          features: Json
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          name: string
+          price: number
+          quota: number
+          features: Json
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          name?: string
+          price?: number
+          quota?: number
+          features?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
+      anonymous_users: {
             Row: {
               id: string;
               ip_address: string;
