@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { getSupabase, updateUserPlan, getAnonymousUserByIp } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface PricingPlan {
   id: number;
@@ -18,6 +19,7 @@ export function PricingPlansDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchPricingPlans() {
@@ -64,6 +66,7 @@ export function PricingPlansDialog() {
         description: "Your plan has been updated successfully.",
       });
       setIsOpen(false);
+      router.refresh(); // Refresh the page to reflect the new plan
     } else {
       toast({
         title: "Error",
