@@ -1,18 +1,40 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import VideoInput from "@/components/VideoInput";
 import { useVideoStore } from "@/store/videoStore";
 import Image from "next/image";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
-  const { summary } = useVideoStore();
+  const { summary, videoUrl, setVideoUrl, summarizeVideo, isLoading } = useVideoStore();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setTheme("dark");
   }, [setTheme]);
+
+  const handleVideoSubmit = async (url: string) => {
+    setError(null);
+    setVideoUrl(url);
+    try {
+      // Assuming we have a user ID, replace 'user123' with actual user ID
+      const result = await summarizeVideo('user123');
+      if (!result) {
+        setError("Failed to summarize video. Please try again.");
+      }
+    } catch (error) {
+      console.error('Error summarizing video:', error);
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground py-12 px-4 sm:px-6 lg:px-8">
@@ -21,7 +43,12 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-foreground">
             Resum<span className="text-primary">YT</span>
           </h1>
-          <Image src="/youtube-logo.svg" alt="YouTube Logo" width={80} height={40} />
+          <Image
+            src="/youtube-logo.svg"
+            alt="YouTube Logo"
+            width={80}
+            height={40}
+          />
         </div>
 
         <h2 className="text-5xl mb-8 text-center">
@@ -30,7 +57,12 @@ export default function Home() {
           <span className="text-foreground">videos de YouTube</span>
         </h2>
 
-        <VideoInput />
+        <VideoInput
+          videoUrl={videoUrl}
+          onSubmit={handleVideoSubmit}
+          isLoading={isLoading}
+          error={error}
+        />
 
         <div className="bg-card rounded-lg p-6 mt-8">
           <ul className="space-y-4">
@@ -53,7 +85,9 @@ export default function Home() {
 
         {summary && (
           <div className="bg-card rounded-lg p-6 mt-8">
-            <h3 className="text-2xl font-bold mb-4 text-foreground">Resumen del video:</h3>
+            <h3 className="text-2xl font-bold mb-4 text-foreground">
+              Resumen del video:
+            </h3>
             <p className="text-muted-foreground">{summary}</p>
           </div>
         )}
