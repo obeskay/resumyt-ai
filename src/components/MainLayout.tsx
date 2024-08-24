@@ -40,10 +40,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
             >
               {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
             </motion.button>
-          </header>
-
-          <main>{children}</main>
-        </motion.div>
+          </div>
+        </header>
+        <main className="flex-grow">{children}</main>
         <Toaster />
       </div>
     </>

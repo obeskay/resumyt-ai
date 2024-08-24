@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import MainLayout from "@/components/MainLayout";
 import SummaryDisplay from "@/components/SummaryDisplay";
 import { Button } from "@/components/ui/button";
