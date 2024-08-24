@@ -11,7 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import ProgressBar from "@/components/ProgressBar";
-import { Summary } from "@/types/supabase";
+import { Database } from "@/types/supabase";
+
+// Extract the Summary type from the supabase database
+type Summary = Database["public"]["Tables"]["summaries"]["Row"];
 
 export default function SummaryPage() {
   const params = useParams();
@@ -22,7 +25,6 @@ export default function SummaryPage() {
   const [error, setError] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     async function fetchSummaryAndTranscript() {
@@ -57,13 +59,16 @@ export default function SummaryPage() {
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
         setSummary(data);
-        setVideoTitle(data.videos?.title || null);
+        setVideoTitle(data.videos?.title || "Unknown Video" || null);
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
         setError(errorMessage);
         toast({
           title: "Error",
-          description: errorMessage || "Failed to fetch summary and transcript. Please try again later.",
+          description:
+            errorMessage ||
+            "Failed to fetch summary and transcript. Please try again later.",
           variant: "destructive",
         });
       } finally {
