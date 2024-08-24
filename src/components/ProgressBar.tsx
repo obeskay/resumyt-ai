@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useSupabase } from '../lib/supabase-client';
+import { useSupabase } from '../hooks/useSupabase';
 
 interface ProgressBarProps {
   summaryId: string;
