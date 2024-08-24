@@ -1,6 +1,16 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
-export type Database = SupabaseClient['database']
+export type Database = {
+  public: {
+    Tables: {
+      [key: string]: {
+        Row: Record<string, unknown>
+        Insert: Record<string, unknown>
+        Update: Record<string, unknown>
+      }
+    }
+  }
+}
 export type Tables = Database['public']['Tables']
 
 export type PricingPlan = Tables['pricing_plans']['Row']
