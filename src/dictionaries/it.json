@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "Riassuntore YouTube",
+    "description": "Ottieni riassunti rapidi dei video di YouTube",
+    "inputPlaceholder": "Inserisci l'URL di YouTube",
+    "summarizeButton": "Riassumi"
+  },
+  "summary": {
+    "title": "Riassunto del Video",
+    "loadingMessage": "Generazione del riassunto in corso...",
+    "errorMessage": "Errore durante la generazione del riassunto. Si prega di riprovare."
+  },
+  "auth": {
+    "signIn": "Accedi",
+    "signOut": "Esci"
+  }
+}

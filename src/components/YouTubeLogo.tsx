@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const YouTubeLogo: React.FC = ({ className }: { className?: string }) => (
   <Image
-    src="/youtube-logo.svg"
+    src="../youtube-logo.svg"
     alt="YouTube logo"
     width={24}
     height={24}

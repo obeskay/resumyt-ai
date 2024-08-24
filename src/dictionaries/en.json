@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "YouTube Summarizer",
+    "description": "Get quick summaries of YouTube videos",
+    "inputPlaceholder": "Enter YouTube URL",
+    "summarizeButton": "Summarize"
+  },
+  "summary": {
+    "title": "Video Summary",
+    "loadingMessage": "Generating summary...",
+    "errorMessage": "Error generating summary. Please try again."
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "Резюмирование YouTube",
+    "description": "Получите быстрые краткие изложения видео с YouTube",
+    "inputPlaceholder": "Введите URL YouTube",
+    "summarizeButton": "Резюмировать"
+  },
+  "summary": {
+    "title": "Краткое изложение видео",
+    "loadingMessage": "Генерация краткого изложения...",
+    "errorMessage": "Ошибка при генерации краткого изложения. Пожалуйста, попробуйте еще раз."
+  },
+  "auth": {
+    "signIn": "Войти",
+    "signOut": "Выйти"
+  }
+}

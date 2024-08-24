@@ -1,0 +1,17 @@
+{
+  "home": {
+    "title": "YouTube Zusammenfasser",
+    "description": "Erhalten Sie schnelle Zusammenfassungen von YouTube-Videos",
+    "inputPlaceholder": "YouTube-URL eingeben",
+    "summarizeButton": "Zusammenfassen"
+  },
+  "summary": {
+    "title": "Video-Zusammenfassung",
+    "loadingMessage": "Zusammenfassung wird generiert...",
+    "errorMessage": "Fehler beim Generieren der Zusammenfassung. Bitte versuchen Sie es erneut."
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signOut": "Abmelden"
+  }
+}

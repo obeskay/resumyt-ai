@@ -45,12 +45,20 @@ export async function POST(req: NextRequest) {
       return rateLimitResult;
     }
 
-    const { videoUrl } = await req.json();
+    const { videoUrl, summaryFormat } = await req.json();
 
     if (!videoUrl || !isValidYouTubeUrl(videoUrl)) {
       return createErrorResponse(
         "Invalid YouTube URL",
         "Please provide a valid YouTube URL",
+        400
+      );
+    }
+
+    if (!summaryFormat || !['bullet-points', 'paragraph', 'page'].includes(summaryFormat)) {
+      return createErrorResponse(
+        "Invalid summary format",
+        "Please provide a valid summary format (bullet-points, paragraph, or page)",
         400
       );
     }
@@ -92,7 +100,7 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("Attempting to summarize video:", videoUrl);
-    const { summary, transcript } = await summarizeVideo(videoUrl);
+    const { summary, transcript } = await summarizeVideo(videoUrl, summaryFormat);
     console.log("Summary generated successfully, length:", summary.length);
 
     if (!summary) {
@@ -137,6 +145,7 @@ export async function POST(req: NextRequest) {
       content: summary,
       transcript: transcript || "",
       user_id: user.id,
+      format: summaryFormat,
     };
 
     console.log(

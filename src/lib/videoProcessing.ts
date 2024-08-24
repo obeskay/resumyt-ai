@@ -26,7 +26,7 @@ async function retryOperation<T>(operation: () => Promise<T>, maxRetries = 3): P
   throw new Error("Max retries reached");
 }
 
-export async function summarizeVideo(videoUrl: string): Promise<{ summary: string, transcript: string }> {
+export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page'): Promise<{ summary: string, transcript: string }> {
   try {
     console.log('Starting summarizeVideo for URL:', videoUrl);
     const videoId = extractYouTubeId(videoUrl);
@@ -39,7 +39,7 @@ export async function summarizeVideo(videoUrl: string): Promise<{ summary: strin
     const transcriptOrMetadata = await transcribeVideoWithFallback(videoId);
     console.log('Transcript or metadata retrieved, length:', transcriptOrMetadata.length);
 
-    const summary = await generateSummary(transcriptOrMetadata);
+    const summary = await generateSummary(transcriptOrMetadata, summaryFormat);
     console.log('Summary generated, length:', summary.length);
 
     if (!summary) {
@@ -63,7 +63,8 @@ export async function summarizeVideo(videoUrl: string): Promise<{ summary: strin
 
 export async function processVideo(
   videoUrl: string,
-  userId: string
+  userId: string,
+  summaryFormat: 'bullet-points' | 'paragraph' | 'page'
 ): Promise<{ videoId: string; transcriptOrMetadata: string; summary: string }> {
   try {
     console.log('Starting processVideo for URL:', videoUrl);
@@ -77,7 +78,7 @@ export async function processVideo(
     const transcriptOrMetadata = await transcribeVideoWithFallback(videoId);
     console.log('Transcript or metadata retrieved, length:', transcriptOrMetadata.length);
 
-    const summary = await generateSummary(transcriptOrMetadata);
+    const summary = await generateSummary(transcriptOrMetadata, summaryFormat);
     console.log('Summary generated, length:', summary.length);
 
     if (!summary) {
@@ -85,7 +86,7 @@ export async function processVideo(
       throw new SummaryGenerationError("Failed to generate summary: Summary is null or empty");
     }
 
-    await saveSummary(videoId, videoUrl, transcriptOrMetadata, summary, userId);
+    await saveSummary(videoId, videoUrl, transcriptOrMetadata, summary, userId, summaryFormat);
     console.log('Summary saved successfully');
 
     return { videoId, transcriptOrMetadata, summary };
@@ -183,9 +184,28 @@ async function fetchVideoMetadata(videoId: string): Promise<string> {
   }
 }
 
-export async function generateSummary(transcriptOrMetadata: string): Promise<string> {
+export async function generateSummary(transcriptOrMetadata: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page'): Promise<string> {
   try {
     console.log("Sending request to OpenRouter API, input length:", transcriptOrMetadata.length);
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
+      console.error("OpenRouter API key is not set");
+      throw new Error("OpenRouter API key is not set");
+    }
+
+    let promptInstructions = "";
+    switch (summaryFormat) {
+      case 'bullet-points':
+        promptInstructions = "Provide a summary in the form of bullet points. Each point should be concise and cover a key idea or fact from the content.";
+        break;
+      case 'paragraph':
+        promptInstructions = "Provide a summary in the form of a single, cohesive paragraph. The summary should flow naturally and cover the main points of the content.";
+        break;
+      case 'page':
+        promptInstructions = "Provide a detailed summary, approximately one page in length. The summary should be comprehensive, covering all major points and some supporting details from the content. Organize the summary into paragraphs for better readability.";
+        break;
+    }
+
     const response = await retryOperation(() =>
       axios.post(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -199,15 +219,15 @@ export async function generateSummary(transcriptOrMetadata: string): Promise<str
             },
             {
               role: "user",
-              content: `Summarize the following content. If it's a transcript, summarize the video based on the transcript. If it's metadata (title and description), provide a summary based on that information:\n\n${transcriptOrMetadata}`,
+              content: `${promptInstructions}\n\nHere's the content to summarize. If it's a transcript, summarize the video based on the transcript. If it's metadata (title and description), provide a summary based on that information:\n\n${transcriptOrMetadata}`,
             },
           ],
-          max_tokens: 750,
+          max_tokens: summaryFormat === 'page' ? 1500 : 750,
           temperature: 0.25,
         },
         {
           headers: {
-            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            Authorization: `Bearer ${openRouterApiKey}`,
             "Content-Type": "application/json",
           },
         }
@@ -249,7 +269,8 @@ async function saveSummary(
   videoUrl: string,
   transcriptOrMetadata: string,
   content: string,
-  userId: string
+  userId: string,
+  summaryFormat: 'bullet-points' | 'paragraph' | 'page'
 ): Promise<void> {
   const supabase = createClient();
   try {
@@ -264,6 +285,7 @@ async function saveSummary(
         transcript: transcriptOrMetadata,
         content: content,
         user_id: userId,
+        format: summaryFormat,
       },
       {
         onConflict: "video_id,user_id",
