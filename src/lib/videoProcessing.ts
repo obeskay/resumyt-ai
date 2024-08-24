@@ -124,7 +124,12 @@ export async function transcribeVideoWithFallback(videoId: string): Promise<stri
   } catch (error) {
     console.error("Error fetching transcript:", error);
     console.log("Falling back to video metadata for video ID:", videoId);
-    return await fetchVideoMetadata(videoId);
+    try {
+      return await fetchVideoMetadata(videoId);
+    } catch (metadataError) {
+      console.error("Error fetching video metadata:", metadataError);
+      throw new TranscriptNotFoundError("Failed to fetch both transcript and metadata");
+    }
   }
 }
 
@@ -153,6 +158,10 @@ async function fetchVideoMetadata(videoId: string): Promise<string> {
       })
     );
 
+    if (!response.data.items || response.data.items.length === 0) {
+      throw new Error("No video data returned from YouTube API");
+    }
+
     const videoData = response.data.items[0].snippet;
     const metadata = `Title: ${videoData.title}\n\nDescription: ${videoData.description}`;
     console.log("Metadata fetched successfully, length:", metadata.length);
@@ -163,7 +172,14 @@ async function fetchVideoMetadata(videoId: string): Promise<string> {
     return metadata;
   } catch (error) {
     console.error("Error fetching video metadata:", error);
-    throw new TranscriptNotFoundError("Failed to fetch video transcript and metadata");
+    if (error instanceof AxiosError) {
+      console.error("Axios error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+    }
+    throw new TranscriptNotFoundError("Failed to fetch video metadata");
   }
 }
 
