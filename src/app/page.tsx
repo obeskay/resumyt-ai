@@ -23,8 +23,8 @@ export default function Home() {
     setVideoUrl(url);
     try {
       const result = await summarizeVideo("user123");
-      if (result && result.id) {
-        router.push(`/summary/${result.id}`);
+      if (result && result.videoId) {
+        router.push(`/summary/${result.videoId}`);
       } else {
         setError("Failed to summarize video. Please try again.");
       }
