@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database, Tables } from "../types/supabase";
+import type { Database, Tables } from "../types/supabase";
 
 const getSupabaseUrl = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
