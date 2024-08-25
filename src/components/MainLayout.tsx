@@ -22,11 +22,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
     <>
       <div className="min-h-screen bg-background text-foreground flex flex-col">
         <header className="py-2">
-          <div className="container mx-auto flex justify-between items-center">
-            <Link href="/" className="flex items-center gap-2">
+          <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center">
+            <Link href="/" className="flex items-center gap-2 mb-2 sm:mb-0">
               <YouTubeLogo />
               <div className="flex items-center cursor-pointer overflow-clip">
-                <motion.h1 className="text-4xl font-bold">ResumeYT</motion.h1>
+                <motion.h1 className="text-2xl sm:text-4xl font-bold">ResumeYT</motion.h1>
               </div>
             </Link>
             <motion.button
@@ -39,7 +39,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </motion.button>
           </div>
         </header>
-        <main className="relative flex-grow container mx-auto flex flex-col h-full">
+        <main className="relative flex-grow container mx-auto flex flex-col h-full px-4 sm:px-0">
           {children}
         </main>
         <Toaster />

@@ -142,7 +142,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
         </div>
         <div className="flex flex-col space-y-2 w-full">
           <label className="text-sm font-medium">Summary Format:</label>
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-4">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="bullet-points"
