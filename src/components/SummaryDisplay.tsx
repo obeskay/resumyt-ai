@@ -12,12 +12,12 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary }) => {
   }
 
   return (
-    <motion.div className="w-full">
+    <motion.div className="w-full px-4 sm:px-0">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="w-full prose prose-gray dark:prose-invert max-w-none"
+        className="w-full prose prose-gray dark:prose-invert max-w-none break-words"
       >
         <ReactMarkdown>{summary}</ReactMarkdown>
       </motion.div>

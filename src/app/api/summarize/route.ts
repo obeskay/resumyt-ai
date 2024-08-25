@@ -39,15 +39,20 @@ function extractYouTubeId(url: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("API route started");
+
     // Check rate limit
     const rateLimitResult = await rateLimit(req);
     if (rateLimitResult) {
+      console.log("Rate limit exceeded");
       return rateLimitResult;
     }
 
     const { videoUrl, summaryFormat } = await req.json();
+    console.log(`Received request for video: ${videoUrl}, format: ${summaryFormat}`);
 
     if (!videoUrl || !isValidYouTubeUrl(videoUrl)) {
+      console.log("Invalid YouTube URL provided");
       return createErrorResponse(
         "Invalid YouTube URL",
         "Please provide a valid YouTube URL",
@@ -56,6 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!summaryFormat || !['bullet-points', 'paragraph', 'page'].includes(summaryFormat)) {
+      console.log("Invalid summary format provided");
       return createErrorResponse(
         "Invalid summary format",
         "Please provide a valid summary format (bullet-points, paragraph, or page)",
@@ -65,6 +71,7 @@ export async function POST(req: NextRequest) {
 
     const videoId = extractYouTubeId(videoUrl);
     if (!videoId) {
+      console.log("Failed to extract video ID");
       return createErrorResponse(
         "Invalid YouTube URL",
         "Unable to extract video ID from the URL",
@@ -73,7 +80,10 @@ export async function POST(req: NextRequest) {
     }
 
     const ipAddress = req.headers.get("x-forwarded-for") || req.ip || "unknown";
+    console.log(`Request IP: ${ipAddress}`);
+
     const supabase = getSupabase();
+    console.log("Supabase client initialized");
 
     // Check user's quota
     const { data: user, error: userError } = await supabase
@@ -91,7 +101,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log(`User quota remaining: ${user.quota_remaining}`);
+
     if (user.quota_remaining <= 0) {
+      console.log("User quota exhausted");
       return createErrorResponse(
         "Quota exhausted",
         "You have reached your quota limit for video summaries",
@@ -121,6 +134,8 @@ export async function POST(req: NextRequest) {
       throw new DatabaseUpdateError("Failed to update user quota");
     }
 
+    console.log("User quota updated successfully");
+
     // Insert or update the video in the database
     const { data: insertedVideo, error: videoUpsertError } = await supabase
       .from("videos")
@@ -138,6 +153,8 @@ export async function POST(req: NextRequest) {
         `Failed to save video: ${videoUpsertError.message}`
       );
     }
+
+    console.log("Video saved successfully:", insertedVideo);
 
     // Insert the summary into the database
     const summaryInsert: Database["public"]["Tables"]["summaries"]["Insert"] = {
@@ -177,6 +194,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Summary inserted successfully:", insertedSummary);
 
+    console.log("API route completed successfully");
     return NextResponse.json({
       summary,
       transcript,

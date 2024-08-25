@@ -104,11 +104,27 @@ export async function processVideo(
   }
 }
 
+async function checkVideoAvailability(videoId: string): Promise<boolean> {
+  try {
+    const response = await axios.get(`https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=${videoId}`);
+    return response.status === 200;
+  } catch (error) {
+    return false;
+  }
+}
+
 export async function transcribeVideoWithFallback(videoId: string): Promise<string> {
   // Check cache first
   if (transcriptCache[videoId] && (Date.now() - transcriptCache[videoId].timestamp) < CACHE_EXPIRATION) {
     console.log('Transcript found in cache for video ID:', videoId);
     return transcriptCache[videoId].data;
+  }
+
+  // Check video availability
+  const isAvailable = await checkVideoAvailability(videoId);
+  if (!isAvailable) {
+    console.error("Video is not available:", videoId);
+    throw new VideoFetchError("Video is not available or has been removed");
   }
 
   try {
@@ -124,7 +140,11 @@ export async function transcribeVideoWithFallback(videoId: string): Promise<stri
     return transcript;
   } catch (error) {
     console.error("Error fetching transcript:", error);
-    console.log("Falling back to video metadata for video ID:", videoId);
+    if (error instanceof Error && error.message.includes("410")) {
+      console.log("Transcript not available (410 error), falling back to video metadata");
+    } else {
+      console.log("Falling back to video metadata for video ID:", videoId);
+    }
     try {
       return await fetchVideoMetadata(videoId);
     } catch (metadataError) {
