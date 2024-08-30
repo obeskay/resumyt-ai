@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 export async function GET() {
   try {
     const supabase = getSupabase();
-    const { data, error } = await supabase.from("health_check").select("*").limit(1);
+    const { data, error } = await supabase.from("videos").select("count").single();
 
     if (error) {
       throw error;

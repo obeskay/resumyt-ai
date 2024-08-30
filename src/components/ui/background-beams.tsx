@@ -13,22 +13,19 @@ export const BackgroundBeams = () => {
   const y = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (rect) {
-        const newX = event.clientX - rect.left;
-        const newY = event.clientY - rect.top;
-        mouseX.set(newX);
-        mouseY.set(newY);
-      }
+    const currentRef = ref.current;
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      mouseX.set(clientX);
+      mouseY.set(clientY);
     };
-
-    ref.current?.addEventListener("mousemove", handleMouseMove);
-
+    
+    document.addEventListener("mousemove", handleMouseMove);
+    
     return () => {
-      ref.current?.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mousemove", handleMouseMove);
     };
-  }, []);
+  }, [mouseX, mouseY]); // Añade mouseX y mouseY como dependencias
 
   return (
     <div

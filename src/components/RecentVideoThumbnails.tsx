@@ -1,29 +1,141 @@
-import React from 'react';
-import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
+import React, { useEffect, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
+import { cn } from "@/lib/utils";
 
 interface RecentVideoThumbnailsProps {
   videoIds: string[];
+  dict: {
+    recentVideos?: {
+      thumbnailAlt?: string;
+    };
+  };
 }
 
-const RecentVideoThumbnails: React.FC<RecentVideoThumbnailsProps> = ({ videoIds }) => {
-  const items = videoIds.map((videoId) => ({
-    quote: "",
-    name: "",
-    title: "",
-    image: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-  }));
+export const RecentVideoThumbnails: React.FC<RecentVideoThumbnailsProps> = ({
+  videoIds,
+  dict,
+}) => {
+  const thumbnailAlt = dict.recentVideos?.thumbnailAlt || "Video thumbnail";
 
   return (
-    <div className="absolute inset-0 overflow-hidden z-0">
-      <div className="opacity-10">
-        <InfiniteMovingCards
-          items={items}
-          direction="right"
-          speed="slow"
-        />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+    <div className="h-[50dvh] w-full flex flex-col items-center justify-center overflow-hidden">
+      <MovingCards items={videoIds} thumbnailAlt={thumbnailAlt} />
     </div>
+  );
+};
+
+export const MovingCards = ({
+  items,
+  thumbnailAlt,
+  direction = "left",
+  speed = "slow",
+  pauseOnHover = true,
+  className,
+}: {
+  items: string[];
+  thumbnailAlt: string;
+  direction?: "left" | "right";
+  speed?: "fast" | "normal" | "slow";
+  pauseOnHover?: boolean;
+  className?: string;
+}) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const scrollerRef = React.useRef<HTMLUListElement>(null);
+
+  const getDirection = useCallback(() => {
+    return direction;
+  }, [direction]);
+
+  const getSpeed = useCallback(() => {
+    return speed;
+  }, [speed]);
+
+  useEffect(() => {
+    const addAnimation = () => {
+      if (containerRef.current && scrollerRef.current) {
+        const scrollerContent = Array.from(scrollerRef.current.children);
+
+        scrollerContent.forEach((item) => {
+          const duplicatedItem = item.cloneNode(true);
+          if (scrollerRef.current) {
+            scrollerRef.current.appendChild(duplicatedItem);
+          }
+        });
+
+        getDirection();
+        getSpeed();
+        setStart(true);
+      }
+    };
+
+    addAnimation();
+  }, [getDirection, getSpeed]); // Añade getDirection y getSpeed como dependencias si son funciones externas
+
+  const [start, setStart] = React.useState(false);
+
+  function addAnimation() {
+    if (containerRef.current && scrollerRef.current) {
+      const scrollerContent = Array.from(scrollerRef.current.children);
+
+      scrollerContent.forEach((item) => {
+        const duplicatedItem = item.cloneNode(true);
+        if (scrollerRef.current) {
+          scrollerRef.current.appendChild(duplicatedItem);
+        }
+      });
+
+      getDirection();
+      getSpeed();
+      setStart(true);
+    }
+  }
+
+  return (
+    <AnimatePresence
+        mode='wait'
+    >
+
+
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1, delay: 1 }}
+      ref={containerRef}
+      className={cn(
+        "scroller relative z-20 w-full overflow-hidden",
+        className
+      )}
+    >
+      <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-background to-transparent z-10"></div>
+      <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-background to-transparent z-10"></div>
+      <ul
+        ref={scrollerRef}
+        className={cn(
+          "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
+          start && "animate-scroll",
+          pauseOnHover && "hover:[animation-play-state:paused]"
+        )}
+      >
+        {items.map((videoId, idx) => (
+          <li
+            className="relative w-[420px] max-w-full relative flex-shrink-0 rounded-xl overflow-hidden"
+            key={idx}
+          >
+          
+              <Image
+                src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                alt={thumbnailAlt}
+                width={420}
+                height={150}
+                className="w-full h-full object-cover"
+              />
+            
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+    </AnimatePresence>
   );
 };
 

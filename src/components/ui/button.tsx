@@ -18,6 +18,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        figma: "bg-black text-white font-bold relative overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105 hover:bg-gray-800 before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-white before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-10",
       },
       size: {
         default: "h-10 px-4 py-2",

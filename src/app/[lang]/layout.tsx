@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
-import ".//globals.css";  // Ajusta esta línea si mueves globals.css a la raíz
+import Head from 'next/head';
+import ".//globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,16 +14,21 @@ export default function LangLayout({
   params: { lang: string };
 }) {
   return (
-    <div lang={lang}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        {children}
-      </ThemeProvider>
-    </div>
+    <html lang={lang}>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
 
