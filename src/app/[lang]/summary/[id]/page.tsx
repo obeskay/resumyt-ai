@@ -24,49 +24,29 @@ type Summary = Database["public"]["Tables"]["summaries"]["Row"] & {
 
 export default function SummaryPage() {
   const params = useParams();
-  const id = params?.id;
+  const id = params?.id as string;
   const [summary, setSummary] = useState<Summary | null>(null);
   const [videoTitle, setVideoTitle] = useState<string | null>(null);
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sharing, setSharing] = useState(false);
   const { toast } = useToast();
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
-    async function fetchSummaryAndTranscript() {
-      if (!id || typeof id !== "string") {
-        setError("Invalid video ID");
-        setLoading(false);
-        return;
-      }
-
+    async function fetchSummary() {
+      setLoading(true);
       try {
-        setLoading(true);
-        setError(null);
         const supabase = getSupabase();
         const { data, error } = await supabase
           .from("summaries")
-          .select(
-            `
-            id,
-            video_id,
-            content,
-            transcript,
-            created_at,
-            user_id,
-            videos (
-              title,
-              thumbnail_url
-            )
-          `
-          )
-          .eq("video_id", id)
+          .select(`*, videos(title, thumbnail_url)`)
+          .eq("id", id)
           .single();
 
         if (error) throw error;
         if (!data) throw new Error("Summary not found");
-        setSummary(data as any);
+        setSummary(data as Summary);
         setVideoTitle(data.videos?.title || "Unknown Video");
         setVideoThumbnail(data.videos?.thumbnail_url || null);
       } catch (error: unknown) {
@@ -75,9 +55,7 @@ export default function SummaryPage() {
         setError(errorMessage);
         toast({
           title: "Error",
-          description:
-            errorMessage ||
-            "Failed to fetch summary and transcript. Please try again later.",
+          description: errorMessage,
           variant: "destructive",
         });
       } finally {
@@ -85,7 +63,7 @@ export default function SummaryPage() {
       }
     }
 
-    fetchSummaryAndTranscript();
+    fetchSummary();
   }, [id, toast]);
 
   const handleShare = async () => {

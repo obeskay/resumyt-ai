@@ -1,17 +1,27 @@
 {
   "home": {
-    "title": "Résumeur YouTube",
-    "description": "Obtenez des résumés rapides de vidéos YouTube",
-    "inputPlaceholder": "Entrez l'URL YouTube",
-    "summarizeButton": "Résumer"
+    "title": "Resumyt",
+    "subtitle": "Résumés de vidéos YouTube en quelques secondes",
+    "description": "Entrez le lien d'une vidéo YouTube et obtenez un résumé concis.",
+    "remainingQuota": "Quota restant : {count}",
+    "inputPlaceholder": "Collez le lien de la vidéo YouTube ici",
+    "summarizeButton": "Résumer",
+    "error": {
+      "somethingWentWrong": "Quelque chose s'est mal passé. Veuillez réessayer."
+    },
+    "dialog": {
+      "title": "Bienvenue sur Resumyt !",
+      "description": "Resumyt vous permet d'obtenir des résumés rapides de vidéos YouTube. Collez simplement le lien de la vidéo et nous ferons le reste.",
+      "button": "Compris"
+    }
   },
   "summary": {
-    "title": "Résumé de la Vidéo",
+    "title": "Résumé de la vidéo",
     "loadingMessage": "Génération du résumé...",
     "errorMessage": "Erreur lors de la génération du résumé. Veuillez réessayer."
   },
   "auth": {
-    "signIn": "Se Connecter",
-    "signOut": "Se Déconnecter"
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter"
   }
 }

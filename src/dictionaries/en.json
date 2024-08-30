@@ -1,9 +1,18 @@
 {
   "home": {
     "title": "YouTube Summarizer",
-    "description": "Get quick summaries of YouTube videos",
+    "subtitle": "Get quick summaries of YouTube videos",
+    "remainingQuota": "Remaining quota",
     "inputPlaceholder": "Enter YouTube URL",
-    "summarizeButton": "Summarize"
+    "summarizeButton": "Summarize",
+    "error": {
+      "somethingWentWrong": "Something went wrong"
+    },
+    "dialog": {
+      "title": "Welcome",
+      "description": "This is a YouTube video summarizer",
+      "button": "Got it"
+    }
   },
   "summary": {
     "title": "Video Summary",

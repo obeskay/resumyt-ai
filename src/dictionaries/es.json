@@ -1,9 +1,19 @@
 {
   "home": {
-    "title": "Resumidor de YouTube",
-    "description": "Obtén resúmenes rápidos de videos de YouTube",
-    "inputPlaceholder": "Ingresa URL de YouTube",
-    "summarizeButton": "Resumir"
+    "title": "Resumyt",
+    "subtitle": "Resúmenes de videos de YouTube en segundos",
+    "description": "Ingresa el enlace de un video de YouTube y obtén un resumen conciso.",
+    "remainingQuota": "Cuota restante: {count}",
+    "inputPlaceholder": "Pega el enlace del video de YouTube aquí",
+    "summarizeButton": "Resumir",
+    "error": {
+      "somethingWentWrong": "Algo salió mal. Por favor, inténtalo de nuevo."
+    },
+    "dialog": {
+      "title": "¡Bienvenido a Resumyt!",
+      "description": "Resumyt te permite obtener resúmenes rápidos de videos de YouTube. Simplemente pega el enlace del video y nosotros haremos el resto.",
+      "button": "Entendido"
+    }
   },
   "summary": {
     "title": "Resumen del Video",
