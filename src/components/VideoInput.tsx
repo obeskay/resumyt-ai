@@ -11,10 +11,11 @@ import YouTubeThumbnail from "./YouTubeThumbnail";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface VideoInputProps {
-  userId: string;
-  quotaRemaining: number;
+  userId: string; // Añadimos esta línea
+  quotaRemaining: number | null; // Cambiamos esto para aceptar null
   placeholder: string;
   buttonText: string;
+  isLoading: boolean; // Añadimos esta línea
 }
 
 const VideoInput: React.FC<VideoInputProps> = ({
@@ -22,6 +23,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
   quotaRemaining,
   placeholder,
   buttonText,
+  isLoading // Añadimos esta línea
 }) => {
   const {
     videoUrl,
@@ -33,23 +35,23 @@ const VideoInput: React.FC<VideoInputProps> = ({
     setSummaryFormat,
   } = useVideoStore();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingState, setIsLoadingState] = useState(false);
   const router = useRouter();
 
   const validateSubmission = useCallback(async (): Promise<boolean> => {
     if (!videoUrl.trim()) {
       toast({
         title: "Error",
-        description: "Please enter a YouTube URL",
+        description: "Por favor, ingrese una URL de YouTube",
         variant: "destructive",
       });
       return false;
     }
 
-    if (quotaRemaining <= 0) {
+    if (quotaRemaining !== null && quotaRemaining <= 0) {
       toast({
         title: "Error",
-        description: "You have reached your quota limit",
+        description: "Ha alcanzado su límite de cuota",
         variant: "destructive",
       });
       return false;
@@ -58,7 +60,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
     if (!summaryFormat) {
       toast({
         title: "Error",
-        description: "Please select a summary format",
+        description: "Por favor, seleccione un formato de resumen",
         variant: "destructive",
       });
       return false;
@@ -68,7 +70,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
   }, [videoUrl, quotaRemaining, summaryFormat, toast]);
 
   const submitVideo = useCallback(async () => {
-    setIsLoading(true);
+    setIsLoadingState(true);
 
     try {
       const response = await fetch("/api/summarize", {
@@ -76,11 +78,11 @@ const VideoInput: React.FC<VideoInputProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ videoUrl, userId, summaryFormat }),
+        body: JSON.stringify({ videoUrl, summaryFormat }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to generate summary");
+        throw new Error("Error al generar el resumen");
       }
 
       const data = await response.json();
@@ -88,14 +90,14 @@ const VideoInput: React.FC<VideoInputProps> = ({
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to generate summary. Please try again.",
+        description: "Error al generar el resumen. Por favor, intente de nuevo.",
         variant: "destructive",
       });
       console.error(err);
     } finally {
-      setIsLoading(false);
+      setIsLoadingState(false);
     }
-  }, [videoUrl, userId, summaryFormat, router, toast]);
+  }, [videoUrl, summaryFormat, router, toast]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -130,18 +132,19 @@ const VideoInput: React.FC<VideoInputProps> = ({
             required
             className="bg-popover pr-24 w-full"
             placeholder={placeholder}
+            disabled={isLoading} // Usamos isLoading aquí
           />
           <Button
             size="sm"
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isLoadingState} // Usamos isLoading aquí también
             className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full"
           >
             {buttonText}
           </Button>
         </div>
         <div className="flex flex-col space-y-2 w-full">
-          <label className="text-sm font-medium">Summary Format:</label>
+          <label className="text-sm font-medium">Formato del resumen:</label>
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -150,7 +153,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
                 onCheckedChange={() => setSummaryFormat("bullet-points")}
               />
               <label htmlFor="bullet-points" className="text-sm">
-                Bullet Points
+                Puntos clave
               </label>
             </div>
             <div className="flex items-center space-x-2">
@@ -160,7 +163,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
                 onCheckedChange={() => setSummaryFormat("paragraph")}
               />
               <label htmlFor="paragraph" className="text-sm">
-                Paragraph
+                Párrafo
               </label>
             </div>
             <div className="flex items-center space-x-2">
@@ -170,13 +173,13 @@ const VideoInput: React.FC<VideoInputProps> = ({
                 onCheckedChange={() => setSummaryFormat("page")}
               />
               <label htmlFor="page" className="text-sm">
-                Page
+                Página
               </label>
             </div>
           </div>
         </div>
       </motion.form>
-      {isLoading && <LoadingIndicator />}
+      {isLoadingState && <LoadingIndicator />}
       <AnimatePresence>
         {videoTitle && videoThumbnail && (
           <motion.div
