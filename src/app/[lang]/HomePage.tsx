@@ -1,17 +1,12 @@
-import React from "react";
-import { getDictionary } from "@/lib/getDictionary";
 import ClientHomePage from "@/components/ClientHomePage";
+import { getDictionary } from "@/lib/dictionary";
 
-interface HomePageProps {
-  params: {
-    lang: string;
-  };
-}
-
-const HomePage: React.FC<HomePageProps> = async ({ params: { lang } }) => {
+export default async function HomePage({
+  params: { lang },
+}: {
+  params: { lang: string };
+}) {
   const dict = await getDictionary(lang);
 
   return <ClientHomePage dict={dict} />;
-};
-
-export default HomePage;
+}
