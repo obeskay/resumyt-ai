@@ -2,16 +2,56 @@
   "home": {
     "title": "YouTube Summarizer",
     "subtitle": "Get quick summaries of YouTube videos",
+    "description": "Resumyt allows you to get concise and accurate summaries of any YouTube video. Ideal for students, professionals, and learning enthusiasts.",
+    "metaDescription": "Resumyt: Get automatic summaries of YouTube videos. Save time, learn faster, and improve your productivity with our AI tool.",
+    "keywords": "video summary, YouTube, fast learning, productivity, AI, artificial intelligence, educational content, time-saving, automatic summaries, educational videos, study tool, content synthesis",
     "remainingQuota": "Remaining quota",
     "inputPlaceholder": "Enter YouTube URL",
     "summarizeButton": "Summarize",
     "error": {
-      "somethingWentWrong": "Something went wrong"
+      "somethingWentWrong": "Something went wrong. Please try again.",
+      "invalidUrl": "Invalid YouTube URL. Please check the link.",
+      "quotaExceeded": "You have reached your daily quota limit.",
+      "noFormatSelected": "Please select at least one summary format."
     },
     "dialog": {
-      "title": "Welcome",
-      "description": "This is a YouTube video summarizer",
+      "title": "Welcome to Resumyt!",
+      "description": "Resumyt allows you to get quick summaries of YouTube videos. Simply paste the video link and we'll do the rest.",
       "button": "Got it"
+    },
+    "features": {
+      "title": "Features",
+      "quickSummaries": "Quick Summaries",
+      "timeSaving": "Time Saving",
+      "acceleratedLearning": "Accelerated Learning",
+      "forEveryone": "For Everyone",
+      "diverseContent": "Diverse Content",
+      "valuableInsights": "Valuable Insights"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": "Paste the link",
+      "step2": "Choose the format",
+      "step3": "Get your summary"
+    },
+    "testimonials": {
+      "title": "What Our Users Say"
+    },
+    "cta": {
+      "title": "Ready to Start?",
+      "description": "Join thousands of users already saving time and learning faster with Resumyt.",
+      "button": "Try Resumyt for free"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "How does Resumyt work?",
+      "a1": "Resumyt uses advanced artificial intelligence to analyze and summarize YouTube videos. You just need to paste the video link and select your preferred summary format.",
+      "q2": "Is using Resumyt free?",
+      "a2": "We offer a free daily quota for all users. For unlimited use, we have affordable premium plans.",
+      "q3": "What types of videos can I summarize?",
+      "a3": "You can summarize any public YouTube video, from tutorials and lectures to documentaries and interviews.",
+      "q4": "In what languages is Resumyt available?",
+      "a4": "Currently, Resumyt can summarize videos in English, Spanish, French, German, Italian, Portuguese, Russian, and Chinese."
     }
   },
   "summary": {
@@ -22,5 +62,14 @@
   "auth": {
     "signIn": "Sign In",
     "signOut": "Sign Out"
+  },
+  "formats": {
+    "bulletPoints": "Key points",
+    "paragraph": "Paragraph",
+    "page": "Page"
+  },
+  "recentVideos": {
+    "title": "Recent Videos",
+    "thumbnailAlt": "Video thumbnail"
   }
 }

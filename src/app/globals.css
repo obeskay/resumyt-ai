@@ -1,7 +1,0 @@
-:root {
-  --sparkle-color: rgba(0, 0, 0, 0.2);
-}
-
-.dark {
-  --sparkle-color: rgba(255, 255, 255, 0.2);
-}

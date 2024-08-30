@@ -1,9 +1,58 @@
 {
   "home": {
-    "title": "Resumidor de YouTube",
-    "description": "Obtenha resumos rápidos de vídeos do YouTube",
+    "title": "Resumos de Vídeos do YouTube em Segundos",
+    "subtitle": "Economize tempo e aprenda mais rápido com resumos inteligentes de vídeos",
+    "description": "Resumyt permite que você obtenha resumos concisos e precisos de qualquer vídeo do YouTube. Ideal para estudantes, profissionais e entusiastas da aprendizagem.",
+    "metaDescription": "Resumyt: Obtenha resumos automáticos de vídeos do YouTube. Economize tempo, aprenda mais rápido e melhore sua produtividade com nossa ferramenta de IA.",
+    "keywords": "resumo de vídeo, YouTube, aprendizado rápido, produtividade, IA, inteligência artificial, conteúdo educacional, economia de tempo, resumos automáticos, vídeos educacionais, ferramenta de estudo, síntese de conteúdo",
+    "remainingQuota": "Cota restante",
     "inputPlaceholder": "Insira a URL do YouTube",
-    "summarizeButton": "Resumir"
+    "summarizeButton": "Resumir",
+    "error": {
+      "somethingWentWrong": "Algo deu errado. Por favor, tente novamente.",
+      "invalidUrl": "URL do YouTube inválida. Por favor, verifique o link.",
+      "quotaExceeded": "Você atingiu sua cota diária.",
+      "noFormatSelected": "Por favor, selecione pelo menos um formato de resumo."
+    },
+    "dialog": {
+      "title": "Bem-vindo ao Resumyt!",
+      "description": "Resumyt permite que você obtenha resumos rápidos de vídeos do YouTube. Basta inserir o link do vídeo e nós cuidaremos do resto.",
+      "button": "Entendi"
+    },
+    "features": {
+      "title": "Recursos",
+      "quickSummaries": "Resumos Rápidos",
+      "timeSaving": "Economia de Tempo",
+      "acceleratedLearning": "Aprendizado Acelerado",
+      "forEveryone": "Para Todos",
+      "diverseContent": "Conteúdo Diversificado",
+      "valuableInsights": "Insights Valiosos"
+    },
+    "howItWorks": {
+      "title": "Como Funciona",
+      "step1": "Inserir Link",
+      "step2": "Escolher Formato",
+      "step3": "Obter Resumo"
+    },
+    "testimonials": {
+      "title": "O que Nossos Usuários Dizem"
+    },
+    "cta": {
+      "title": "Pronto para Começar?",
+      "description": "Junte-se a milhares de usuários que já estão economizando tempo e aprendendo mais rápido com o Resumyt.",
+      "button": "Teste o Resumyt Gratuitamente"
+    },
+    "faq": {
+      "title": "Perguntas Frequentes",
+      "q1": "Como o Resumyt funciona?",
+      "a1": "O Resumyt utiliza inteligência artificial avançada para analisar e resumir vídeos do YouTube. Você só precisa inserir o link do vídeo e selecionar o formato de resumo desejado.",
+      "q2": "O uso do Resumyt é gratuito?",
+      "a2": "Oferecemos uma cota diária gratuita para todos os usuários. Para uso ilimitado, temos planos premium acessíveis.",
+      "q3": "Quais tipos de vídeos posso resumir?",
+      "a3": "Você pode resumir qualquer vídeo público do YouTube, desde tutoriais e palestras até documentários e entrevistas.",
+      "q4": "Em quais idiomas o Resumyt está disponível?",
+      "a4": "Atualmente, o Resumyt pode resumir vídeos em português, inglês, espanhol, alemão, francês, italiano, russo e chinês."
+    }
   },
   "summary": {
     "title": "Resumo do Vídeo",
@@ -13,5 +62,14 @@
   "auth": {
     "signIn": "Entrar",
     "signOut": "Sair"
+  },
+  "formats": {
+    "bulletPoints": "Pontos-chave",
+    "paragraph": "Parágrafo",
+    "page": "Página"
+  },
+  "recentVideos": {
+    "title": "Vídeos Resumidos Recentemente",
+    "thumbnailAlt": "Miniatura do Vídeo"
   }
 }

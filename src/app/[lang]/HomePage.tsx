@@ -11,5 +11,5 @@ export default async function HomePage({
   const validLang: Locale = i18n.locales.includes(lang as Locale) ? (lang as Locale) : i18n.defaultLocale;
   const dict = await getDictionary(validLang);
 
-  return <ClientHomePage dict={dict} />;
+  return <ClientHomePage dict={dict as any}  />;
 }

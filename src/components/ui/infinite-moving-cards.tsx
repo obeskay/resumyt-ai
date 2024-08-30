@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import Image from 'next/image';
 
 export const InfiniteMovingCards = ({
   items,
@@ -23,10 +24,7 @@ export const InfiniteMovingCards = ({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const scrollerRef = React.useRef<HTMLUListElement>(null);
 
-  useEffect(() => {
-    addAnimation();
-  }, []);
-  
+
   const [start, setStart] = useState(false);
   
   function addAnimation() {
@@ -46,7 +44,7 @@ export const InfiniteMovingCards = ({
     }
   }
   
-  const getDirection = () => {
+  const getDirection = useCallback(() => {
     if (containerRef.current) {
       if (direction === "left") {
         containerRef.current.style.setProperty(
@@ -60,9 +58,9 @@ export const InfiniteMovingCards = ({
         );
       }
     }
-  };
-  
-  const getSpeed = () => {
+  }, [direction]);
+
+  const getSpeed = useCallback(() => {
     if (containerRef.current) {
       if (speed === "fast") {
         containerRef.current.style.setProperty("--animation-duration", "20s");
@@ -72,7 +70,29 @@ export const InfiniteMovingCards = ({
         containerRef.current.style.setProperty("--animation-duration", "80s");
       }
     }
-  };
+  }, [speed]);
+
+  useEffect(() => {
+    const addAnimation = () => {
+      if (containerRef.current && scrollerRef.current) {
+        const scrollerContent = Array.from(scrollerRef.current.children);
+
+        scrollerContent.forEach((item) => {
+          const duplicatedItem = item.cloneNode(true);
+          if (scrollerRef.current) {
+            scrollerRef.current.appendChild(duplicatedItem);
+          }
+        });
+
+        getDirection();
+        getSpeed();
+        setStart(true);
+      }
+    };
+
+    addAnimation();
+  }, [containerRef, getDirection, getSpeed]);
+  
   
   return (
     <div
@@ -98,10 +118,11 @@ export const InfiniteMovingCards = ({
             }}
             key={item.name + idx}
           >
-            <img
+            <Image
               src={item.image}
               alt={item.name}
-              className="w-full h-auto object-cover rounded-lg"
+              width={400} // Ajusta según tus necesidades
+              height={200} // Ajusta según tus necesidades
             />
           </li>
         ))}
