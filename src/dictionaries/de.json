@@ -1,14 +1,24 @@
 {
   "home": {
-    "title": "YouTube Zusammenfasser",
-    "description": "Erhalten Sie schnelle Zusammenfassungen von YouTube-Videos",
-    "inputPlaceholder": "YouTube-URL eingeben",
-    "summarizeButton": "Zusammenfassen"
+    "title": "Resumyt",
+    "subtitle": "YouTube-Video-Zusammenfassungen in Sekunden",
+    "description": "Geben Sie den Link zu einem YouTube-Video ein und erhalten Sie eine prägnante Zusammenfassung.",
+    "remainingQuota": "Verbleibendes Kontingent: {count}",
+    "inputPlaceholder": "Fügen Sie hier den YouTube-Video-Link ein",
+    "summarizeButton": "Zusammenfassen",
+    "error": {
+      "somethingWentWrong": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut."
+    },
+    "dialog": {
+      "title": "Willkommen bei Resumyt!",
+      "description": "Resumyt ermöglicht es Ihnen, schnelle Zusammenfassungen von YouTube-Videos zu erhalten. Fügen Sie einfach den Video-Link ein und wir erledigen den Rest.",
+      "button": "Verstanden"
+    }
   },
   "summary": {
     "title": "Video-Zusammenfassung",
     "loadingMessage": "Zusammenfassung wird generiert...",
-    "errorMessage": "Fehler beim Generieren der Zusammenfassung. Bitte versuchen Sie es erneut."
+    "errorMessage": "Fehler bei der Generierung der Zusammenfassung. Bitte versuchen Sie es erneut."
   },
   "auth": {
     "signIn": "Anmelden",
