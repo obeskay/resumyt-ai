@@ -22,6 +22,10 @@ import { CardStack } from "@/components/ui/card-stack";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import RecentVideoThumbnails from "@/components/RecentVideoThumbnails";
 import { GradientText } from "@/components/ui/gradient-text";
+import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
+import { SparklesCore } from "@/components/ui/sparkles";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import MultiStepForm from "@/components/MultiStepForm";
 
 type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
@@ -56,6 +60,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
   const [showDialog, setShowDialog] = useState(false);
   const { toast } = useToast();
   const [recentVideos, setRecentVideos] = useState<string[]>([]);
+  const [summaryFormat, setSummaryFormat] = useState<string | null>(null);
 
   useEffect(() => {
     const initializeUser = async (retries = 3) => {
@@ -127,26 +132,54 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
     fetchRecentVideos();
   }, [toast]);
 
-  const cards = [
+  const features = [
     {
-      id: 1,
-      content: "Resumyt te ayuda a ahorrar tiempo resumiendo videos de YouTube.",
-      name: "Ahorro de tiempo",
-      designation: "Característica principal",
+      title: "Resúmenes Rápidos",
+      description: "Obtén los puntos clave de cualquier video en segundos.",
+      icon: "⚡️",
     },
     {
-      id: 2,
-      content: "Obtén los puntos clave de cualquier video en cuestión de segundos.",
-      name: "Resúmenes rápidos",
-      designation: "Beneficio clave",
+      title: "Ahorro de Tiempo",
+      description: "Consume contenido de forma eficiente y productiva.",
+      icon: "⏱️",
     },
     {
-      id: 3,
-      content: "Perfecto para estudiantes, profesionales y cualquier persona que quiera aprender más rápido.",
-      name: "Para todos",
-      designation: "Público objetivo",
+      title: "Aprendizaje Acelerado",
+      description: "Absorbe información más rápido que nunca.",
+      icon: "🧠",
+    },
+    {
+      title: "Accesibilidad",
+      description: "Perfecto para estudiantes, profesionales y curiosos.",
+      icon: "🌍",
     },
   ];
+
+  const testimonials = [
+    {
+      quote: "Resumyt me ha ahorrado horas de tiempo viendo videos largos.",
+      name: "María G.",
+      title: "Estudiante universitaria",
+      image: "/testimonial1.jpg",
+    },
+    {
+      quote: "Una herramienta indispensable para mi trabajo de investigación.",
+      name: "Carlos R.",
+      title: "Investigador",
+      image: "/testimonial2.jpg",
+    },
+    {
+      quote: "Ahora puedo mantenerme al día con los últimos tutoriales de programación.",
+      name: "Ana L.",
+      title: "Desarrolladora de software",
+      image: "/testimonial3.jpg",
+    },
+  ];
+
+  const handleFormComplete = (selectedFormat: string) => {
+    setSummaryFormat(selectedFormat);
+    // Aquí puedes agregar lógica adicional si es necesario
+  };
 
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallback error={error} dict={dict} />}>
@@ -155,6 +188,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
           <RecentVideoThumbnails videoIds={recentVideos} />
           <BackgroundBeams />
           <div className="z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Sección Hero */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -163,21 +197,30 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
               className="text-center space-y-12 py-20"
             >
               <motion.h1 
-                className="text-5xl sm:text-6xl md:text-7xl font-bold"
+                className="text-6xl sm:text-7xl md:text-8xl font-bold relative p-4 rounded-lg bg-background/50 backdrop-blur-sm"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
                 <GradientText>{dict.home.title}</GradientText>
+                <SparklesCore
+                  background="transparent"
+                  minSize={0.4}
+                  maxSize={1}
+                  particleDensity={1200}
+                  className="w-full h-full absolute top-0 left-0"
+                  particleColor="var(--sparkle-color)"
+                />
               </motion.h1>
-              <motion.p 
+              <motion.div 
                 className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
               >
-                {dict.home.subtitle}
-              </motion.p>
+                <TextGenerateEffect words={dict.home.subtitle} />
+              </motion.div>
+              {/* Sección de entrada de video y formulario multistepper */}
               <AnimatePresence>
                 {!loading && user && (
                   <motion.div
@@ -188,14 +231,19 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <VideoInput
-                      userId={user.id}
-                      isLoading={loading}
-                      quotaRemaining={user.quota_remaining}
-                      placeholder={dict.home.inputPlaceholder}
-                      buttonText={dict.home.summarizeButton}
-                    />
-                    <p className="text-sm text-muted-foreground">
+                    {summaryFormat ? (
+                      <VideoInput
+                        userId={user.id}
+                        isLoading={loading}
+                        quotaRemaining={user.quota_remaining}
+                        placeholder={dict.home.inputPlaceholder}
+                        buttonText={dict.home.summarizeButton}
+                        summaryFormat={summaryFormat}
+                      />
+                    ) : (
+                      <MultiStepForm onComplete={handleFormComplete} />
+                    )}
+                    <p className="text-sm text-muted-foreground text-center">
                       {dict.home.remainingQuota}: {user.quota_remaining}
                     </p>
                   </motion.div>
@@ -203,16 +251,59 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
               </AnimatePresence>
             </motion.div>
             
+            {/* Sección de características */}
             <motion.div 
               className="mt-20 mb-20"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
             >
-              <h2 className="text-3xl font-bold text-center mb-10">
+              <h2 className="text-4xl font-bold text-center mb-10">
                 <GradientText>Características principales</GradientText>
               </h2>
-              <CardStack items={cards} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    className="bg-card p-6 rounded-lg shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 * index, duration: 0.5 }}
+                  >
+                    <div className="text-4xl mb-4">{feature.icon}</div>
+                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Sección de testimonios */}
+            <motion.div
+              className="mt-20 mb-20"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+            >
+              <h2 className="text-4xl font-bold text-center mb-10">
+                <GradientText>Lo que dicen nuestros usuarios</GradientText>
+              </h2>
+              <InfiniteMovingCards items={testimonials} />
+            </motion.div>
+
+            {/* Sección CTA */}
+            <motion.div
+              className="mt-20 mb-20 text-center"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.8 }}
+            >
+              <h2 className="text-4xl font-bold mb-6">
+                <GradientText>¿Listo para empezar?</GradientText>
+              </h2>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                Prueba Resumyt gratis
+              </Button>
             </motion.div>
           </div>
         </div>

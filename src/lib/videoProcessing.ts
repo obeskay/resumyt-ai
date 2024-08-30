@@ -400,3 +400,33 @@ function extractYouTubeId(url: string): string | null {
   const match = url.match(regExp);
   return match && match[2].length === 11 ? match[2] : null;
 }
+
+async function extractFrames(videoUrl: string): Promise<string[]> {
+    // Implementa la lógica para extraer fotogramas del video
+    // Por ejemplo, usando fluent-ffmpeg
+    const frames: string[] = [];
+    // Lógica para extraer fotogramas y almacenarlos en el array 'frames'
+    return frames;
+}
+
+export async function analyzeVideo(videoUrl: string): Promise<string> {
+    const frames = await extractFrames(videoUrl);
+    // Aquí puedes enviar los fotogramas a la API de OpenAI para análisis
+    const analysisResults = await sendFramesToOpenAI(frames);
+    return analysisResults;
+}
+
+async function sendFramesToOpenAI(frames: string[]): Promise<string> {
+    // Implementa la lógica para enviar los fotogramas a la API de OpenAI
+    // y recibir la respuesta
+    const response = await fetch("https://api.openai.com/v1/your-endpoint", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({ frames }),
+    });
+    const data = await response.json();
+    return data.result; // Ajusta según la estructura de la respuesta
+}
