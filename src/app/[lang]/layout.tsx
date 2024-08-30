@@ -1,35 +1,28 @@
-import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+import { ReactNode } from 'react';
+import { Inter } from 'next/font/google';
+import { ThemeProvider } from 'next-themes';
+import ".//globals.css";  // Ajusta esta línea si mueves globals.css a la raíz
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "ResumYT",
-  description: "Summarize YouTube videos with AI",
-};
-
-export default function RootLayout({
+export default function LangLayout({
   children,
   params: { lang },
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   params: { lang: string };
 }) {
   return (
-    <html lang={lang} suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+    <div lang={lang}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
+    </div>
   );
 }
 

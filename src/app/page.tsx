@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import VideoInput from '@/components/VideoInput';
 import { getUserQuota } from '@/lib/api';
