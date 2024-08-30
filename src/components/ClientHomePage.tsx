@@ -165,6 +165,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                 >
                   <VideoInput
                     userId={user.id}
+                    isLoading={loading}
                     quotaRemaining={user.quota_remaining}
                     placeholder={dict.home.inputPlaceholder}
                     buttonText={dict.home.summarizeButton}
