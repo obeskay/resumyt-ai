@@ -202,6 +202,12 @@ export async function POST(req: NextRequest) {
       transcript,
       videoId,
       quotaRemaining: user.quota_remaining - 1,
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
     });
   } catch (error) {
     logger.error("Error in summarize API:", error);

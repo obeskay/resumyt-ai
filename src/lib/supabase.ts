@@ -8,15 +8,12 @@ const getSupabaseUrl = () => {
 };
 
 const getSupabaseKey = () => {
-  console.log("Environment:", process.env.NODE_ENV);
-  console.log("All environment variables:", process.env);
 
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!key) {
     console.error("NEXT_PUBLIC_SUPABASE_ANON_KEY is not set");
     throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
   }
-  console.log("Supabase Anon Key (first 5 chars):", key.substring(0, 5));
   return key;
 };
 

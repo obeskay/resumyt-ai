@@ -12,18 +12,18 @@ import axios, { AxiosError } from "axios";
 const transcriptCache: { [key: string]: { data: string, timestamp: number } } = {};
 const CACHE_EXPIRATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-async function retryOperation<T>(operation: () => Promise<T>, maxRetries = 3): Promise<T> {
-  let retries = 0;
-  while (retries < maxRetries) {
+async function retryOperation<T>(operation: () => Promise<T>, maxRetries = 3, delay = 1000): Promise<T> {
+  let lastError: Error | null = null;
+  for (let i = 0; i < maxRetries; i++) {
     try {
       return await operation();
     } catch (error) {
-      retries++;
-      if (retries === maxRetries) throw error;
-      await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000)); // Exponential backoff
+      console.error(`Attempt ${i + 1} failed:`, error);
+      lastError = error instanceof Error ? error : new Error(String(error));
+      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
     }
   }
-  throw new Error("Max retries reached");
+  throw lastError || new Error('Operation failed after max retries');
 }
 
 export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page'): Promise<{ summary: string, transcript: string }> {
@@ -113,43 +113,114 @@ async function checkVideoAvailability(videoId: string): Promise<boolean> {
   }
 }
 
-export async function transcribeVideoWithFallback(videoId: string): Promise<string> {
-  // Check cache first
-  if (transcriptCache[videoId] && (Date.now() - transcriptCache[videoId].timestamp) < CACHE_EXPIRATION) {
-    console.log('Transcript found in cache for video ID:', videoId);
-    return transcriptCache[videoId].data;
-  }
+async function getBasicVideoInfo(videoId: string): Promise<string> {
+  const response = await fetch(`https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=${videoId}`);
+  const data = await response.json();
+  return `Title: ${data.title}\nAuthor: ${data.author_name}`;
+}
 
-  // Check video availability
-  const isAvailable = await checkVideoAvailability(videoId);
-  if (!isAvailable) {
-    console.error("Video is not available:", videoId);
-    throw new VideoFetchError("Video is not available or has been removed");
+async function fetchYouTubeSubtitles(videoId: string): Promise<string> {
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey) {
+    throw new Error("YouTube API key is not set");
   }
 
   try {
-    console.log("Attempting to fetch transcript for video:", videoId);
-    const transcriptArray = await retryOperation(() => YoutubeTranscript.fetchTranscript(videoId));
-    console.log("Transcript fetched successfully, number of entries:", transcriptArray.length);
-    const transcript = transcriptArray.map((item) => item.text).join(" ");
-    console.log("Combined transcript length:", transcript.length);
+    // Obtener la lista de subtítulos disponibles
+    const captionsResponse = await axios.get(`https://www.googleapis.com/youtube/v3/captions`, {
+      params: {
+        part: 'snippet',
+        videoId: videoId,
+        key: apiKey
+      }
+    });
+
+    if (captionsResponse.data.items && captionsResponse.data.items.length > 0) {
+      const captionId = captionsResponse.data.items[0].id;
+
+      // Obtener el contenido de los subtítulos
+      const subtitlesResponse = await axios.get(`https://www.googleapis.com/youtube/v3/captions/${captionId}`, {
+        params: {
+          tfmt: 'srt',
+          key: apiKey
+        },
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      // Procesar y limpiar los subtítulos
+      const subtitles = subtitlesResponse.data;
+      const cleanedSubtitles = subtitles.replace(/\d+\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/g, '');
+      return cleanedSubtitles.replace(/\n/g, ' ').trim();
+    } else {
+      throw new Error("No se encontraron subtítulos para este video");
+    }
+  } catch (error) {
+    console.error("Error al obtener los subtítulos de YouTube:", error);
+    throw error;
+  }
+}
+
+export async function transcribeVideoWithFallback(videoId: string): Promise<string> {
+  console.log('Iniciando transcribeVideoWithFallback para videoId:', videoId);
+  
+  // Verificar caché primero
+  if (transcriptCache[videoId] && (Date.now() - transcriptCache[videoId].timestamp) < CACHE_EXPIRATION) {
+    console.log('Transcript encontrado en caché para video ID:', videoId);
+    return transcriptCache[videoId].data;
+  }
+
+  // Verificar disponibilidad del video
+  console.log('Verificando disponibilidad del video:', videoId);
+  const isAvailable = await checkVideoAvailability(videoId);
+  if (!isAvailable) {
+    console.error("El video no está disponible:", videoId);
+    throw new VideoFetchError("El video no está disponible o ha sido eliminado");
+  }
+
+  try {
+    console.log("Intentando obtener la transcripción para el video:", videoId);
+    let transcript;
+    try {
+      const transcriptArray = await retryOperation(() => YoutubeTranscript.fetchTranscript(videoId));
+      transcript = transcriptArray.map((item) => item.text).join(" ");
+    } catch (ytError) {
+      console.log("Error con YoutubeTranscript, intentando con la API de YouTube:", ytError);
+      transcript = await fetchYouTubeSubtitles(videoId);
+    }
+    console.log("Transcripción obtenida exitosamente, longitud:", transcript.length);
     
-    // Cache the transcript
+    // Cachear la transcripción
     transcriptCache[videoId] = { data: transcript, timestamp: Date.now() };
     
     return transcript;
   } catch (error) {
-    console.error("Error fetching transcript:", error);
+    console.error("Error al obtener la transcripción:", error);
+    console.error("Detalles del error:", JSON.stringify(error, null, 2));
+    
     if (error instanceof Error && error.message.includes("410")) {
-      console.log("Transcript not available (410 error), falling back to video metadata");
+      console.log("Transcripción no disponible (error 410), recurriendo a los metadatos del video");
     } else {
-      console.log("Falling back to video metadata for video ID:", videoId);
+      console.log("Recurriendo a los metadatos del video para el ID:", videoId);
     }
+    
     try {
-      return await fetchVideoMetadata(videoId);
+      console.log("Intentando obtener metadatos del video");
+      const metadata = await fetchVideoMetadata(videoId);
+      console.log("Metadatos obtenidos exitosamente, longitud:", metadata.length);
+      return metadata;
     } catch (metadataError) {
-      console.error("Error fetching video metadata:", metadataError);
-      throw new TranscriptNotFoundError("Failed to fetch both transcript and metadata");
+      console.error("Error al obtener los metadatos del video:", metadataError);
+      try {
+        console.log("Intentando obtener información básica del video");
+        const basicInfo = await getBasicVideoInfo(videoId);
+        console.log("Información básica obtenida exitosamente, longitud:", basicInfo.length);
+        return basicInfo;
+      } catch (basicInfoError) {
+        console.error("Error al obtener información básica del video:", basicInfoError);
+        throw new TranscriptNotFoundError("No se pudo obtener la transcripción, los metadatos ni la información básica");
+      }
     }
   }
 }
