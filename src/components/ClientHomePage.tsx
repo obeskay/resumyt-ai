@@ -86,14 +86,6 @@ interface ClientHomePageProps {
   };
 }
 
-// Asegúrate de que la interfaz QuickSummary esté definida
-interface QuickSummary {
-  id: string;
-  title: string;
-  content: string;
-  videoId: string;
-}
-
 const ErrorFallback: React.FC<{ error: Error; dict: ClientHomePageProps["dict"] }> = ({ error, dict }) => (
   <div className="container mx-auto p-4">
     <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center text-red-600">
@@ -307,7 +299,14 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, }) => {
       />
       <MainLayout>
           <BackgroundBeams />
-          <div className="fixed w-full h-full pointer-events-none z-[0] left-0 top-0 opacity-5">
+          <div
+          style={{
+            maskImage: 'radial-gradient(circle, transparent 0%, black 100%)',
+            maskSize: '100%',
+            maskPosition: 'center',
+            maskRepeat: 'no-repeat',
+          }}
+          className="fixed w-full h-full pointer-events-none z-[0] left-0 top-0 opacity-30">
               <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
             </div>
         <div className="relative min-h-screen flex flex-col justify-center items-center w-full overflow-hidden">
