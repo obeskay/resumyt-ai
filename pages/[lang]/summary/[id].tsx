@@ -89,7 +89,7 @@ export default function SummaryPage({
               style={{
                 backgroundImage: `url(https://img.youtube.com/vi/${summary?.videoId}/mqdefault.jpg)`,
               }}
-            ></motion.div>
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -114,7 +114,7 @@ export default function SummaryPage({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="w-full max-w-4xl mx-auto bg-background/90 backdrop-blur-md rounded-lg shadow-xl overflow-hidden"
+            className="w-full max-w-3xl mx-auto sm:bg-background/90 sm:backdrop-blur-md sm:rounded-2xl sm:shadow-xl sm:overflow-hidden"
           >
             <header className="py-4 border-b border-border flex justify-between items-center">
               <Button
@@ -132,14 +132,14 @@ export default function SummaryPage({
             </header>
 
             {isLoading ? (
-              <div className="p-6">
+              <div className="space-y-4">
                 <Skeleton className="w-full h-64 mb-4" />
                 <Skeleton className="w-3/4 h-8 mb-2" />
                 <Skeleton className="w-1/2 h-6" />
               </div>
             ) : !summary ? (
               <>
-                <div className="text-center p-8 text-foreground">
+                <div className="text-center text-foreground">
                   <p className="text-xl">{dict.summary.notFound}</p>
                   <Button
                     variant="outline"
@@ -152,7 +152,7 @@ export default function SummaryPage({
                 </div>
               </>
             ) : (
-              <div className="p-6">
+              <div className="p-6 space-y-4">
                 <div className="flex flex-col lg:flex-row items-start space-y-4 lg:space-y-0 lg:space-x-6 mb-6">
                   {summary.videoId && (
                     <div className="w-full lg:w-1/3 relative group">

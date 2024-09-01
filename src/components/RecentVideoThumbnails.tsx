@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import YouTubeThumbnail from "./YouTubeThumbnail";
 
@@ -20,7 +19,7 @@ export const RecentVideoThumbnails: React.FC<RecentVideoThumbnailsProps> = ({
   const thumbnailAlt = dict.recentVideos?.thumbnailAlt || "Video thumbnail";
 
   return (
-    <div className="h-[50dvh] w-full flex flex-col items-center justify-center overflow-hidden">
+    <div className="h-[50vh] w-full flex flex-col items-center justify-center overflow-hidden">
       <MovingCards items={videoIds} thumbnailAlt={thumbnailAlt} />
     </div>
   );
@@ -44,13 +43,7 @@ export const MovingCards = ({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const scrollerRef = React.useRef<HTMLUListElement>(null);
 
-  const getDirection = useCallback(() => {
-    return direction;
-  }, [direction]);
-
-  const getSpeed = useCallback(() => {
-    return speed;
-  }, [speed]);
+  const [start, setStart] = React.useState(false);
 
   useEffect(() => {
     const addAnimation = () => {
@@ -64,33 +57,12 @@ export const MovingCards = ({
           }
         });
 
-        getDirection();
-        getSpeed();
         setStart(true);
       }
     };
 
     addAnimation();
-  }, [getDirection, getSpeed]); // Añade getDirection y getSpeed como dependencias si son funciones externas
-
-  const [start, setStart] = React.useState(false);
-
-  function addAnimation() {
-    if (containerRef.current && scrollerRef.current) {
-      const scrollerContent = Array.from(scrollerRef.current.children);
-
-      scrollerContent.forEach((item) => {
-        const duplicatedItem = item.cloneNode(true);
-        if (scrollerRef.current) {
-          scrollerRef.current.appendChild(duplicatedItem);
-        }
-      });
-
-      getDirection();
-      getSpeed();
-      setStart(true);
-    }
-  }
+  }, []);
 
   return (
     <AnimatePresence mode="wait">
@@ -99,10 +71,7 @@ export const MovingCards = ({
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1 }}
         ref={containerRef}
-        className={cn(
-          "scroller relative z-20 w-full overflow-hidden",
-          className,
-        )}
+        className={cn("relative z-20 w-full overflow-hidden", className)}
       >
         <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-background to-transparent z-10"></div>
         <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-background to-transparent z-10"></div>
@@ -110,19 +79,19 @@ export const MovingCards = ({
           ref={scrollerRef}
           className={cn(
             "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
-            start && "animate-scroll",
+            start && "animate-scroll animate-ease-linear",
             pauseOnHover && "hover:[animation-play-state:paused]",
           )}
         >
           {items.map((videoId, idx) => (
             <li
-              className="relative w-[420px] max-w-full relative flex-shrink-0 rounded-xl overflow-hidden"
+              className="w-[420px] max-w-full flex-shrink-0 rounded-xl overflow-hidden"
               key={idx}
             >
               <YouTubeThumbnail
                 src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
                 alt={thumbnailAlt}
-                layoutId="video-thumbnail"
+                layoutId={`video-thumbnail-${idx}`}
               />
             </li>
           ))}
