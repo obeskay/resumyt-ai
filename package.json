@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@distube/ytdl-core": "^4.14.4",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@hookform/resolvers": "^3.9.0",
     "@openrouter/ai-sdk-provider": "^0.0.4",
@@ -85,7 +86,6 @@
     "uuid": "^10.0.0",
     "vaul": "^0.9.1",
     "youtube-transcript": "^1.2.1",
-    "ytdl-core": "^4.11.5",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"
   },

@@ -52,7 +52,9 @@
       "a3": "You can summarize any public YouTube video, from tutorials and lectures to documentaries and interviews.",
       "q4": "In what languages is Resumyt available?",
       "a4": "Currently, Resumyt can summarize videos in English, Spanish, French, German, Italian, Portuguese, Russian, and Chinese."
-    }
+    },
+    "continueButton": "Continue",
+    "formatQuestion": "How do you want the summary?"
   },
   "summary": {
     "title": "Video Summary",
