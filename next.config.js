@@ -14,9 +14,10 @@ const nextConfig = {
       },
     ],
   },
-  // Asegúrate de que esto esté presente
-  api: {
-    bodyParser: true,
+  // Eliminamos la configuración de 'api'
+  i18n: {
+    locales: ['es', 'en'],
+    defaultLocale: 'es',
   },
 }
 
