@@ -17,6 +17,8 @@ import MainLayout from "@/components/MainLayout";
 import { IconClipboard } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { FileTextIcon } from "lucide-react";
+import { SparklesCore } from "@/components/ui/sparkles";
+import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 
 interface SummaryPageProps {
   dict: any;
@@ -70,6 +72,24 @@ export default function SummaryPage({
       />
       <MainLayout>
         <BackgroundBeams />
+        <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
+          <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
+            <GradientText>
+              <TextGenerateEffect words={dict.summary.title} />
+            </GradientText>
+          </h1>
+          <div className="w-[40rem] h-40 relative">
+            <SparklesCore
+              background="transparent"
+              minSize={0.4}
+              maxSize={1}
+              particleDensity={1200}
+              className="w-full h-full"
+              particleColor="#FFFFFF"
+            />
+          </div>
+        </div>
+
         <div className="container mx-auto px-4 py-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -77,11 +97,6 @@ export default function SummaryPage({
             transition={{ duration: 0.5 }}
             className="text-center space-y-6 mb-12"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold">
-              <GradientText>
-                <TextGenerateEffect words={dict.summary.title} />
-              </GradientText>
-            </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               <TextGenerateEffect words={dict.summary.subtitle} />
             </p>
@@ -104,31 +119,49 @@ export default function SummaryPage({
               {dict.summary.notFound}
             </motion.div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="bg-card rounded-lg shadow-lg p-6"
-            >
-              <Tabs defaultValue="summary" className="w-full">
-                <TabsList className="w-full justify-center mb-6">
-                  <TabsTrigger value="summary" className="text-lg px-6 py-3">
-                    <IconClipboard className="w-5 h-5 mr-2" />
-                    {dict.summary.summaryTab}
-                  </TabsTrigger>
-                  <TabsTrigger value="transcript" className="text-lg px-6 py-3">
-                    <FileTextIcon className="w-5 h-5 mr-2" />
-                    {dict.summary.transcriptTab}
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="summary">
-                  <SummaryDisplay summary={summary.content} />
-                </TabsContent>
-                <TabsContent value="transcript">
-                  <SummaryDisplay summary={summary.transcript} />
-                </TabsContent>
-              </Tabs>
-            </motion.div>
+            <CardContainer className="inter-var">
+              <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
+                <CardItem
+                  translateZ="50"
+                  className="text-xl font-bold text-neutral-600 dark:text-white"
+                >
+                  {dict.summary.cardTitle}
+                </CardItem>
+                <CardItem
+                  as="p"
+                  translateZ="60"
+                  className="text-neutral-500 text-sm max-w-sm mt-2 dark:text-neutral-300"
+                >
+                  {dict.summary.cardDescription}
+                </CardItem>
+                <CardItem translateZ="100" className="w-full mt-4">
+                  <Tabs defaultValue="summary" className="w-full">
+                    <TabsList className="w-full justify-center mb-6">
+                      <TabsTrigger
+                        value="summary"
+                        className="text-lg px-6 py-3"
+                      >
+                        <IconClipboard className="w-5 h-5 mr-2" />
+                        {dict.summary.summaryTab}
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="transcript"
+                        className="text-lg px-6 py-3"
+                      >
+                        <FileTextIcon className="w-5 h-5 mr-2" />
+                        {dict.summary.transcriptTab}
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="summary">
+                      <SummaryDisplay summary={summary.content} />
+                    </TabsContent>
+                    <TabsContent value="transcript">
+                      <SummaryDisplay summary={summary.transcript} />
+                    </TabsContent>
+                  </Tabs>
+                </CardItem>
+              </CardBody>
+            </CardContainer>
           )}
 
           <motion.div
