@@ -11,6 +11,7 @@ import { getSupabase } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rateLimit";
 import { logger } from "@/lib/logger"; // Asegúrate de crear este módulo
 import { Database } from "@/types/supabase";
+import { getVideoInfo } from '@/lib/youtube'; // Asumiendo que tenemos esta función
 
 interface ErrorResponse {
   error: string;
