@@ -50,7 +50,13 @@ export default function SummaryPage({
       fetch(`/api/getSummary?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-          setSummary(data);
+          setSummary({
+            content: data.content,
+            transcript: data.transcript,
+            videoId: data.videoId,
+            title: data.title,
+            thumbnailUrl: data.thumbnailUrl,
+          });
           setIsLoading(false);
         })
         .catch((error) => {

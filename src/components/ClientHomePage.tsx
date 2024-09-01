@@ -116,7 +116,10 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
   const { toast } = useToast();
   const [recentVideos, setRecentVideos] = useState<string[]>([]);
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = (url: string, format: string) => {
+    setIsSubmitting(true);
     fetch(`/api/summarize?url=${url}&format=${format}`)
       .then((response) => {
         if (!response.ok) {
@@ -139,6 +142,9 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
             "Hubo un problema al resumir el video. Por favor, inténtelo de nuevo.",
           variant: "destructive",
         });
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
   };
 
@@ -398,18 +404,22 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                 {/* Video Input Section */}
 
                 <motion.div
-                  className="space-y-6 w-full max-w-3xl mx-auto"
+                  className="space-y-6 w-full max-w-3xl mx-auto relative"
                   key={user?.id}
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.5 }}
                 >
+                  {isSubmitting && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
+                      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
                   <VideoInput
                     userId={user?.id || ""}
-                    isLoading={loading}
+                    isLoading={loading || isSubmitting}
                     quotaRemaining={user?.quota_remaining || 0}
                     onSubmit={(url, format: any) => {
-                      /* Implementar lógica de envío */
                       handleSubmit(url, format);
                     }}
                     dict={{

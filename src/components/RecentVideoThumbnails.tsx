@@ -1,7 +1,8 @@
-import React, { useEffect, useCallback } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import Image from 'next/image';
+import React, { useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import YouTubeThumbnail from "./YouTubeThumbnail";
 
 interface RecentVideoThumbnailsProps {
   videoIds: string[];
@@ -92,49 +93,41 @@ export const MovingCards = ({
   }
 
   return (
-    <AnimatePresence
-        mode='wait'
-    >
-
-
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1, delay: 1 }}
-      ref={containerRef}
-      className={cn(
-        "scroller relative z-20 w-full overflow-hidden",
-        className
-      )}
-    >
-      <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-background to-transparent z-10"></div>
-      <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-background to-transparent z-10"></div>
-      <ul
-        ref={scrollerRef}
+    <AnimatePresence mode="wait">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1 }}
+        ref={containerRef}
         className={cn(
-          "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
-          start && "animate-scroll",
-          pauseOnHover && "hover:[animation-play-state:paused]"
+          "scroller relative z-20 w-full overflow-hidden",
+          className,
         )}
       >
-        {items.map((videoId, idx) => (
-          <li
-            className="relative w-[420px] max-w-full relative flex-shrink-0 rounded-xl overflow-hidden"
-            key={idx}
-          >
-          
-              <Image
+        <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-background to-transparent z-10"></div>
+        <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-background to-transparent z-10"></div>
+        <ul
+          ref={scrollerRef}
+          className={cn(
+            "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
+            start && "animate-scroll",
+            pauseOnHover && "hover:[animation-play-state:paused]",
+          )}
+        >
+          {items.map((videoId, idx) => (
+            <li
+              className="relative w-[420px] max-w-full relative flex-shrink-0 rounded-xl overflow-hidden"
+              key={idx}
+            >
+              <YouTubeThumbnail
                 src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
                 alt={thumbnailAlt}
-                width={420}
-                height={150}
-                className="w-full h-full object-cover"
+                layoutId="video-thumbnail"
               />
-            
-          </li>
-        ))}
-      </ul>
-    </motion.div>
+            </li>
+          ))}
+        </ul>
+      </motion.div>
     </AnimatePresence>
   );
 };
