@@ -5,20 +5,23 @@ import { getDictionary } from "@/lib/getDictionary";
 import { Locale, i18n } from "@/i18n-config";
 import { getSupabase } from "@/lib/supabase";
 import SummaryDisplay from "@/components/SummaryDisplay";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
-import { BackgroundBeams } from "@/components/ui/background-beams";
-import { GradientText } from "@/components/ui/gradient-text";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import Head from "next/head";
 import { NextSeo } from "next-seo";
 import MainLayout from "@/components/MainLayout";
-import { IconClipboard } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
-import { FileTextIcon } from "lucide-react";
-import { SparklesCore } from "@/components/ui/sparkles";
-import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
+import Image from "next/image";
+import {
+  ArrowLeftIcon,
+  FileTextIcon,
+  ClipboardIcon,
+  YoutubeIcon,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { GradientText } from "@/components/ui/gradient-text";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { BackgroundBeams } from "@/components/ui/background-beams";
+import YouTubeThumbnail from "@/components/YouTubeThumbnail";
 
 interface SummaryPageProps {
   dict: any;
@@ -26,6 +29,8 @@ interface SummaryPageProps {
     content: string;
     transcript: string;
     videoId: string;
+    title: string;
+    thumbnailUrl: string;
   } | null;
 }
 
@@ -37,6 +42,7 @@ export default function SummaryPage({
   const { id } = router.query;
   const [summary, setSummary] = useState(initialSummary);
   const [isLoading, setIsLoading] = useState(!initialSummary);
+  const [activeTab, setActiveTab] = useState("summary");
 
   useEffect(() => {
     if (!initialSummary && id) {
@@ -54,8 +60,12 @@ export default function SummaryPage({
     }
   }, [id, initialSummary]);
 
+  if (!dict || !dict.summary) {
+    return <div>Cargando...</div>;
+  }
+
   return (
-    <>
+    <MainLayout>
       <Head>
         <title>{dict.summary.title}</title>
         <meta name="description" content={dict.summary.metaDescription} />
@@ -70,117 +80,110 @@ export default function SummaryPage({
           type: "article",
         }}
       />
-      <MainLayout>
-        <BackgroundBeams />
-        <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
-          <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
-            <GradientText>
-              <TextGenerateEffect words={dict.summary.title} />
-            </GradientText>
-          </h1>
-          <div className="w-[40rem] h-40 relative">
-            <SparklesCore
-              background="transparent"
-              minSize={0.4}
-              maxSize={1}
-              particleDensity={1200}
-              className="w-full h-full"
-              particleColor="#FFFFFF"
-            />
-          </div>
-        </div>
-
-        <div className="container mx-auto px-4 py-12 relative z-10">
+      <BackgroundBeams />
+      <div className="relative min-h-screen flex flex-col justify-center items-center w-full overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center space-y-6 mb-12"
+            className="max-w-4xl mx-auto bg-background/80 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden"
           >
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              <TextGenerateEffect words={dict.summary.subtitle} />
-            </p>
-          </motion.div>
+            <header className="py-6 px-6 sm:px-8 border-b border-border">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/")}
+                className="text-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                {dict.summary.backToHome}
+              </Button>
+            </header>
 
-          {isLoading ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Skeleton className="w-full h-96 rounded-lg" />
-            </motion.div>
-          ) : !summary ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center text-xl text-muted-foreground"
-            >
-              {dict.summary.notFound}
-            </motion.div>
-          ) : (
-            <CardContainer className="inter-var">
-              <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
-                <CardItem
-                  translateZ="50"
-                  className="text-xl font-bold text-neutral-600 dark:text-white"
-                >
-                  {dict.summary.cardTitle}
-                </CardItem>
-                <CardItem
-                  as="p"
-                  translateZ="60"
-                  className="text-neutral-500 text-sm max-w-sm mt-2 dark:text-neutral-300"
-                >
-                  {dict.summary.cardDescription}
-                </CardItem>
-                <CardItem translateZ="100" className="w-full mt-4">
-                  <Tabs defaultValue="summary" className="w-full">
-                    <TabsList className="w-full justify-center mb-6">
-                      <TabsTrigger
-                        value="summary"
-                        className="text-lg px-6 py-3"
-                      >
-                        <IconClipboard className="w-5 h-5 mr-2" />
-                        {dict.summary.summaryTab}
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="transcript"
-                        className="text-lg px-6 py-3"
-                      >
-                        <FileTextIcon className="w-5 h-5 mr-2" />
-                        {dict.summary.transcriptTab}
-                      </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="summary">
-                      <SummaryDisplay summary={summary.content} />
-                    </TabsContent>
-                    <TabsContent value="transcript">
-                      <SummaryDisplay summary={summary.transcript} />
-                    </TabsContent>
-                  </Tabs>
-                </CardItem>
-              </CardBody>
-            </CardContainer>
-          )}
+            {isLoading ? (
+              <Skeleton className="w-full h-96" />
+            ) : !summary ? (
+              <div className="text-center p-8 text-foreground">
+                <p className="text-xl">{dict.summary.notFound}</p>
+              </div>
+            ) : (
+              <div className="p-6 sm:p-8 space-y-8">
+                <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                  {summary && summary.thumbnailUrl && (
+                    <div className="max-w-sm w-full">
+                      <YouTubeThumbnail
+                        src={summary.thumbnailUrl}
+                        alt={summary.title}
+                        layoutId="video-thumbnail"
+                      />
+                    </div>
+                  )}
+                  <div className="text-center md:text-left">
+                    <h1 className="text-3xl font-bold mb-2">
+                      <GradientText>{summary?.title}</GradientText>
+                    </h1>
+                    <p className="text-muted-foreground mb-4">
+                      <TextGenerateEffect
+                        words={`${dict.summary.videoIdLabel}: ${summary?.videoId}`}
+                      />
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-red-600 text-white border-red-600 hover:bg-red-700"
+                      onClick={() =>
+                        window.open(
+                          `https://www.youtube.com/watch?v=${summary?.videoId}`,
+                          "_blank",
+                        )
+                      }
+                    >
+                      <YoutubeIcon className="mr-2 h-4 w-4" />
+                      {dict.summary.watchOnYoutube}
+                    </Button>
+                  </div>
+                </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-12 text-center"
-          >
-            <Button
-              size="lg"
-              onClick={() => router.push("/")}
-              className="text-lg px-8 py-4"
-            >
-              {dict.summary.backToHome}
-            </Button>
+                <div className="flex space-x-4">
+                  <Button
+                    variant={activeTab === "summary" ? "default" : "outline"}
+                    onClick={() => setActiveTab("summary")}
+                    className="flex-1"
+                  >
+                    <ClipboardIcon className="w-4 h-4 mr-2" />
+                    {dict.summary.summaryTab}
+                  </Button>
+                  <Button
+                    variant={activeTab === "transcript" ? "default" : "outline"}
+                    onClick={() => setActiveTab("transcript")}
+                    className="flex-1"
+                  >
+                    <FileTextIcon className="w-4 h-4 mr-2" />
+                    {dict.summary.transcriptTab}
+                  </Button>
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-card p-6 rounded-xl shadow-inner"
+                >
+                  <SummaryDisplay
+                    summary={
+                      activeTab === "summary"
+                        ? summary.content
+                        : summary.transcript
+                    }
+                  />
+                </motion.div>
+              </div>
+            )}
           </motion.div>
         </div>
-      </MainLayout>
-    </>
+      </div>
+    </MainLayout>
   );
 }
 
@@ -198,7 +201,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   const supabase = getSupabase();
   const { data: summary, error } = await supabase
     .from("summaries")
-    .select("content, transcript, video_id")
+    .select("content, transcript, video_id, title, thumbnail_url")
     .eq("video_id", id)
     .single();
 
@@ -220,6 +223,8 @@ export const getServerSideProps: GetServerSideProps = async ({
             content: summary.content,
             transcript: summary.transcript,
             videoId: summary.video_id,
+            title: summary.title,
+            thumbnailUrl: summary.thumbnail_url,
           }
         : null,
     },
