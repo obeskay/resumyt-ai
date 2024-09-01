@@ -52,7 +52,9 @@
       "a3": "Puedes resumir cualquier video público de YouTube, desde tutoriales y conferencias hasta documentales y entrevistas.",
       "q4": "¿En qué idiomas está disponible Resumyt?",
       "a4": "Actualmente, Resumyt puede resumir videos en español, inglés, francés, alemán, italiano, portugués, ruso y chino."
-    }
+    },
+    "continueButton": "Continuar",
+    "formatQuestion": "¿Cómo quieres el resumen?"
   },
   "summary": {
     "title": "Resumen del Video",

@@ -23,13 +23,15 @@ interface VideoInputProps {
   userId: string;
   quotaRemaining: number | null;
   isLoading: boolean;
-  onSubmit: (url: string, formats: string[]) => void;
+  onSubmit: (url: string, formats: string[], videoTitle: string) => void;
   dict: {
     formats: Dictionary["formats"];
     home: {
       error: Dictionary["home"]["error"];
       inputPlaceholder: string;
       summarizeButton: string;
+      continueButton: string; // Añadido
+      formatQuestion: string; // Añadido
     };
   };
   lang: Locale;
@@ -53,6 +55,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
   const { toast } = useToast();
   const [selectedFormat, setSelectedFormat] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<"url" | "format">("url");
 
   const formatOptions = [
     {
@@ -96,15 +99,40 @@ const VideoInput: React.FC<VideoInputProps> = ({
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (await validateSubmission()) {
-        onSubmit(videoUrl, [selectedFormat!]);
+        onSubmit(videoUrl, [selectedFormat!], videoTitle);
       }
     },
-    [validateSubmission, onSubmit, videoUrl, selectedFormat],
+    [validateSubmission, onSubmit, videoUrl, selectedFormat, videoTitle],
   );
 
   const handleFormatChange = (format: string) => {
     setSelectedFormat(format);
   };
+
+  const handleUrlSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (videoUrl.trim() && quotaRemaining !== null && quotaRemaining > 0) {
+        await fetchVideoMetadata(videoUrl);
+        setStep("format");
+      } else {
+        setError(dict.home.error.invalidUrl);
+      }
+    },
+    [videoUrl, quotaRemaining, fetchVideoMetadata, dict],
+  );
+
+  const handleFormatSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (selectedFormat) {
+        onSubmit(videoUrl, [selectedFormat], videoTitle);
+      } else {
+        setError(dict.home.error.noFormatSelected);
+      }
+    },
+    [videoUrl, selectedFormat, videoTitle, onSubmit, dict],
+  );
 
   useEffect(() => {
     if (videoUrl) {
@@ -118,73 +146,88 @@ const VideoInput: React.FC<VideoInputProps> = ({
       {typeof window !== "undefined" && (
         <div className="w-full space-y-6">
           <div className="p-6 sm:p-10 bg-card rounded-lg shadow-lg">
-            <motion.form
-              onSubmit={handleSubmit}
-              className="space-y-6 w-full"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="relative w-full">
-                <Input
-                  type="url"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  required
-                  className="pr-24 h-12 !text-[16px] rounded-full"
-                  placeholder={
-                    isLoading
-                      ? lang === "es"
-                        ? "Cargando..."
-                        : "Loading..."
-                      : dict.home.inputPlaceholder
-                  }
-                  disabled={isLoading || quotaRemaining === 0}
-                  aria-label={
-                    lang === "es"
-                      ? "URL del video de YouTube"
-                      : "YouTube video URL"
-                  }
-                />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="submit"
-                      disabled={
-                        isLoading || !selectedFormat || quotaRemaining === 0
-                      }
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-10  rounded-full"
-                      aria-label="Resumir video"
-                    >
-                      {isLoading ? "Cargando..." : dict.home.summarizeButton}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Resumir video</TooltipContent>
-                </Tooltip>
-              </div>
-              <div className="flex flex-wrap justify-center gap-4">
-                {formatOptions.map((option) => (
-                  <Tooltip key={option.value}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={
-                          selectedFormat === option.value
-                            ? "default"
-                            : "outline"
-                        }
-                        onClick={() => handleFormatChange(option.value)}
-                        className="flex items-center space-x-2 min-w-[120px] min-h-[44px] rounded-full"
-                        aria-label={`Seleccionar formato ${option.label}`}
-                      >
-                        {option.icon}
-                        <span>{option.label}</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{`Resumen en formato ${option.label}`}</TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            </motion.form>
+            {step === "url" ? (
+              <motion.form
+                onSubmit={handleUrlSubmit}
+                className="space-y-6 w-full"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="relative w-full">
+                  <Input
+                    type="url"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    required
+                    className="pr-24 h-12 !text-[16px] rounded-full"
+                    placeholder={
+                      isLoading
+                        ? lang === "es"
+                          ? "Cargando..."
+                          : "Loading..."
+                        : dict.home.inputPlaceholder
+                    }
+                    disabled={isLoading || quotaRemaining === 0}
+                    aria-label={
+                      lang === "es"
+                        ? "URL del video de YouTube"
+                        : "YouTube video URL"
+                    }
+                  />
+                  <Button
+                    type="submit"
+                    disabled={isLoading || quotaRemaining === 0}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10  rounded-full"
+                    aria-label="Continuar"
+                  >
+                    {isLoading ? "Cargando..." : dict.home.continueButton}
+                  </Button>
+                </div>
+              </motion.form>
+            ) : (
+              <motion.form
+                onSubmit={handleFormatSubmit}
+                className="space-y-6 w-full"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-xl font-semibold mb-4">
+                  {dict.home.formatQuestion}
+                </h3>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {formatOptions.map((option) => (
+                    <Tooltip key={option.value}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={
+                            selectedFormat === option.value
+                              ? "default"
+                              : "outline"
+                          }
+                          onClick={() => handleFormatChange(option.value)}
+                          className="flex items-center space-x-2 min-w-[120px] min-h-[44px] rounded-full"
+                          aria-label={`Seleccionar formato ${option.label}`}
+                        >
+                          {option.icon}
+                          <span>{option.label}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{`Resumen en formato ${option.label}`}</TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+                <Button
+                  type="submit"
+                  disabled={!selectedFormat}
+                  className="w-full rounded-full"
+                  aria-label="Resumir video"
+                >
+                  {dict.home.summarizeButton}
+                </Button>
+              </motion.form>
+            )}
 
             <AnimatePresence>
               {videoTitle && videoThumbnail && (

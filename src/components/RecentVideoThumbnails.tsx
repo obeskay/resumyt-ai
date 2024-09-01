@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import YouTubeThumbnail from "./YouTubeThumbnail";
@@ -40,36 +40,38 @@ export const MovingCards = ({
   pauseOnHover?: boolean;
   className?: string;
 }) => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const scrollerRef = React.useRef<HTMLUListElement>(null);
-
-  const [start, setStart] = React.useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    const addAnimation = () => {
-      if (containerRef.current && scrollerRef.current) {
-        const scrollerContent = Array.from(scrollerRef.current.children);
+    if (containerRef.current && scrollerRef.current) {
+      const scrollerContent = Array.from(scrollerRef.current.children);
+      scrollerContent.forEach((item) => {
+        const duplicatedItem = item.cloneNode(true);
+        scrollerRef.current?.appendChild(duplicatedItem);
+      });
 
-        scrollerContent.forEach((item) => {
-          const duplicatedItem = item.cloneNode(true);
-          if (scrollerRef.current) {
-            scrollerRef.current.appendChild(duplicatedItem);
-          }
-        });
-
-        setStart(true);
-      }
-    };
-
-    addAnimation();
-  }, []);
+      // Configurar la animación con una velocidad constante
+      const scrollerWidth = scrollerRef.current.scrollWidth;
+      const animationDuration =
+        speed === "fast" ? 20 : speed === "normal" ? 30 : 40;
+      scrollerRef.current.style.setProperty(
+        "--animation-duration",
+        `${animationDuration}s`,
+      );
+      scrollerRef.current.style.setProperty(
+        "--scroller-width",
+        `${scrollerWidth / 2}px`,
+      );
+    }
+  }, [speed, items]);
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
+        transition={{ duration: 1 }}
         ref={containerRef}
         className={cn("relative z-20 w-full overflow-hidden", className)}
       >
@@ -78,9 +80,9 @@ export const MovingCards = ({
         <ul
           ref={scrollerRef}
           className={cn(
-            "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
-            start && "animate-scroll animate-ease-linear",
+            "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap animate-scroll",
             pauseOnHover && "hover:[animation-play-state:paused]",
+            direction === "right" ? "animate-scroll-reverse" : "animate-scroll",
           )}
         >
           {items.map((videoId, idx) => (
