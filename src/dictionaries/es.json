@@ -12,7 +12,7 @@
       "somethingWentWrong": "Algo salió mal. Por favor, inténtalo de nuevo.",
       "invalidUrl": "URL de YouTube no válida. Por favor, verifica el enlace.",
       "quotaExceeded": "Has alcanzado tu límite de cuota diaria.",
-      "noFormatSelected": "Por favor, selecciona al menos un formato de resumen."
+      "noFormatSelected": "Por favor, selecciona un formato de resumen."
     },
     "dialog": {
       "title": "¡Bienvenido a Resumyt!",

@@ -1,4 +1,3 @@
-import { Locale } from "@/i18n-config";
 import { getSupabase } from "@/lib/supabase";
 
 interface QuickSummary {
@@ -8,7 +7,7 @@ interface QuickSummary {
   videoId: string;
 }
 
-export async function getQuickSummaries(locale: Locale): Promise<{ quickSummaries: QuickSummary[] }> {
+export async function getQuickSummaries(): Promise<{ quickSummaries: QuickSummary[] }> {
   const supabase = getSupabase();
 
   try {

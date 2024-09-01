@@ -19,6 +19,8 @@ import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { JsonLd } from 'react-schemaorg';
 import { FAQPage } from 'schema-dts';
+import ClientOnly from './ClientOnly';
+import { useRouter } from "next/router";
 
 type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
@@ -97,17 +99,33 @@ const ErrorFallback: React.FC<{ error: Error; dict: ClientHomePageProps["dict"] 
   </div>
 );
 
-const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, }) => {
+const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
   const [user, setUser] = useState<AnonymousUser | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const [recentVideos, setRecentVideos] = useState<string[]>([]);
+  const router = useRouter();
+  const handleSubmit = (url: string, format: string) => {
+    // fetch to api/summarize and get the summary on /summary/:id (youtube id)
+    fetch(`/api/summarize?url=${url}&format=${format}`)
+      .then(response => response.json())
+      .then(data => {
+        // redirect to /summary/:id
+        router.push(`/summary/${data.id}`);
+      });
+  };
+
+
 
   useEffect(() => {
     const initializeUser = async (retries = 3) => {
       try {
         setLoading(true);
-        const { ip } = await fetch("/api/getIp").then(res => res.json());
+        const response = await fetch("/api/getIp");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const { ip } = await response.json();
         const supabase = getSupabase();
         
         const { data: user, error } = await supabase
@@ -230,7 +248,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, }) => {
         <title>{dict.home.title}</title>
         <meta name="description" content={dict.home.metaDescription} />
         <meta name="keywords" content={dict.home.keywords} />
-        <link rel="canonical" href="https://www.resumyt.com" />
+        <link rel="canonical" href="https://www.resumyt.com/es" />
       </Head>
       <NextSeo
         title={dict.home?.title}
@@ -238,7 +256,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, }) => {
         openGraph={{
           type: 'website',
           locale: 'es_ES',
-          url: 'https://www.resumyt.com',
+          url: 'https://www.resumyt.com/es',
           site_name: 'Resumyt',
           title: dict.home?.title,
           description: dict.home?.metaDescription,
@@ -297,86 +315,85 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, }) => {
           ]
         }}
       />
-      <MainLayout>
+      <ClientOnly>
           <BackgroundBeams />
+        <MainLayout>
           <div
           style={{
-            maskImage: 'radial-gradient(circle, transparent 0%, black 100%)',
-            maskSize: '100%',
-            maskPosition: 'center',
-            maskRepeat: 'no-repeat',
+          maskImage: "radial-gradient(circle at center, transparent, black 150%)",
+          WebkitMaskImage: "radial-gradient(circle at center, transparent, black 150%)",
           }}
-          className="fixed w-full h-full pointer-events-none z-[0] left-0 top-0 opacity-30">
-              <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
-            </div>
-        <div className="relative min-h-screen flex flex-col justify-center items-center w-full overflow-hidden">
-          <div className="container ">
-         
-            {/* Hero Section */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1 }}
-              className="text-center space-y-12 py-20"
-            >
-              <motion.h1 
-                className="text-4xl sm:text-5xl md:text-6xl font-bold relative"
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.8 }}
+          className="fixed w-full h-[50%] pointer-events-none z-[0] left-0 top-0 opacity-40">
+          <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
+          </div>
+          <div className="relative min-h-screen flex flex-col justify-center items-center w-full overflow-hidden">
+            <div className="container ">
+              {/* Hero Section */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className="text-center space-y-12 py-20"
               >
-                <GradientText>{ dict.home?.title}</GradientText>
-              </motion.h1>
-              <motion.div 
-                className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-              >
-                <TextGenerateEffect words={dict.home?.subtitle} />
-                <span className="hidden">{dict.home?.metaDescription}</span>
-              </motion.div>
-              
-              {/* Video Input Section */}
-              {!loading && user && (
-                <motion.div
-                  className="space-y-6 w-full max-w-3xl mx-auto"
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
+                <motion.h1 
+                  className="text-4xl sm:text-5xl md:text-6xl font-bold relative"
+                  initial={{ y: -50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.8 }}
                 >
-                  <VideoInput
-                    userId={user.id}
-                    isLoading={loading}
-                      quotaRemaining={user.quota_remaining}
-                      placeholder={dict.home?.inputPlaceholder}
-                      buttonText={dict.home?.summarizeButton}
-                      onSubmit={(url, format) => {/* Implementar lógica de envío */}}
-                    dict={{
-                      formats: dict.formats,
-                      home: {
-                          error: dict.home?.error
-                      }
-                    }}
-                  />
-                  <p className="text-sm text-muted-foreground text-center">
-                    <TextGenerateEffect words={`${dict.home?.remainingQuota}: ${user.quota_remaining}`} />
-                  </p>
+                  <GradientText>{ dict.home?.title}</GradientText>
+                </motion.h1>
+                <motion.div 
+                  className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto"
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4, duration: 0.8 }}
+                >
+                  <TextGenerateEffect words={dict.home?.subtitle} />
+                  <span className="hidden">{dict.home?.metaDescription}</span>
                 </motion.div>
-              )}
-            </motion.div>
+              
+                {/* Video Input Section */}
+                {!loading && user && (
+                  <motion.div
+                    className="space-y-6 w-full max-w-3xl mx-auto"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <VideoInput
+                      userId={user.id}
+                      isLoading={loading}
+                      quotaRemaining={user.quota_remaining}
+                      onSubmit={(url, format:any) => {/* Implementar lógica de envío */
+                        handleSubmit(url, format);
+                      }}
+                      dict={{
+                        formats: dict.formats,
+                        home: {
+                          error: dict.home.error,
+                          inputPlaceholder: dict.home.inputPlaceholder,
+                          summarizeButton: dict.home.summarizeButton
+                        }
+                      }}
+                    />
+                    <p className="text-sm text-muted-foreground text-center">
+                      <TextGenerateEffect words={`${dict.home?.remainingQuota}: ${user.quota_remaining}`} />
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
        
+              
+              {/* Features Section */}
+              <motion.section
+               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
             
-            {/* Features Section */}
-            <motion.section
-             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-          
-           
                 {features.map((feature, index) => (
                   <motion.div
                     key={index}
@@ -398,145 +415,151 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, }) => {
                   </motion.div>
                 ))}
      
-            </motion.section>
+              </motion.section>
 
-            {/* How It Works Section */}
-            <motion.section
-              className="py-20"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl font-bold text-center mb-10">
-                <GradientText>
-                  {dict.home?.howItWorks?.title}
-                </GradientText>
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[
-                  { step: "1", title: dict.home?.howItWorks?.step1, description: "Simplemente copia y pega el URL del video de YouTube que quieres resumir." },
-                  { step: "2", title: dict.home?.howItWorks?.step2, description: "Selecciona entre puntos claves, párrafo o página completa." },
-                  { step: "3", title: dict.home?.howItWorks?.step3, description: "En segundos, recibe un resumen conciso y preciso del contenido del video." }
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    className="p-8 rounded-lg bg-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <div className="text-4xl font-bold text-primary mb-4">{item.step}</div>
-                    <h3 className="text-2xl font-semibold mb-2">
-                      <TextGenerateEffect words={item.title} />
-                    </h3>
-                    <p className="text-muted-foreground">
-                      <TextGenerateEffect words={item?.description?.split(' ').slice(0, 8).join(' ')} />
-                      <span className="hidden">{item?.description?.split(' ').slice(8).join(' ')}</span>
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.section>
+              {/* How It Works Section */}
+              <motion.section
+                className="py-20"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-4xl font-bold text-center mb-10">
+                  <GradientText>
+                    {dict.home?.howItWorks?.title}
+                  </GradientText>
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {[
+                    { step: "1", title: dict.home?.howItWorks?.step1, description: "Simplemente copia y pega el URL del video de YouTube que quieres resumir." },
+                    { step: "2", title: dict.home?.howItWorks?.step2, description: "Selecciona entre puntos claves, párrafo o página completa." },
+                    { step: "3", title: dict.home?.howItWorks?.step3, description: "En segundos, recibe un resumen conciso y preciso del contenido del video." }
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      className="p-8 rounded-lg bg-card"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <div className="text-4xl font-bold text-primary mb-4">{item.step}</div>
+                      <h3 className="text-2xl font-semibold mb-2">
+                        <TextGenerateEffect words={item.title} />
+                      </h3>
+                      <p className="text-muted-foreground">
+                        <TextGenerateEffect words={item?.description?.split(' ').slice(0, 8).join(' ')} />
+                        <span className="hidden">{item?.description?.split(' ').slice(8).join(' ')}</span>
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
 
-            {/* Testimonials Section */}
-            <motion.section
-              className="py-20"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl font-bold text-center mb-10">
-                <GradientText>
-                  {dict.home?.testimonials?.title}
-                </GradientText>
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {testimonials.map((testimonial, index) => (
-                  <motion.div
-                    key={index}
-                    className="p-6 rounded-lg bg-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <p className="text-lg mb-4 italic">
-                      &ldquo;{testimonial?.quote?.split(' ').slice(0, 15).join(' ')}...&rdquo;
-                      <span className="hidden">{testimonial?.quote?.split(' ').slice(15).join(' ')}</span>
-                    </p>
-                    <div className="font-semibold">{testimonial?.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.title}</div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.section>
+              {/* Testimonials Section */}
+              <motion.section
+                className="py-20"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-4xl font-bold text-center mb-10">
+                  <GradientText>
+                    {dict.home?.testimonials?.title}
+                  </GradientText>
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {testimonials.map((testimonial, index) => (
+                    <motion.div
+                      key={index}
+                      className="p-6 rounded-lg bg-card"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <p className="text-lg mb-4 italic">
+                        <TextGenerateEffect words={`"${testimonial?.quote}"`} />
+                      </p>
+                      <div className="font-semibold">
+                        <TextGenerateEffect words={testimonial?.name} />
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <TextGenerateEffect words={testimonial.title} />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
 
-            {/* CTA Section */}
-            <motion.section
-              className="py-20 text-center"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl font-bold mb-6">
-                <GradientText>
-                  {dict.home?.cta?.title}
-                </GradientText>
-              </h2>
-              <p className="text-xl text-muted-foreground mb-8">
-                <TextGenerateEffect words={dict.home?.cta?.description} />
-              </p>
-              <Button size="lg" className="text-lg px-8 py-4">
-               {dict.home?.cta?.button}
-              </Button>
-            </motion.section>
+              {/* CTA Section */}
+              <motion.section
+                className="py-20 text-center"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-4xl font-bold mb-6">
+                  <GradientText>
+                    {dict.home?.cta?.title}
+                  </GradientText>
+                </h2>
+                <p className="text-xl text-muted-foreground mb-8">
+                  <TextGenerateEffect words={dict.home?.cta?.description} />
+                </p>
+                <Button size="lg" className="text-lg px-8 py-4">
+                 {dict.home?.cta?.button}
+                </Button>
+              </motion.section>
 
-            {/* FAQ Section for SEO */}
-            <motion.section
-              className="py-20"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl font-bold text-center mb-10">
-                <GradientText>
-                  <TextGenerateEffect words={dict.home.faq.title} />
-                </GradientText>
-              </h2>
-              <div className="space-y-8 max-w-3xl mx-auto">
-                {[
-                  { q: dict.home?.faq?.q1, a: dict.home?.faq?.a1 },
-                  { q: dict.home?.faq?.q2, a: dict.home?.faq?.a2 },
-                  { q: dict.home?.faq?.q3, a: dict.home?.faq?.a3 },
-                  { q: dict.home?.faq?.q4, a: dict.home?.faq?.a4 },
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    className="bg-card p-6 rounded-lg"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <h3 className="text-xl font-semibold mb-2 w-full">{item.q}</h3>
-                    <p className="text-muted-foreground w-full">
-                      {item.a}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.section>
+              {/* FAQ Section for SEO */}
+              <motion.section
+                className="py-20"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-4xl font-bold text-center mb-10">
+                  <GradientText>
+                    <TextGenerateEffect words={dict.home.faq.title} />
+                  </GradientText>
+                </h2>
+                <div className="space-y-8 max-w-3xl mx-auto">
+                  {[
+                    { q: dict.home?.faq?.q1, a: dict.home?.faq?.a1 },
+                    { q: dict.home?.faq?.q2, a: dict.home?.faq?.a2 },
+                    { q: dict.home?.faq?.q3, a: dict.home?.faq?.a3 },
+                    { q: dict.home?.faq?.q4, a: dict.home?.faq?.a4 },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      className="bg-card p-6 rounded-lg"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <h3 className="text-xl font-semibold mb-2 w-full">
+                        <TextGenerateEffect words={item.q} />
+                      </h3>
+                      <p className="text-muted-foreground w-full">
+                        <TextGenerateEffect words={item.a} />
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            </div>
           </div>
-        </div>
-        
-       
-        <Toaster />
-      </MainLayout>
+          
+         
+          <Toaster />
+        </MainLayout>
+      </ClientOnly>
     </ErrorBoundary>
   );
 };
