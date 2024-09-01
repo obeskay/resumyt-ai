@@ -20,10 +20,10 @@ export const TextGenerateEffect = ({
 }) => {
   const [scope, animate] = useAnimate();
   const isInView = useInView(scope, { once: true, amount: 0.5 });
-  let wordsArray = words.split(" ");
+  const wordsArray = words?.split(" ");
 
   useEffect(() => {
-    if (isInView) {
+    if (isInView && wordsArray) {
       animate(
         "span",
         {
@@ -31,22 +31,22 @@ export const TextGenerateEffect = ({
           filter: filter ? "blur(0px)" : "none",
         },
         {
-          duration: duration ? duration : 0.5,
+          duration: duration,
           delay: stagger(0.1),
-        }
+        },
       );
     }
-  }, [isInView, animate, filter, duration]);
+  }, [isInView, animate, filter, duration, wordsArray]);
 
   return (
     <>
-      <motion.span ref={scope} className={cn( className)} aria-hidden="true">
-        {wordsArray.map((word, idx) => (
-          <React.Fragment key={word + idx}>
+      <motion.span ref={scope} className={cn(className)} aria-hidden="true">
+        {wordsArray?.map((word, idx) => (
+          <React.Fragment key={`${word}-${idx}`}>
             <motion.span
               className={cn(
                 "opacity-0 inline-block",
-                inheritStyles ? "text-transparent" : ""
+                inheritStyles ? "text-transparent" : "",
               )}
               style={{
                 filter: filter ? "blur(10px)" : "none",

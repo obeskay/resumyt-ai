@@ -9,9 +9,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FileText, List, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Dictionary } from '@/lib/getDictionary';
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Dictionary } from "@/lib/getDictionary";
 
 interface VideoInputProps {
   userId: string;
@@ -19,9 +24,9 @@ interface VideoInputProps {
   isLoading: boolean;
   onSubmit: (url: string, formats: string[]) => void;
   dict: {
-    formats: Dictionary['formats'];
+    formats: Dictionary["formats"];
     home: {
-      error: Dictionary['home']['error'];
+      error: Dictionary["home"]["error"];
       inputPlaceholder: string;
       summarizeButton: string;
     };
@@ -33,17 +38,35 @@ const VideoInput: React.FC<VideoInputProps> = ({
   quotaRemaining,
   isLoading,
   onSubmit,
-  dict
+  dict,
 }) => {
-  const { videoUrl, setVideoUrl, videoTitle, videoThumbnail, fetchVideoMetadata } = useVideoStore();
+  const {
+    videoUrl,
+    setVideoUrl,
+    videoTitle,
+    videoThumbnail,
+    fetchVideoMetadata,
+  } = useVideoStore();
   const { toast } = useToast();
   const [selectedFormat, setSelectedFormat] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const formatOptions = [
-    { icon: <List className="w-6 h-6" />, label: dict.formats?.bulletPoints || "Puntos clave", value: "bullet-points" },
-    { icon: <FileText className="w-6 h-6" />, label: dict.formats?.paragraph || "Párrafo", value: "paragraph" },
-    { icon: <Newspaper className="w-6 h-6" />, label: dict.formats?.page || "Página", value: "page" },
+    {
+      icon: <List className="w-6 h-6" />,
+      label: dict.formats?.bulletPoints || "Puntos clave",
+      value: "bullet-points",
+    },
+    {
+      icon: <FileText className="w-6 h-6" />,
+      label: dict.formats?.paragraph || "Párrafo",
+      value: "paragraph",
+    },
+    {
+      icon: <Newspaper className="w-6 h-6" />,
+      label: dict.formats?.page || "Página",
+      value: "page",
+    },
   ];
 
   const validateSubmission = useCallback(async (): Promise<boolean> => {
@@ -73,7 +96,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
         onSubmit(videoUrl, [selectedFormat!]);
       }
     },
-    [validateSubmission, onSubmit, videoUrl, selectedFormat]
+    [validateSubmission, onSubmit, videoUrl, selectedFormat],
   );
 
   const handleFormatChange = (format: string) => {
@@ -89,7 +112,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
   return (
     <TooltipProvider>
       {/* Envuelve todo el contenido en un componente que se renderiza solo en el cliente */}
-      {typeof window !== 'undefined' && (
+      {typeof window !== "undefined" && (
         <div className="w-full space-y-6">
           <div className="p-6 sm:p-10 bg-card rounded-lg shadow-lg">
             <motion.form
@@ -106,19 +129,23 @@ const VideoInput: React.FC<VideoInputProps> = ({
                   onChange={(e) => setVideoUrl(e.target.value)}
                   required
                   className="pr-24 h-12 !text-[16px] rounded-full"
-                  placeholder={dict.home.inputPlaceholder}
-                  disabled={isLoading}
+                  placeholder={
+                    isLoading ? "Cargando..." : dict.home.inputPlaceholder
+                  }
+                  disabled={isLoading || quotaRemaining === 0}
                   aria-label="URL del video de YouTube"
                 />
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       type="submit"
-                      disabled={isLoading || !selectedFormat}
+                      disabled={
+                        isLoading || !selectedFormat || quotaRemaining === 0
+                      }
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-10 px-6 rounded-full"
                       aria-label="Resumir video"
                     >
-                      {dict.home.summarizeButton}
+                      {isLoading ? "Cargando..." : dict.home.summarizeButton}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Resumir video</TooltipContent>
@@ -129,7 +156,11 @@ const VideoInput: React.FC<VideoInputProps> = ({
                   <Tooltip key={option.value}>
                     <TooltipTrigger asChild>
                       <Button
-                        variant={selectedFormat === option.value ? "default" : "outline"}
+                        variant={
+                          selectedFormat === option.value
+                            ? "default"
+                            : "outline"
+                        }
                         onClick={() => handleFormatChange(option.value)}
                         className="flex items-center space-x-2 min-w-[120px] min-h-[44px] rounded-full"
                         aria-label={`Seleccionar formato ${option.label}`}
@@ -143,7 +174,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
                 ))}
               </div>
             </motion.form>
-            
+
             <AnimatePresence>
               {videoTitle && videoThumbnail && (
                 <motion.div
@@ -168,9 +199,9 @@ const VideoInput: React.FC<VideoInputProps> = ({
               )}
             </AnimatePresence>
           </div>
-          
-          {isLoading && <LoadingIndicator />}
-          
+
+          {userId && isLoading && <LoadingIndicator />}
+
           {error && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>

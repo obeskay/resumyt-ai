@@ -14,12 +14,20 @@ import { BackgroundBeams } from "@/components/ui/background-beams";
 import RecentVideoThumbnails from "@/components/RecentVideoThumbnails";
 import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import { IconClipboard, IconBrain, IconRocket, IconUsers, IconYoutube, IconLightbulb, IconTrendingUp } from "@/components/ui/icons";
-import Head from 'next/head';
-import { NextSeo } from 'next-seo';
-import { JsonLd } from 'react-schemaorg';
-import { FAQPage } from 'schema-dts';
-import ClientOnly from './ClientOnly';
+import {
+  IconClipboard,
+  IconBrain,
+  IconRocket,
+  IconUsers,
+  IconYoutube,
+  IconLightbulb,
+  IconTrendingUp,
+} from "@/components/ui/icons";
+import Head from "next/head";
+import { NextSeo } from "next-seo";
+import { JsonLd } from "react-schemaorg";
+import { FAQPage } from "schema-dts";
+import ClientOnly from "./ClientOnly";
 import { useRouter } from "next/router";
 
 type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
@@ -88,7 +96,10 @@ interface ClientHomePageProps {
   };
 }
 
-const ErrorFallback: React.FC<{ error: Error; dict: ClientHomePageProps["dict"] }> = ({ error, dict }) => (
+const ErrorFallback: React.FC<{
+  error: Error;
+  dict: ClientHomePageProps["dict"];
+}> = ({ error, dict }) => (
   <div className="container mx-auto p-4">
     <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center text-red-600">
       {dict.home.error.somethingWentWrong}
@@ -106,16 +117,30 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
   const [recentVideos, setRecentVideos] = useState<string[]>([]);
   const router = useRouter();
   const handleSubmit = (url: string, format: string) => {
-    // fetch to api/summarize and get the summary on /summary/:id (youtube id)
     fetch(`/api/summarize?url=${url}&format=${format}`)
-      .then(response => response.json())
-      .then(data => {
-        // redirect to /summary/:id
-        router.push(`/summary/${data.id}`);
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.videoId) {
+          router.push(`/${router.query.lang}/summary/${data.videoId}`);
+        } else {
+          throw new Error("No se recibió un videoId válido");
+        }
+      })
+      .catch((error) => {
+        console.error("Error al resumir el video:", error);
+        toast({
+          title: "Error",
+          description:
+            "Hubo un problema al resumir el video. Por favor, inténtelo de nuevo.",
+          variant: "destructive",
+        });
       });
   };
-
-
 
   useEffect(() => {
     const initializeUser = async (retries = 3) => {
@@ -127,7 +152,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
         }
         const { ip } = await response.json();
         const supabase = getSupabase();
-        
+
         const { data: user, error } = await supabase
           .from("anonymous_users")
           .select("*")
@@ -142,7 +167,10 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
               .select()
               .single();
 
-            if (insertError) throw new Error(`Failed to create anonymous user: ${insertError.message}`);
+            if (insertError)
+              throw new Error(
+                `Failed to create anonymous user: ${insertError.message}`,
+              );
             setUser(newUser as AnonymousUser);
           } else {
             throw new Error(`Failed to fetch anonymous user: ${error.message}`);
@@ -153,12 +181,15 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
       } catch (error) {
         console.error("Error initializing user:", error);
         if (retries > 0) {
-          console.log(`Retrying user initialization. Attempts left: ${retries - 1}`);
+          console.log(
+            `Retrying user initialization. Attempts left: ${retries - 1}`,
+          );
           await initializeUser(retries - 1);
         } else {
           toast({
             title: "Error",
-            description: "Failed to initialize user. Please refresh the page or try again later.",
+            description:
+              "Failed to initialize user. Please refresh the page or try again later.",
             variant: "destructive",
           });
         }
@@ -170,21 +201,21 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
     const fetchRecentVideos = async () => {
       const supabase = getSupabase();
       const { data, error } = await supabase
-        .from('summaries')
-        .select('video_id')
-        .order('created_at', { ascending: false })
+        .from("summaries")
+        .select("video_id")
+        .order("created_at", { ascending: false })
         .limit(10);
 
       if (error) {
-        console.error('Error fetching recent videos:', error);
+        console.error("Error fetching recent videos:", error);
       } else {
-        setRecentVideos(data.map(item => item.video_id));
+        setRecentVideos(data.map((item) => item.video_id));
       }
     };
 
     initializeUser();
     fetchRecentVideos();
-  }, [toast]);
+  }, []);
 
   const features = [
     {
@@ -221,29 +252,37 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
 
   const testimonials = [
     {
-      quote: "Resumyt me ha ahorrado horas de tiempo viendo videos largos. Ahora puedo obtener la información clave en minutos.",
+      quote:
+        "Resumyt me ha ahorrado horas de tiempo viendo videos largos. Ahora puedo obtener la información clave en minutos.",
       name: "María G.",
       title: "Estudiante universitaria",
     },
     {
-      quote: "Una herramienta indispensable para mi trabajo de investigación. Me ayuda a procesar grandes cantidades de contenido rápidamente.",
+      quote:
+        "Una herramienta indispensable para mi trabajo de investigación. Me ayuda a procesar grandes cantidades de contenido rápidamente.",
       name: "Carlos R.",
       title: "Investigador",
     },
     {
-      quote: "Gracias a Resumyt, puedo mantenerme al día con los últimos tutoriales de programación sin perder horas viendo videos.",
+      quote:
+        "Gracias a Resumyt, puedo mantenerme al día con los últimos tutoriales de programación sin perder horas viendo videos.",
       name: "Ana L.",
       title: "Desarrolladora de software",
     },
     {
-      quote: "Increíble para preparar presentaciones. Resumyt extrae los puntos clave que necesito para crear contenido impactante.",
+      quote:
+        "Increíble para preparar presentaciones. Resumyt extrae los puntos clave que necesito para crear contenido impactante.",
       name: "Javier M.",
       title: "Gerente de marketing",
     },
   ];
 
   return (
-    <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallback error={error} dict={dict} />}>
+    <ErrorBoundary
+      FallbackComponent={({ error }) => (
+        <ErrorFallback error={error} dict={dict} />
+      )}
+    >
       <Head>
         <title>{dict.home.title}</title>
         <meta name="description" content={dict.home.metaDescription} />
@@ -254,77 +293,80 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
         title={dict.home?.title}
         description={dict.home?.metaDescription}
         openGraph={{
-          type: 'website',
-          locale: 'es_ES',
-          url: 'https://www.resumyt.com/es',
-          site_name: 'Resumyt',
+          type: "website",
+          locale: "es_ES",
+          url: "https://www.resumyt.com/es",
+          site_name: "Resumyt",
           title: dict.home?.title,
           description: dict.home?.metaDescription,
           images: [
             {
-              url: 'https://www.resumyt.com/og-image.jpg',
+              url: "https://www.resumyt.com/og-image.jpg",
               width: 1200,
               height: 630,
-              alt: dict.home?.title
+              alt: dict.home?.title,
             },
           ],
         }}
         twitter={{
-          handle: '@resumyt',
-          site: '@resumyt',
-          cardType: 'summary_large_image',
+          handle: "@resumyt",
+          site: "@resumyt",
+          cardType: "summary_large_image",
         }}
       />
       <JsonLd<FAQPage>
         item={{
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          "mainEntity": [
+          mainEntity: [
             {
               "@type": "Question",
-              "name": dict.home?.faq?.q1,
-              "acceptedAnswer": {
+              name: dict.home?.faq?.q1,
+              acceptedAnswer: {
                 "@type": "Answer",
-                "text": dict.home?.faq?.a1
-              }
+                text: dict.home?.faq?.a1,
+              },
             },
             {
               "@type": "Question",
-              "name": dict.home?.faq?.q2,
-              "acceptedAnswer": {
+              name: dict.home?.faq?.q2,
+              acceptedAnswer: {
                 "@type": "Answer",
-                "text": dict.home?.faq?.a2
-              }
+                text: dict.home?.faq?.a2,
+              },
             },
             {
               "@type": "Question",
-              "name": dict.home?.faq?.q3,
-              "acceptedAnswer": {
+              name: dict.home?.faq?.q3,
+              acceptedAnswer: {
                 "@type": "Answer",
-                "text": dict.home?.faq?.a3
-              }
+                text: dict.home?.faq?.a3,
+              },
             },
             {
               "@type": "Question",
-              "name": dict.home?.faq?.q4,
-              "acceptedAnswer": {
+              name: dict.home?.faq?.q4,
+              acceptedAnswer: {
                 "@type": "Answer",
-                  "text": dict.home?.faq?.a4
-              }
+                text: dict.home?.faq?.a4,
+              },
             },
-          ]
+          ],
         }}
       />
       <ClientOnly>
-          <BackgroundBeams />
+        <BackgroundBeams />
         <MainLayout>
           <div
-          style={{
-          maskImage: "radial-gradient(circle at center, transparent, black 150%)",
-          WebkitMaskImage: "radial-gradient(circle at center, transparent, black 150%)",
-          }}
-          className="fixed w-full h-[50%] pointer-events-none z-[0] left-0 top-0 opacity-40">
-          <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
+            style={{
+              maskImage:
+                "radial-gradient(circle at center, transparent, black 150%)",
+              WebkitMaskImage:
+                "radial-gradient(circle at center, transparent, black 150%)",
+            }}
+            className="fixed w-full h-[50%] pointer-events-none z-[0] left-0 top-0 opacity-40"
+          >
+            <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
           </div>
           <div className="relative min-h-screen flex flex-col justify-center items-center w-full overflow-hidden">
             <div className="container ">
@@ -335,15 +377,15 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                 transition={{ duration: 1 }}
                 className="text-center space-y-12 py-20"
               >
-                <motion.h1 
+                <motion.h1
                   className="text-4xl sm:text-5xl md:text-6xl font-bold relative"
                   initial={{ y: -50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.8 }}
                 >
-                  <GradientText>{ dict.home?.title}</GradientText>
+                  <GradientText>{dict.home?.title}</GradientText>
                 </motion.h1>
-                <motion.div 
+                <motion.div
                   className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -352,48 +394,49 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                   <TextGenerateEffect words={dict.home?.subtitle} />
                   <span className="hidden">{dict.home?.metaDescription}</span>
                 </motion.div>
-              
+
                 {/* Video Input Section */}
-                {!loading && user && (
-                  <motion.div
-                    className="space-y-6 w-full max-w-3xl mx-auto"
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <VideoInput
-                      userId={user.id}
-                      isLoading={loading}
-                      quotaRemaining={user.quota_remaining}
-                      onSubmit={(url, format:any) => {/* Implementar lógica de envío */
-                        handleSubmit(url, format);
-                      }}
-                      dict={{
-                        formats: dict.formats,
-                        home: {
-                          error: dict.home.error,
-                          inputPlaceholder: dict.home.inputPlaceholder,
-                          summarizeButton: dict.home.summarizeButton
-                        }
-                      }}
+
+                <motion.div
+                  className="space-y-6 w-full max-w-3xl mx-auto"
+                  key={user?.id}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <VideoInput
+                    userId={user?.id || ""}
+                    isLoading={loading}
+                    quotaRemaining={user?.quota_remaining || 0}
+                    onSubmit={(url, format: any) => {
+                      /* Implementar lógica de envío */
+                      handleSubmit(url, format);
+                    }}
+                    dict={{
+                      formats: dict.formats,
+                      home: {
+                        error: dict.home.error,
+                        inputPlaceholder: dict.home.inputPlaceholder,
+                        summarizeButton: dict.home.summarizeButton,
+                      },
+                    }}
+                  />
+                  <p className="text-sm text-muted-foreground text-center">
+                    <TextGenerateEffect
+                      words={`${dict.home?.remainingQuota}: ${user?.quota_remaining || 0}`}
                     />
-                    <p className="text-sm text-muted-foreground text-center">
-                      <TextGenerateEffect words={`${dict.home?.remainingQuota}: ${user.quota_remaining}`} />
-                    </p>
-                  </motion.div>
-                )}
+                  </p>
+                </motion.div>
               </motion.div>
-       
-              
+
               {/* Features Section */}
               <motion.section
-               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
               >
-            
                 {features.map((feature, index) => (
                   <motion.div
                     key={index}
@@ -409,12 +452,11 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                       <span className="hidden">{feature?.title}</span>
                     </h3>
                     <p className="text-muted-foreground">
-                      <TextGenerateEffect words={feature?.description}/>
+                      <TextGenerateEffect words={feature?.description} />
                       <span className="hidden">{feature?.description}</span>
                     </p>
                   </motion.div>
                 ))}
-     
               </motion.section>
 
               {/* How It Works Section */}
@@ -426,15 +468,28 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold text-center mb-10">
-                  <GradientText>
-                    {dict.home?.howItWorks?.title}
-                  </GradientText>
+                  <GradientText>{dict.home?.howItWorks?.title}</GradientText>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {[
-                    { step: "1", title: dict.home?.howItWorks?.step1, description: "Simplemente copia y pega el URL del video de YouTube que quieres resumir." },
-                    { step: "2", title: dict.home?.howItWorks?.step2, description: "Selecciona entre puntos claves, párrafo o página completa." },
-                    { step: "3", title: dict.home?.howItWorks?.step3, description: "En segundos, recibe un resumen conciso y preciso del contenido del video." }
+                    {
+                      step: "1",
+                      title: dict.home?.howItWorks?.step1,
+                      description:
+                        "Simplemente copia y pega el URL del video de YouTube que quieres resumir.",
+                    },
+                    {
+                      step: "2",
+                      title: dict.home?.howItWorks?.step2,
+                      description:
+                        "Selecciona entre puntos claves, párrafo o página completa.",
+                    },
+                    {
+                      step: "3",
+                      title: dict.home?.howItWorks?.step3,
+                      description:
+                        "En segundos, recibe un resumen conciso y preciso del contenido del video.",
+                    },
                   ].map((item, index) => (
                     <motion.div
                       key={index}
@@ -444,13 +499,22 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                       transition={{ delay: index * 0.1 }}
                       viewport={{ once: true }}
                     >
-                      <div className="text-4xl font-bold text-primary mb-4">{item.step}</div>
+                      <div className="text-4xl font-bold text-primary mb-4">
+                        {item.step}
+                      </div>
                       <h3 className="text-2xl font-semibold mb-2">
                         <TextGenerateEffect words={item.title} />
                       </h3>
                       <p className="text-muted-foreground">
-                        <TextGenerateEffect words={item?.description?.split(' ').slice(0, 8).join(' ')} />
-                        <span className="hidden">{item?.description?.split(' ').slice(8).join(' ')}</span>
+                        <TextGenerateEffect
+                          words={item?.description
+                            ?.split(" ")
+                            .slice(0, 8)
+                            .join(" ")}
+                        />
+                        <span className="hidden">
+                          {item?.description?.split(" ").slice(8).join(" ")}
+                        </span>
                       </p>
                     </motion.div>
                   ))}
@@ -466,9 +530,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold text-center mb-10">
-                  <GradientText>
-                    {dict.home?.testimonials?.title}
-                  </GradientText>
+                  <GradientText>{dict.home?.testimonials?.title}</GradientText>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {testimonials.map((testimonial, index) => (
@@ -503,15 +565,13 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold mb-6">
-                  <GradientText>
-                    {dict.home?.cta?.title}
-                  </GradientText>
+                  <GradientText>{dict.home?.cta?.title}</GradientText>
                 </h2>
                 <p className="text-xl text-muted-foreground mb-8">
                   <TextGenerateEffect words={dict.home?.cta?.description} />
                 </p>
                 <Button size="lg" className="text-lg px-8 py-4">
-                 {dict.home?.cta?.button}
+                  {dict.home?.cta?.button}
                 </Button>
               </motion.section>
 
@@ -555,8 +615,6 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
               </motion.section>
             </div>
           </div>
-          
-         
           <Toaster />
         </MainLayout>
       </ClientOnly>
