@@ -142,7 +142,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
                       disabled={
                         isLoading || !selectedFormat || quotaRemaining === 0
                       }
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-10 px-6 rounded-full"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-10  rounded-full"
                       aria-label="Resumir video"
                     >
                       {isLoading ? "Cargando..." : dict.home.summarizeButton}

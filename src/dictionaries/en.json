@@ -57,7 +57,9 @@
   "summary": {
     "title": "Video Summary",
     "loadingMessage": "Generating summary...",
-    "errorMessage": "Error generating summary. Please try again."
+    "errorMessage": "Error generating summary. Please try again.",
+    "watchOnYoutube": "Watch on YouTube",
+    "videoIdLabel": "Video ID"
   },
   "auth": {
     "signIn": "Sign In",

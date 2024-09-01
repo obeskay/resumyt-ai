@@ -57,7 +57,9 @@
   "summary": {
     "title": "Resumen del Video",
     "loadingMessage": "Generando resumen...",
-    "errorMessage": "Error al generar el resumen. Por favor, intenta de nuevo."
+    "errorMessage": "Error al generar el resumen. Por favor, intenta de nuevo.",
+    "watchOnYoutube": "Ver en YouTube",
+    "videoIdLabel": "ID del video"
   },
   "auth": {
     "signIn": "Iniciar Sesión",
