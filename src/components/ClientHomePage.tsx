@@ -29,71 +29,13 @@ import { JsonLd } from "react-schemaorg";
 import { FAQPage } from "schema-dts";
 import ClientOnly from "./ClientOnly";
 import { useRouter } from "next/router";
+import { Locale } from "@/i18n-config";
 
 type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
 interface ClientHomePageProps {
-  dict: {
-    home: {
-      title: string;
-      subtitle: string;
-      remainingQuota: string;
-      inputPlaceholder: string;
-      summarizeButton: string;
-      error: {
-        somethingWentWrong: string;
-        invalidUrl: string;
-        quotaExceeded: string;
-        noFormatSelected: string;
-      };
-      dialog: { title: string; description: string; button: string };
-      metaDescription: string;
-      keywords: string;
-      features: {
-        title: string;
-        quickSummaries: string;
-        timeSaving: string;
-        acceleratedLearning: string;
-        forEveryone: string;
-        diverseContent: string;
-        valuableInsights: string;
-      };
-      howItWorks: {
-        title: string;
-        step1: string;
-        step2: string;
-        step3: string;
-      };
-      testimonials: {
-        title: string;
-      };
-      cta: {
-        title: string;
-        description: string;
-        button: string;
-      };
-      faq: {
-        title: string;
-        q1: string;
-        a1: string;
-        q2: string;
-        a2: string;
-        q3: string;
-        a3: string;
-        q4: string;
-        a4: string;
-      };
-    };
-    recentVideos: {
-      title: string;
-      thumbnailAlt: string;
-    };
-    formats: {
-      bulletPoints: string;
-      paragraph: string;
-      page: string;
-    };
-  };
+  dict: any;
+  lang: Locale;
 }
 
 const ErrorFallback: React.FC<{
@@ -110,7 +52,7 @@ const ErrorFallback: React.FC<{
   </div>
 );
 
-const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
+const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
   const [user, setUser] = useState<AnonymousUser | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -293,15 +235,15 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
         <title>{dict.home.title}</title>
         <meta name="description" content={dict.home.metaDescription} />
         <meta name="keywords" content={dict.home.keywords} />
-        <link rel="canonical" href="https://www.resumyt.com/es" />
+        <link rel="canonical" href={`https://www.resumyt.com/${lang}`} />
       </Head>
       <NextSeo
         title={dict.home?.title}
         description={dict.home?.metaDescription}
         openGraph={{
           type: "website",
-          locale: "es_ES",
-          url: "https://www.resumyt.com/es",
+          locale: lang === "es" ? "es_ES" : "en_US",
+          url: `https://www.resumyt.com/${lang}`,
           site_name: "Resumyt",
           title: dict.home?.title,
           description: dict.home?.metaDescription,
@@ -361,7 +303,6 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
         }}
       />
       <ClientOnly>
-        <BackgroundBeams />
         <MainLayout>
           <div
             style={{
@@ -375,7 +316,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
             <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
           </div>
           <div className="relative min-h-screen flex flex-col justify-center items-center w-full overflow-hidden">
-            <div className="container ">
+            <div className="container mx-auto">
               {/* Hero Section */}
               <motion.div
                 initial={{ opacity: 0 }}
@@ -422,14 +363,8 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict }) => {
                     onSubmit={(url, format: any) => {
                       handleSubmit(url, format);
                     }}
-                    dict={{
-                      formats: dict.formats,
-                      home: {
-                        error: dict.home.error,
-                        inputPlaceholder: dict.home.inputPlaceholder,
-                        summarizeButton: dict.home.summarizeButton,
-                      },
-                    }}
+                    dict={dict}
+                    lang={lang}
                   />
                   <p className="text-sm text-muted-foreground text-center">
                     <TextGenerateEffect

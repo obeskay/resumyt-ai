@@ -6,6 +6,7 @@ import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "./ui/toaster";
 import YouTubeLogo from "./YouTubeLogo";
+import { BackgroundBeams } from "./ui/background-beams";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -29,8 +30,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <>
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <header className="py-2 w-screen z-[10]">
+      <div className="min-h-screen text-foreground flex flex-col">
+        <header className="py-2 w-screen z-[10] sticky top-0 bg-background">
           <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
             <Link href="/" className="flex items-center gap-2 mb-2 sm:mb-0">
               <YouTubeLogo />
@@ -50,7 +51,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </motion.button>
           </div>
         </header>
-        <main className="relative flex-grow container mx-auto flex flex-col h-full">
+        <BackgroundBeams />
+        <main className="relative flex-grow mx-auto flex flex-col h-full">
           {children}
         </main>
         <Toaster />

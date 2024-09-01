@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dictionary } from "@/lib/getDictionary";
+import { Locale } from "@/i18n-config";
 
 interface VideoInputProps {
   userId: string;
@@ -31,6 +32,7 @@ interface VideoInputProps {
       summarizeButton: string;
     };
   };
+  lang: Locale;
 }
 
 const VideoInput: React.FC<VideoInputProps> = ({
@@ -39,6 +41,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
   isLoading,
   onSubmit,
   dict,
+  lang,
 }) => {
   const {
     videoUrl,
@@ -130,10 +133,18 @@ const VideoInput: React.FC<VideoInputProps> = ({
                   required
                   className="pr-24 h-12 !text-[16px] rounded-full"
                   placeholder={
-                    isLoading ? "Cargando..." : dict.home.inputPlaceholder
+                    isLoading
+                      ? lang === "es"
+                        ? "Cargando..."
+                        : "Loading..."
+                      : dict.home.inputPlaceholder
                   }
                   disabled={isLoading || quotaRemaining === 0}
-                  aria-label="URL del video de YouTube"
+                  aria-label={
+                    lang === "es"
+                      ? "URL del video de YouTube"
+                      : "YouTube video URL"
+                  }
                 />
                 <Tooltip>
                   <TooltipTrigger asChild>

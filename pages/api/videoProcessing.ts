@@ -25,6 +25,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ title, thumbnail });
   } catch (error) {
     console.error('Error al procesar el video:', error);
-    return res.status(500).json({ error: 'No se pudo procesar el video' });
+    return res.status(500).json({ error: 'No se pudo procesar el video', details: error });
   }
 }
