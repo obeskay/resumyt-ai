@@ -1,15 +1,18 @@
 import ClientHomePage from "@/components/ClientHomePage";
 import { getDictionary } from "@/lib/getDictionary";
 import { Locale, i18n } from "@/i18n-config";
+import { GetServerSideProps } from 'next'
 
-export default async function HomePage({
-  params: { lang },
-}: {
-  params: { lang: string };
-}) {
-  // Asegurarse de que lang es un Locale válido
+export default function HomePage({ dict }: { dict: any }) {
+  return <ClientHomePage dict={dict} />;
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const lang = params?.lang as string;
   const validLang: Locale = i18n.locales.includes(lang as Locale) ? (lang as Locale) : i18n.defaultLocale;
   const dict = await getDictionary(validLang);
 
-  return <ClientHomePage dict={dict as any}  />;
+  return {
+    props: { dict },
+  }
 }

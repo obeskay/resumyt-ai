@@ -11,26 +11,19 @@ import { Button } from "@/components/ui/button";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Dictionary } from '@/lib/getDictionary';
 
 interface VideoInputProps {
   userId: string;
   quotaRemaining: number | null;
-  placeholder: string;
-  buttonText: string;
   isLoading: boolean;
   onSubmit: (url: string, formats: string[]) => void;
   dict: {
-    formats?: {
-      bulletPoints?: string;
-      paragraph?: string;
-      page?: string;
-    };
+    formats: Dictionary['formats'];
     home: {
-      error: {
-        invalidUrl: string;
-        quotaExceeded: string;
-        noFormatSelected: string;
-      };
+      error: Dictionary['home']['error'];
+      inputPlaceholder: string;
+      summarizeButton: string;
     };
   };
 }
@@ -38,8 +31,6 @@ interface VideoInputProps {
 const VideoInput: React.FC<VideoInputProps> = ({
   userId,
   quotaRemaining,
-  placeholder,
-  buttonText,
   isLoading,
   onSubmit,
   dict
@@ -90,101 +81,104 @@ const VideoInput: React.FC<VideoInputProps> = ({
   };
 
   useEffect(() => {
-    if (videoUrl.trim()) {
+    if (videoUrl) {
       fetchVideoMetadata(videoUrl);
     }
   }, [videoUrl, fetchVideoMetadata]);
 
   return (
     <TooltipProvider>
-      <div className="w-full space-y-6">
-        <div className="p-6 sm:p-10 bg-card rounded-lg shadow-lg">
-          <motion.form
-            onSubmit={handleSubmit}
-            className="space-y-6 w-full"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="relative w-full">
-              <Input
-                type="url"
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                required
-                className="pr-24 h-12 !text-[16px] rounded-full"
-                placeholder={placeholder}
-                disabled={isLoading}
-                aria-label="URL del video de YouTube"
-              />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="submit"
-                    disabled={isLoading || !selectedFormat}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10 px-6 rounded-full"
-                    aria-label="Resumir video"
-                  >
-                    {buttonText}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Resumir video</TooltipContent>
-              </Tooltip>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4">
-              {formatOptions.map((option) => (
-                <Tooltip key={option.value}>
+      {/* Envuelve todo el contenido en un componente que se renderiza solo en el cliente */}
+      {typeof window !== 'undefined' && (
+        <div className="w-full space-y-6">
+          <div className="p-6 sm:p-10 bg-card rounded-lg shadow-lg">
+            <motion.form
+              onSubmit={handleSubmit}
+              className="space-y-6 w-full"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="relative w-full">
+                <Input
+                  type="url"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  required
+                  className="pr-24 h-12 !text-[16px] rounded-full"
+                  placeholder={dict.home.inputPlaceholder}
+                  disabled={isLoading}
+                  aria-label="URL del video de YouTube"
+                />
+                <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant={selectedFormat === option.value ? "default" : "outline"}
-                      onClick={() => handleFormatChange(option.value)}
-                      className="flex items-center space-x-2 min-w-[120px] min-h-[44px] rounded-full"
-                      aria-label={`Seleccionar formato ${option.label}`}
+                      type="submit"
+                      disabled={isLoading || !selectedFormat}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-10 px-6 rounded-full"
+                      aria-label="Resumir video"
                     >
-                      {option.icon}
-                      <span>{option.label}</span>
+                      {dict.home.summarizeButton}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>{`Resumen en formato ${option.label}`}</TooltipContent>
+                  <TooltipContent>Resumir video</TooltipContent>
                 </Tooltip>
-              ))}
-            </div>
-          </motion.form>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4">
+                {formatOptions.map((option) => (
+                  <Tooltip key={option.value}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={selectedFormat === option.value ? "default" : "outline"}
+                        onClick={() => handleFormatChange(option.value)}
+                        className="flex items-center space-x-2 min-w-[120px] min-h-[44px] rounded-full"
+                        aria-label={`Seleccionar formato ${option.label}`}
+                      >
+                        {option.icon}
+                        <span>{option.label}</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{`Resumen en formato ${option.label}`}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </motion.form>
+            
+            <AnimatePresence>
+              {videoTitle && videoThumbnail && (
+                <motion.div
+                  key="video-info"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-6 w-full"
+                >
+                  <h3 className="text-xl font-semibold mb-4">
+                    <TextGenerateEffect words={videoTitle} />
+                  </h3>
+                  <div className="max-w-sm mx-auto">
+                    <YouTubeThumbnail
+                      src={videoThumbnail}
+                      alt={videoTitle}
+                      layoutId="video-thumbnail"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           
-          <AnimatePresence>
-            {videoTitle && videoThumbnail && (
-              <motion.div
-                key="video-info"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="mt-6 w-full"
-              >
-                <h3 className="text-xl font-semibold mb-4">
-                  <TextGenerateEffect words={videoTitle} />
-                </h3>
-                <div className="max-w-sm mx-auto">
-                  <YouTubeThumbnail
-                    src={videoThumbnail}
-                    alt={videoTitle}
-                    layoutId="video-thumbnail"
-                  />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {isLoading && <LoadingIndicator />}
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
         </div>
-        
-        {isLoading && <LoadingIndicator />}
-        
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-      </div>
+      )}
     </TooltipProvider>
   );
 };

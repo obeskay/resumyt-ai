@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useAnimationControls } from 'framer-motion';
 import { TextGenerateEffect } from './text-generate-effect';
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,20 @@ export const GradientText: React.FC<GradientTextProps> = ({
 }) => {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const controls = useAnimationControls();
+
+  React.useEffect(() => {
+    if (isInView) {
+      controls.start({
+        backgroundSize: ['200% 100%', '100% 100%', '200% 100%', '100% 100%'],
+        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%', '0% 50%'],
+        transition: {
+          duration: 2,
+          ease: 'easeInOut',
+        },
+      });
+    }
+  }, [isInView]);
 
   const renderChildren = () => {
     if (useTextGenerate && typeof children === 'string') {
@@ -39,13 +53,20 @@ export const GradientText: React.FC<GradientTextProps> = ({
     <motion.span
       ref={ref}
       className={cn(
-        "inline-block bg-clip-text text-transparent bg-gradient-to-r",
-        gradientClassName,
-        className
+        "relative inline-block bg-clip-text text-transparent bg-gradient-to-r",
+        className, gradientClassName
       )}
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : {}}
-      transition={{ duration: 0.5 }}
+      initial={{ backgroundSize: '200% 100%', backgroundPosition: '100% 50%', opacity: 0, y: 20 }}
+      animate={controls}
+      whileInView={{ opacity: 1, y: 0 }}
+      style={{ 
+        backgroundSize: '200% 100%',
+        backgroundRepeat: 'no-repeat',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+      }}
+      viewport={{ once: true, amount: 0.5, margin: "0px 0px -50px 0px" }}
+      transition={{ duration: 0.8, delay: 0.2 }}
     >
       {seoText && <span className="sr-only">{seoText}</span>}
       {isInView ? renderChildren() : children}

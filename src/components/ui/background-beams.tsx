@@ -30,7 +30,7 @@ export const BackgroundBeams = () => {
   return (
     <div
       ref={ref}
-      className="h-full w-full absolute inset-0 z-0 overflow-hidden"
+      className="h-full w-full fixed inset-0 z-0 overflow-hidden pointer-events-none"
     >
       <motion.div
         className="absolute inset-0 opacity-50"
