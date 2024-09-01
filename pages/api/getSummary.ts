@@ -34,8 +34,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       content: summary.content,
       transcript: summary.transcript,
       videoId: summary.video_id,
-      title: summary?.videos?.title || '',
-      thumbnailUrl: summary?.videos?.thumbnail_url || '',
+      title: summary.videos?.[0]?.title || '',
+      thumbnailUrl: summary.videos?.[0]?.thumbnail_url || '',
     };
 
     res.status(200).json(response);
