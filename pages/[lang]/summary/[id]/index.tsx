@@ -17,47 +17,52 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import YouTubeThumbnail from "@/components/YouTubeThumbnail";
 
+interface Summary {
+  content: string;
+  transcript: string;
+  videoId: string;
+  title: string;
+  thumbnailUrl: string;
+  format: string;
+}
+
 interface SummaryPageProps {
   dict: any;
-  initialSummary: {
-    content: string;
-    transcript: string;
-    videoId: string;
-    title: string;
-    thumbnailUrl: string;
-  } | null;
+  initialSummaries: Summary[] | null;
 }
 
 export default function SummaryPage({
   dict,
-  initialSummary,
+  initialSummaries,
 }: SummaryPageProps) {
   const router = useRouter();
-  const { id, lang } = router.query; // Asegúrate de obtener tanto 'id' como 'lang'
-  const [summary, setSummary] = useState(initialSummary);
-  const [isLoading, setIsLoading] = useState(!initialSummary);
+  const { id, lang, format } = router.query;
+  const [summaries, setSummaries] = useState<Summary[] | null>(
+    initialSummaries,
+  );
+  const [selectedFormat, setSelectedFormat] = useState<string | undefined>(
+    format as string | undefined,
+  );
+  const [isLoading, setIsLoading] = useState(!initialSummaries);
 
   useEffect(() => {
-    if (!initialSummary && id) {
+    if (!initialSummaries && id) {
       setIsLoading(true);
       fetch(`/api/getSummary?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-          setSummary({
-            content: data.content,
-            transcript: data.transcript,
-            videoId: data.videoId,
-            title: data.title,
-            thumbnailUrl: data.thumbnailUrl,
-          });
+          setSummaries(data);
           setIsLoading(false);
         })
         .catch((error) => {
-          console.error("Error fetching summary:", error);
+          console.error("Error fetching summaries:", error);
           setIsLoading(false);
         });
     }
-  }, [id, initialSummary]);
+  }, [id, initialSummaries]);
+
+  const selectedSummary =
+    summaries?.find((s) => s.format === selectedFormat) || summaries?.[0];
 
   if (!dict || !dict.summary) {
     return <div>Cargando...</div>;
@@ -66,7 +71,7 @@ export default function SummaryPage({
   return (
     <MainLayout>
       <AnimatePresence>
-        {summary?.videoId && (
+        {selectedSummary?.videoId && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.1 }}
@@ -81,7 +86,7 @@ export default function SummaryPage({
               transition={{ duration: 0.5 }}
               className="absolute inset-0 bg-cover bg-center blur-sm"
               style={{
-                backgroundImage: `url(https://img.youtube.com/vi/${summary?.videoId}/mqdefault.jpg)`,
+                backgroundImage: `url(https://img.youtube.com/vi/${selectedSummary?.videoId}/mqdefault.jpg)`,
               }}
             />
           </motion.div>
@@ -131,7 +136,7 @@ export default function SummaryPage({
                 <Skeleton className="w-3/4 h-8 mb-2" />
                 <Skeleton className="w-1/2 h-6" />
               </div>
-            ) : !summary ? (
+            ) : !selectedSummary ? (
               <>
                 <div className="text-center text-foreground">
                   <p className="text-xl">{dict.summary.notFound}</p>
@@ -148,22 +153,22 @@ export default function SummaryPage({
             ) : (
               <div className="p-6 space-y-4">
                 <div className="flex flex-col lg:flex-row items-start space-y-4 lg:space-y-0 lg:space-x-6 mb-6">
-                  {summary.videoId && (
+                  {selectedSummary.videoId && (
                     <div className="w-full lg:w-1/3 relative group">
                       <YouTubeThumbnail
-                        src={`https://img.youtube.com/vi/${summary.videoId}/mqdefault.jpg`}
-                        alt={summary.title}
+                        src={`https://img.youtube.com/vi/${selectedSummary.videoId}/mqdefault.jpg`}
+                        alt={selectedSummary.title}
                         layoutId="video-thumbnail"
                       />
                     </div>
                   )}
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-2">
-                      <GradientText>{summary.title}</GradientText>
+                      <GradientText>{selectedSummary.title}</GradientText>
                     </h2>
                     <p className="text-sm text-muted-foreground mb-3">
                       <TextGenerateEffect
-                        words={`${dict.summary.videoIdLabel}: ${summary.videoId}`}
+                        words={`${dict.summary.videoIdLabel}: ${selectedSummary.videoId}`}
                       />
                     </p>
                     <Button
@@ -172,7 +177,7 @@ export default function SummaryPage({
                       className="bg-red-600 text-white border-red-600 hover:bg-red-700 transition-colors duration-300"
                       onClick={() =>
                         window.open(
-                          `https://www.youtube.com/watch?v=${summary.videoId}`,
+                          `https://www.youtube.com/watch?v=${selectedSummary.videoId}`,
                           "_blank",
                         )
                       }
@@ -182,10 +187,28 @@ export default function SummaryPage({
                   </div>
                 </div>
 
-                <SummaryDisplay
-                  summary={summary.content}
-                  className="text-lg leading-relaxed gap-y-8 flex flex-col"
-                />
+                {summaries && summaries.length > 1 && (
+                  <div className="mb-4">
+                    <select
+                      value={selectedFormat}
+                      onChange={(e) => setSelectedFormat(e.target.value)}
+                      className="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    >
+                      {summaries.map((summary) => (
+                        <option key={summary.format} value={summary.format}>
+                          {summary.format}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {selectedSummary && (
+                  <SummaryDisplay
+                    summary={selectedSummary.content}
+                    className="text-lg leading-relaxed gap-y-8 flex flex-col"
+                  />
+                )}
               </div>
             )}
           </motion.div>
@@ -217,19 +240,20 @@ export const getServerSideProps: GetServerSideProps = async ({
   const supabase = getSupabase();
 
   try {
-    console.log("Fetching summary for video ID:", id);
-    const { data: summary, error } = await supabase
+    console.log("Fetching summaries for video ID:", id);
+    const { data: summaries, error } = await supabase
       .from("summaries")
-      .select("content, transcript, video_id, title, thumbnail_url")
-      .eq("video_id", id)
-      .single();
+      .select(
+        "content, transcript, video_id, title, format, videos(thumbnail_url)",
+      )
+      .eq("video_id", id);
 
     if (error) {
-      console.error("Error fetching summary:", error);
+      console.error("Error fetching summaries:", error);
       return {
         props: {
           dict,
-          initialSummary: null,
+          initialSummaries: null,
         },
       };
     }
@@ -237,14 +261,15 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         dict,
-        initialSummary: summary
-          ? {
+        initialSummaries: summaries
+          ? summaries.map((summary) => ({
               content: summary.content,
               transcript: summary.transcript,
               videoId: summary.video_id,
               title: summary.title,
-              thumbnailUrl: summary.thumbnail_url,
-            }
+              thumbnailUrl: summary?.videos?.[0]?.thumbnail_url || "",
+              format: summary.format,
+            }))
           : null,
       },
     };
@@ -253,7 +278,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         dict,
-        initialSummary: null,
+        initialSummaries: null,
       },
     };
   }

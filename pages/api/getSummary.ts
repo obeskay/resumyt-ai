@@ -15,28 +15,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const supabase = getSupabase();
 
   try {
-    const { data: summary, error } = await supabase
+    const { data: summaries, error } = await supabase
       .from("summaries")
-      .select("content, transcript, video_id, videos(title, thumbnail_url)")
-      .eq("video_id", id)
-      .single();
+      .select(`
+        content, 
+        transcript, 
+        video_id, 
+        title,
+        format,
+        videos (thumbnail_url)
+      `)
+      .eq("video_id", id);
 
     if (error) {
-      console.error("Error fetching summary:", error);
-      return res.status(500).json({ error: 'Error al obtener el resumen' });
+      console.error("Error fetching summaries:", error);
+      return res.status(500).json({ error: 'Error al obtener los resúmenes' });
     }
 
-    if (!summary) {
-      return res.status(404).json({ error: 'Resumen no encontrado' });
+    if (!summaries || summaries.length === 0) {
+      return res.status(404).json({ error: 'Resúmenes no encontrados' });
     }
 
-    const response = {
+    const response = summaries.map((summary) => ({
       content: summary.content,
       transcript: summary.transcript,
       videoId: summary.video_id,
-      title: summary.videos?.[0]?.title || '',
-      thumbnailUrl: summary.videos?.[0]?.thumbnail_url || '',
-    };
+      title: summary.title,
+      thumbnailUrl: summary?.videos?.[0]?.thumbnail_url || '',
+      format: summary.format,
+    }));
 
     res.status(200).json(response);
   } catch (error) {
