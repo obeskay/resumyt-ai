@@ -10,13 +10,7 @@ import Head from "next/head";
 import { NextSeo } from "next-seo";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import {
-  ArrowLeftIcon,
-  FileTextIcon,
-  ClipboardIcon,
-  YoutubeIcon,
-} from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
@@ -39,7 +33,7 @@ export default function SummaryPage({
   initialSummary,
 }: SummaryPageProps) {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, lang } = router.query; // Asegúrate de obtener tanto 'id' como 'lang'
   const [summary, setSummary] = useState(initialSummary);
   const [isLoading, setIsLoading] = useState(!initialSummary);
 
@@ -205,25 +199,57 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
   locale,
 }) => {
-  console.log("Entrando a getServerSideProps de /[lang]/summary/[id]");
+  console.log("Entrando a getServerSideProps de /summary/[id]");
   const lang = params?.lang as string;
   const id = params?.id as string;
+
+  if (!lang || !id) {
+    console.log("Missing lang or id:", { lang, id });
+    return { notFound: true };
+  }
+
   const validLang: Locale = i18n.locales.includes(lang as Locale)
     ? (lang as Locale)
     : i18n.defaultLocale;
+
   const dict = await getDictionary(validLang);
 
   const supabase = getSupabase();
 
-  console.log("Fetching summary for video ID:", id);
-  const { data: summary, error } = await supabase
-    .from("summaries")
-    .select("content, transcript, video_id, title, thumbnail_url")
-    .eq("video_id", id)
-    .single();
+  try {
+    console.log("Fetching summary for video ID:", id);
+    const { data: summary, error } = await supabase
+      .from("summaries")
+      .select("content, transcript, video_id, title, thumbnail_url")
+      .eq("video_id", id)
+      .single();
 
-  if (error) {
-    console.error("Error fetching summary:", error);
+    if (error) {
+      console.error("Error fetching summary:", error);
+      return {
+        props: {
+          dict,
+          initialSummary: null,
+        },
+      };
+    }
+
+    return {
+      props: {
+        dict,
+        initialSummary: summary
+          ? {
+              content: summary.content,
+              transcript: summary.transcript,
+              videoId: summary.video_id,
+              title: summary.title,
+              thumbnailUrl: summary.thumbnail_url,
+            }
+          : null,
+      },
+    };
+  } catch (error) {
+    console.error("Unexpected error in getServerSideProps:", error);
     return {
       props: {
         dict,
@@ -231,19 +257,4 @@ export const getServerSideProps: GetServerSideProps = async ({
       },
     };
   }
-
-  return {
-    props: {
-      dict,
-      initialSummary: summary
-        ? {
-            content: summary.content,
-            transcript: summary.transcript,
-            videoId: summary.video_id,
-            title: summary.title,
-            thumbnailUrl: summary.thumbnail_url,
-          }
-        : null,
-    },
-  };
 };
