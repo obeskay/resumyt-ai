@@ -14,11 +14,7 @@ const nextConfig = {
       },
     ],
   },
-  // Eliminamos la configuración de 'api'
-  i18n: {
-    locales: ['es', 'en'], // ajusta según tus idiomas soportados
-    defaultLocale: 'es',
-  },
+  // Eliminamos la configuración de 'i18n' ya que no es compatible con App Router
 }
 
 module.exports = nextConfig
