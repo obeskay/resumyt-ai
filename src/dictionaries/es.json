@@ -21,21 +21,40 @@
     },
     "features": {
       "title": "Características",
-      "quickSummaries": "Resúmenes Rápidos",
-      "timeSaving": "Ahorro de Tiempo",
-      "acceleratedLearning": "Aprendizaje Acelerado",
+      "quickSummaries": "Resúmenes rápidos",
+      "quickSummariesDesc": "Obtén los puntos clave de cualquier video en segundos.",
+      "timeSaving": "Ahorro de tiempo",
+      "timeSavingDesc": "Consume contenido de forma eficiente y productiva.",
       "forEveryone": "Para Todos",
+      "forEveryoneDesc": "Resumyt es ideal para estudiantes, profesionales y amantes del aprendizaje.",
       "diverseContent": "Contenido Diverso",
-      "valuableInsights": "Insights Valiosos"
+      "diverseContentDesc": "Resumye videos en varios idiomas y formatos.",
+      "valuableInsights": "Insights Valiosos",
+      "valuableInsightsDesc": "Obtén insights valiosos de cualquier video."
     },
     "howItWorks": {
       "title": "Cómo funciona",
-      "step1": "Pega el enlace",
+      "step1": "Pega el URL",
+      "step1Desc": "Simplemente copia y pega el URL del video de YouTube que quieres resumir.",
       "step2": "Elige el formato",
-      "step3": "Obtén tu resumen"
+      "step2Desc": "Selecciona entre puntos claves, párrafo o página completa.",
+      "step3": "Obtén tu resumen",
+      "step3Desc": "En segundos, recibe un resumen conciso y preciso del contenido del video."
     },
     "testimonials": {
-      "title": "Lo que dicen nuestros usuarios"
+      "title": "Lo que dicen nuestros usuarios",
+      "quote1": "Resumyt me ha ahorrado horas de tiempo viendo videos largos. Ahora puedo obtener la información clave en minutos.",
+      "name1": "María G.",
+      "title1": "Estudiante universitaria",
+      "quote2": "Increíble para preparar presentaciones. Resumyt extrae los puntos clave que necesito para crear contenido impactante.",
+      "name2": "Javier M.",
+      "title2": "Gerente de marketing",
+      "quote3": "Gracias a Resumyt, puedo mantenerme al día con los últimos tutoriales de programación sin perder horas viendo videos.",
+      "name3": "Ana L.",
+      "title3": "Desarrolladora de software",
+      "quote4": "Resumyt es una herramienta esencial para cualquier persona que quiera aprender rápidamente. Ahora puedo absorber información de manera más eficiente.",
+      "name4": "Carlos V.",
+      "title4": "Estudiante universitario"
     },
     "cta": {
       "title": "¿Listo para empezar?",
