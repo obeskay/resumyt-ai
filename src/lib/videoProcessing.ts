@@ -26,7 +26,7 @@ async function retryOperation<T>(operation: () => Promise<T>, maxRetries = 3, de
   throw lastError || new Error('Operation failed after max retries');
 }
 
-export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page'): Promise<{ summary: string, transcript: string }> {
+export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page', language: string): Promise<{ summary: string, transcript: string }> {
   try {
     console.log('Starting summarizeVideo for URL:', videoUrl);
     const videoId = extractYouTubeId(videoUrl);
@@ -37,13 +37,13 @@ export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-po
     console.log('Extracted video ID:', videoId);
 
     const transcriptOrMetadata = await transcribeVideoWithFallback(videoId);
-    console.log('Transcript or metadata retrieved, length:', transcriptOrMetadata.length);
+    console.log('Transcripción o metadatos recuperados, longitud:', transcriptOrMetadata.length);
 
-    const summary = await generateSummary(transcriptOrMetadata, summaryFormat);
-    console.log('Summary generated, length:', summary.length);
+    const summary = await generateSummary(transcriptOrMetadata, summaryFormat, language);
+    console.log('Resumen generado, longitud:', summary.length);
 
     if (!summary) {
-      console.error('Generated summary is null or empty');
+      console.error('El resumen generado es nulo o está vacío');
       throw new SummaryGenerationError("Failed to generate summary: Summary is null or empty");
     }
 
@@ -76,13 +76,13 @@ export async function processVideo(
     console.log('Extracted video ID:', videoId);
 
     const transcriptOrMetadata = await transcribeVideoWithFallback(videoId);
-    console.log('Transcript or metadata retrieved, length:', transcriptOrMetadata.length);
+    console.log('Transcript o metadatos recuperados, longitud:', transcriptOrMetadata.length);
 
-    const summary = await generateSummary(transcriptOrMetadata, summaryFormat);
-    console.log('Summary generated, length:', summary.length);
+    const summary = await generateSummary(transcriptOrMetadata, summaryFormat, userId);
+    console.log('Resumen generado, longitud:', summary.length);
 
     if (!summary) {
-      console.error('Generated summary is null or empty');
+      console.error('El resumen generado es nulo o está vacío');
       throw new SummaryGenerationError("Failed to generate summary: Summary is null or empty");
     }
 
@@ -275,7 +275,7 @@ async function fetchVideoMetadata(videoId: string): Promise<string> {
   }
 }
 
-export async function generateSummary(transcriptOrMetadata: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page'): Promise<string> {
+export async function generateSummary(transcriptOrMetadata: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page', language: string): Promise<string> {
   try {
     console.log("Sending request to OpenRouter API, input length:", transcriptOrMetadata.length);
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
@@ -287,13 +287,13 @@ export async function generateSummary(transcriptOrMetadata: string, summaryForma
     let promptInstructions = "";
     switch (summaryFormat) {
       case 'bullet-points':
-        promptInstructions = "Provide a summary in the form of bullet points. Each point should be concise and cover a key idea or fact from the content.";
+        promptInstructions = `Provide a summary in the form of 5 bullet points or less. Each point should be concise and cover a key idea or fact from the content. Respond in ${language}.`;
         break;
       case 'paragraph':
-        promptInstructions = "Provide a summary in the form of a single, cohesive paragraph. The summary should flow naturally and cover the main points of the content.";
+        promptInstructions = `Provide a brief summary in the form of a single, concise paragraph (no more than 3-4 sentences). The summary should cover the main points of the content. Respond in ${language}.`;
         break;
       case 'page':
-        promptInstructions = "Provide a detailed summary, approximately one page in length. The summary should be comprehensive, covering all major points and some supporting details from the content. Organize the summary into paragraphs for better readability.";
+        promptInstructions = `Provide a detailed summary, approximately one page in length. The summary should be comprehensive, covering all major points and some supporting details from the content. Organize the summary into paragraphs for better readability. Respond in ${language}.`;
         break;
     }
 

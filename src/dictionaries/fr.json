@@ -1,7 +1,7 @@
 {
   "home": {
-    "title": "Résumés de vidéos YouTube en quelques secondes",
-    "subtitle": "Gagnez du temps et apprenez plus vite avec des résumés vidéo intelligents",
+    "title": "Résumés de Vidéos YouTube en Quelques Secondes",
+    "subtitle": "Gagnez du temps et apprenez plus rapidement avec des résumés vidéo intelligents",
     "description": "Resumyt vous permet d'obtenir des résumés concis et précis de n'importe quelle vidéo YouTube. Idéal pour les étudiants, les professionnels et les passionnés d'apprentissage.",
     "metaDescription": "Resumyt : Obtenez des résumés automatiques de vidéos YouTube. Gagnez du temps, apprenez plus vite et améliorez votre productivité avec notre outil d'IA.",
     "keywords": "résumé de vidéos, YouTube, apprentissage rapide, productivité, IA, intelligence artificielle, contenu éducatif, gain de temps, résumés automatiques, vidéos éducatives, outil d'étude, synthèse de contenu",
@@ -12,7 +12,7 @@
       "somethingWentWrong": "Quelque chose s'est mal passé. Veuillez réessayer.",
       "invalidUrl": "URL YouTube non valide. Veuillez vérifier le lien.",
       "quotaExceeded": "Vous avez atteint votre limite de quota quotidien.",
-      "noFormatSelected": "Veuillez sélectionner au moins un format de résumé."
+      "noFormatSelected": "Veuillez sélectionner un format de résumé."
     },
     "dialog": {
       "title": "Bienvenue sur Resumyt !",
@@ -20,22 +20,43 @@
       "button": "Compris"
     },
     "features": {
-      "title": "Fonctionnalités",
+      "title": "Caractéristiques",
       "quickSummaries": "Résumés rapides",
+      "quickSummariesDesc": "Obtenez les points clés de n'importe quelle vidéo en quelques secondes.",
       "timeSaving": "Gain de temps",
+      "timeSavingDesc": "Consommez du contenu de manière efficace et productive.",
       "acceleratedLearning": "Apprentissage accéléré",
-      "forEveryone": "Pour tous",
+      "acceleratedLearningDesc": "Apprenez plus rapidement et efficacement avec nos résumés d'IA.",
+      "forEveryone": "Para todos",
+      "forEveryoneDesc": "Resumyt es ideal para estudiantes, profesionales y amantes del aprendizaje.",
       "diverseContent": "Contenu diversifié",
-      "valuableInsights": "Insights précieux"
+      "diverseContentDesc": "Résumez des vidéos dans plusieurs langues et formats.",
+      "valuableInsights": "Insights précieux",
+      "valuableInsightsDesc": "Obtenez des insights précieux de n'importe quelle vidéo."
     },
     "howItWorks": {
       "title": "Comment ça marche",
-      "step1": "Collez le lien",
+      "step1": "Collez l'URL",
+      "step1Desc": "Copiez et collez simplement l'URL de la vidéo YouTube que vous souhaitez résumer.",
       "step2": "Choisissez le format",
-      "step3": "Obtenez votre résumé"
+      "step2Desc": "Sélectionnez entre points clés, paragraphe ou page complète.",
+      "step3": "Obtenez votre résumé",
+      "step3Desc": "En quelques secondes, recevez un résumé concis et précis du contenu de la vidéo."
     },
     "testimonials": {
-      "title": "Ce que disent nos utilisateurs"
+      "title": "Ce que disent nos utilisateurs",
+      "quote1": "Resumyt m'a fait gagner des heures de visionnage de longues vidéos. Maintenant, je peux obtenir les informations clés en quelques minutes.",
+      "name1": "Marie G.",
+      "title1": "Étudiante universitaire",
+      "quote2": "Incroyable pour préparer des présentations. Resumyt extrait les points clés dont j'ai besoin pour créer du contenu percutant.",
+      "name2": "Jacques M.",
+      "title2": "Responsable marketing",
+      "quote3": "Grâce à Resumyt, je peux rester à jour avec les derniers tutoriels de programmation sans passer des heures à regarder des vidéos.",
+      "name3": "Anne L.",
+      "title3": "Développeuse de logiciels",
+      "quote4": "Resumyt est un outil essentiel pour quiconque veut apprendre rapidement. Maintenant, je peux absorber l'information de manière plus efficace.",
+      "name4": "Charles V.",
+      "title4": "Étudiant universitaire"
     },
     "cta": {
       "title": "Prêt à commencer ?",
@@ -43,21 +64,25 @@
       "button": "Essayez Resumyt gratuitement"
     },
     "faq": {
-      "title": "Questions fréquentes",
+      "title": "Questions fréquemment posées",
       "q1": "Comment fonctionne Resumyt ?",
-      "a1": "Resumyt utilise une intelligence artificielle avancée pour analyser et résumer les vidéos YouTube. Il vous suffit de coller le lien de la vidéo et de sélectionner le format de résumé que vous préférez.",
-      "q2": "L'utilisation de Resumyt est-elle gratuite ?",
-      "a2": "Nous offrons un quota gratuit quotidien pour tous les utilisateurs. Pour une utilisation illimitée, nous proposons des plans premium abordables.",
+      "a1": "Resumyt utilise une intelligence artificielle avancée pour analyser et résumer les vidéos YouTube. Vous n'avez qu'à coller le lien de la vidéo et sélectionner le format de résumé que vous préférez.",
+      "q2": "Est-ce gratuit d'utiliser Resumyt ?",
+      "a2": "Nous offrons un quota quotidien gratuit pour tous les utilisateurs. Pour une utilisation illimitée, nous proposons des forfaits premium abordables.",
       "q3": "Quels types de vidéos puis-je résumer ?",
       "a3": "Vous pouvez résumer n'importe quelle vidéo YouTube publique, des tutoriels et conférences aux documentaires et interviews.",
       "q4": "Dans quelles langues Resumyt est-il disponible ?",
       "a4": "Actuellement, Resumyt peut résumer des vidéos en français, anglais, espagnol, allemand, italien, portugais, russe et chinois."
-    }
+    },
+    "continueButton": "Continuer",
+    "formatQuestion": "Comment voulez-vous le résumé ?"
   },
   "summary": {
-    "title": "Résumé de la vidéo",
+    "title": "Résumé de la Vidéo",
     "loadingMessage": "Génération du résumé...",
-    "errorMessage": "Erreur lors de la génération du résumé. Veuillez réessayer."
+    "errorMessage": "Erreur lors de la génération du résumé. Veuillez réessayer.",
+    "watchOnYoutube": "Regarder sur YouTube",
+    "videoIdLabel": "ID de la vidéo"
   },
   "auth": {
     "signIn": "Se connecter",

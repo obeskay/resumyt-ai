@@ -11,6 +11,7 @@ import { getSupabase } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rateLimit";
 import { logger } from "@/lib/logger"; // Asegúrate de crear este módulo
 import { Database } from "@/types/supabase";
+import { i18n } from "@/i18n-config";
 
 interface ErrorResponse {
   error: string;
@@ -52,15 +53,17 @@ export default async function handler(req: NextRequest) {
     }
 
     // Cambiar esta parte para manejar tanto GET como POST
-    let videoUrl, summaryFormat;
+    let videoUrl, summaryFormat, language;
     if (req.method === 'GET') {
       const url = new URL(req.url);
       videoUrl = url.searchParams.get('url');
       summaryFormat = url.searchParams.get('format');
+      language = url.searchParams.get('lang') || i18n.defaultLocale;
     } else if (req.method === 'POST') {
       const body = await req.json();
       videoUrl = body.videoUrl;
       summaryFormat = body.summaryFormat;
+      language = body.language || i18n.defaultLocale;
     } else {
       return createErrorResponse(
         "Método no permitido",
@@ -134,7 +137,7 @@ export default async function handler(req: NextRequest) {
     }
 
     logger.info("Attempting to summarize video:", videoUrl);
-    const { summary, transcript } = await summarizeVideo(videoUrl, summaryFormat);
+    const { summary, transcript } = await summarizeVideo(videoUrl, summaryFormat as 'bullet-points' | 'paragraph' | 'page', language);
     logger.info("Summary generated successfully, length:", summary.length);
 
     if (!summary) {

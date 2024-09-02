@@ -218,14 +218,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
                     </Tooltip>
                   ))}
                 </div>
-                <Button
-                  type="submit"
-                  disabled={!selectedFormat}
-                  className="w-full rounded-full"
-                  aria-label="Resumir video"
-                >
-                  {dict.home.summarizeButton}
-                </Button>
+                <hr />
               </motion.form>
             )}
 
