@@ -54,7 +54,7 @@ export const MovingCards = ({
       // Configurar la animación con una velocidad constante
       const scrollerWidth = scrollerRef.current.scrollWidth;
       const animationDuration =
-        speed === "fast" ? 20 : speed === "normal" ? 30 : 40;
+        speed === "fast" ? 30 : speed === "normal" ? 60 : 120;
       scrollerRef.current.style.setProperty(
         "--animation-duration",
         `${animationDuration}s`,

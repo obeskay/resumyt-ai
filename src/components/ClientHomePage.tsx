@@ -71,7 +71,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
       })
       .then((data) => {
         if (data.videoId) {
-          router.push(`/${router.query.lang}/summary/${data.videoId}`);
+          router.push(`/summary/${data.videoId}`);
         } else {
           throw new Error("No se recibió un videoId válido");
         }
@@ -167,61 +167,57 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
 
   const features = [
     {
-      title: dict.home.features?.quickSummaries,
-      description: "Obtén los puntos clave de cualquier video en segundos.",
+      title: dict.home.features.quickSummaries,
+      description: dict.home.features.quickSummariesDesc,
       icon: <IconClipboard className="h-12 w-12 text-primary" />,
     },
     {
-      title: dict.home.features?.timeSaving,
-      description: "Consume contenido de forma eficiente y productiva.",
+      title: dict.home.features.timeSaving,
+      description: dict.home.features.timeSavingDesc,
       icon: <IconRocket className="h-12 w-12 text-primary" />,
     },
     {
-      title: dict.home.features?.acceleratedLearning,
-      description: "Absorbe información más rápido que nunca.",
+      title: dict.home.features.acceleratedLearning,
+      description: dict.home.features.acceleratedLearningDesc,
       icon: <IconBrain className="h-12 w-12 text-primary" />,
     },
     {
-      title: dict.home.features?.forEveryone,
-      description: "Perfecto para estudiantes, profesionales y curiosos.",
+      title: dict.home.features.forEveryone,
+      description: dict.home.features.forEveryoneDesc,
       icon: <IconUsers className="h-12 w-12 text-primary" />,
     },
     {
-      title: dict.home.features?.diverseContent,
-      description: "Funciona con una amplia variedad de videos de YouTube.",
+      title: dict.home.features.diverseContent,
+      description: dict.home.features.diverseContentDesc,
       icon: <IconYoutube className="h-12 w-12 text-primary" />,
     },
     {
-      title: dict.home.features?.valuableInsights,
-      description: "Descubre ideas clave que podrías haber pasado por alto.",
+      title: dict.home.features.valuableInsights,
+      description: dict.home.features.valuableInsightsDesc,
       icon: <IconLightbulb className="h-12 w-12 text-primary" />,
     },
   ];
 
   const testimonials = [
     {
-      quote:
-        "Resumyt me ha ahorrado horas de tiempo viendo videos largos. Ahora puedo obtener la información clave en minutos.",
-      name: "María G.",
-      title: "Estudiante universitaria",
+      quote: dict.home.testimonials.quote1,
+      name: dict.home.testimonials.name1,
+      title: dict.home.testimonials.title1,
     },
     {
-      quote:
-        "Una herramienta indispensable para mi trabajo de investigación. Me ayuda a procesar grandes cantidades de contenido rápidamente.",
-      name: "Carlos R.",
-      title: "Investigador",
+      quote: dict.home.testimonials.quote2,
+      name: dict.home.testimonials.name2,
+      title: dict.home.testimonials.title2,
     },
     {
-      quote:
-        "Gracias a Resumyt, puedo mantenerme al día con los últimos tutoriales de programación sin perder horas viendo videos.",
-      name: "Ana L.",
-      title: "Desarrolladora de software",
+      quote: dict.home.testimonials.quote3,
+      name: dict.home.testimonials.name3,
+      title: dict.home.testimonials.title3,
     },
     {
-      quote:
-        "Increíble para preparar presentaciones. Resumyt extrae los puntos clave que necesito para crear contenido impactante.",
-      name: "Javier M.",
-      title: "Gerente de marketing",
+      quote: dict.home.testimonials.quote4,
+      name: dict.home.testimonials.name4,
+      title: dict.home.testimonials.title4,
     },
   ];
 
@@ -413,27 +409,24 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold text-center mb-10">
-                  <GradientText>{dict.home?.howItWorks?.title}</GradientText>
+                  <GradientText>{dict.home.howItWorks.title}</GradientText>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {[
                     {
                       step: "1",
-                      title: dict.home?.howItWorks?.step1,
-                      description:
-                        "Simplemente copia y pega el URL del video de YouTube que quieres resumir.",
+                      title: dict.home.howItWorks.step1,
+                      description: dict.home.howItWorks.step1Desc,
                     },
                     {
                       step: "2",
-                      title: dict.home?.howItWorks?.step2,
-                      description:
-                        "Selecciona entre puntos claves, párrafo o página completa.",
+                      title: dict.home.howItWorks.step2,
+                      description: dict.home.howItWorks.step2Desc,
                     },
                     {
                       step: "3",
-                      title: dict.home?.howItWorks?.step3,
-                      description:
-                        "En segundos, recibe un resumen conciso y preciso del contenido del video.",
+                      title: dict.home.howItWorks.step3,
+                      description: dict.home.howItWorks.step3Desc,
                     },
                   ].map((item, index) => (
                     <motion.div
@@ -475,7 +468,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold text-center mb-10">
-                  <GradientText>{dict.home?.testimonials?.title}</GradientText>
+                  <GradientText>{dict.home.testimonials.title}</GradientText>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {testimonials.map((testimonial, index) => (
@@ -510,13 +503,13 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold mb-6">
-                  <GradientText>{dict.home?.cta?.title}</GradientText>
+                  <GradientText>{dict.home.cta.title}</GradientText>
                 </h2>
                 <p className="text-xl text-muted-foreground mb-8">
-                  <TextGenerateEffect words={dict.home?.cta?.description} />
+                  <TextGenerateEffect words={dict.home.cta.description} />
                 </p>
                 <Button size="lg" className="text-lg px-8 py-4">
-                  {dict.home?.cta?.button}
+                  {dict.home.cta.button}
                 </Button>
               </motion.section>
 
@@ -535,10 +528,10 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 </h2>
                 <div className="space-y-8 max-w-3xl mx-auto">
                   {[
-                    { q: dict.home?.faq?.q1, a: dict.home?.faq?.a1 },
-                    { q: dict.home?.faq?.q2, a: dict.home?.faq?.a2 },
-                    { q: dict.home?.faq?.q3, a: dict.home?.faq?.a3 },
-                    { q: dict.home?.faq?.q4, a: dict.home?.faq?.a4 },
+                    { q: dict.home.faq.q1, a: dict.home.faq.a1 },
+                    { q: dict.home.faq.q2, a: dict.home.faq.a2 },
+                    { q: dict.home.faq.q3, a: dict.home.faq.a3 },
+                    { q: dict.home.faq.q4, a: dict.home.faq.a4 },
                   ].map((item, index) => (
                     <motion.div
                       key={index}
