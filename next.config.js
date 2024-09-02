@@ -16,7 +16,7 @@ const nextConfig = {
   },
   // Eliminamos la configuración de 'api'
   i18n: {
-    locales: ['es', 'en'],
+    locales: ['es', 'en'], // ajusta según tus idiomas soportados
     defaultLocale: 'es',
   },
 }

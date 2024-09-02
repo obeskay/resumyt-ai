@@ -205,6 +205,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
   locale,
 }) => {
+  console.log("Entrando a getServerSideProps de /[lang]/summary/[id]");
   const lang = params?.lang as string;
   const id = params?.id as string;
   const validLang: Locale = i18n.locales.includes(lang as Locale)
@@ -213,6 +214,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   const dict = await getDictionary(validLang);
 
   const supabase = getSupabase();
+
+  console.log("Fetching summary for video ID:", id);
   const { data: summary, error } = await supabase
     .from("summaries")
     .select("content, transcript, video_id, title, thumbnail_url")

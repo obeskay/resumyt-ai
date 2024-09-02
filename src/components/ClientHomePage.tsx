@@ -62,7 +62,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
 
   const handleSubmit = (url: string, format: string) => {
     setIsSubmitting(true);
-    fetch(`/api/summarize?url=${url}&format=${format}`)
+    fetch(`/api/summarize?url=${url}&format=${format}&lang=${lang}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -71,7 +71,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
       })
       .then((data) => {
         if (data.videoId) {
-          router.push(`/summary/${data.videoId}`);
+          router.push(`/${lang}/summary/${data.videoId}`);
         } else {
           throw new Error("No se recibió un videoId válido");
         }
