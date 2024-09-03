@@ -6,12 +6,18 @@ interface YouTubeThumbnailProps {
   src: string;
   alt: string;
   layoutId?: string;
+  videoId?: string;
+  title?: string;
+  thumbnailUrl?: string;
 }
 
 const YouTubeThumbnail: React.FC<YouTubeThumbnailProps> = ({
   src,
   alt,
   layoutId,
+  videoId,
+  title,
+  thumbnailUrl,
 }) => {
   return (
     <motion.div
@@ -19,8 +25,8 @@ const YouTubeThumbnail: React.FC<YouTubeThumbnailProps> = ({
       className="relative w-full pt-[56.25%]" // Aspect ratio 16:9
     >
       <Image
-        src={src}
-        alt={alt}
+        src={src || thumbnailUrl || ""}
+        alt={alt || title || "Video thumbnail"}
         layout="fill"
         objectFit="cover"
         className="rounded-xl absolute top-0 left-0 w-full h-full"

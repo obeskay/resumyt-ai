@@ -15,9 +15,9 @@ export type Dictionary = typeof es; // Asumiendo que 'es' tiene todas las claves
 
 export const getDictionary = async (locale: string): Promise<Dictionary> => {
   if (locale in dictionaries) {
-    return dictionaries[locale as keyof typeof dictionaries];
+    return dictionaries[locale as keyof typeof dictionaries] as any;
   } else {
     console.warn(`Dictionary for locale ${locale} not found. Falling back to en.`);
-    return dictionaries.en;
+    return dictionaries.en as any;
   }
 };
