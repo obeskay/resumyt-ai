@@ -64,7 +64,8 @@ export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-po
 export async function processVideo(
   videoUrl: string,
   userId: string,
-  summaryFormat: 'bullet-points' | 'paragraph' | 'page'
+  summaryFormat: 'bullet-points' | 'paragraph' | 'page',
+  videoTitle: string // Añadir este parámetro
 ): Promise<{ videoId: string; transcriptOrMetadata: string; summary: string }> {
   try {
     console.log('Starting processVideo for URL:', videoUrl);
@@ -87,7 +88,6 @@ export async function processVideo(
     }
 
     const videoMetadata = await fetchVideoMetadata(videoId);
-    const videoTitle = videoMetadata.title;
     const thumbnailUrl = videoMetadata.thumbnailUrl;
 
     await saveSummary(
@@ -97,7 +97,7 @@ export async function processVideo(
       summary,
       userId,
       summaryFormat,
-      videoTitle,
+      videoTitle, // Usar el título proporcionado
       thumbnailUrl
     );
     console.log('Summary saved successfully');
@@ -410,6 +410,7 @@ async function saveSummary(
         content: content,
         user_id: userId,
         format: summaryFormat,
+        title: videoTitle, // Añadir el título aquí
       },
       {
         onConflict: "video_id,user_id",

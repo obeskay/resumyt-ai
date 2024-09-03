@@ -68,7 +68,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
     setIsSubmitting(true);
     try {
       const response = await fetch(
-        `/api/summarize?url=${url}&format=${formats.join(",")}&lang=${lang}`,
+        `/api/summarize?url=${url}&format=${formats.join(",")}&lang=${lang}&title=${encodeURIComponent(videoTitle)}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
