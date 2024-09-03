@@ -242,9 +242,9 @@ export const getServerSideProps: GetServerSideProps = async ({
         transcript,
         video_id,
         format,
+        title,
         videos (
           id,
-          title,
           thumbnail_url
         )
       `,
@@ -265,11 +265,11 @@ export const getServerSideProps: GetServerSideProps = async ({
       props: {
         dict,
         initialSummaries: summaries
-          ? (summaries as SummaryFromDB[]).map((summary) => ({
+          ? (summaries as any[]).map((summary) => ({
               content: summary.content,
               transcript: summary.transcript,
               videoId: summary.video_id,
-              title: summary.videos[0]?.title || dict.summary.defaultTitle,
+              title: summary.title || dict.summary.defaultTitle,
               thumbnailUrl: summary.videos[0]?.thumbnail_url || "",
               format: summary.format,
             }))
