@@ -53,17 +53,19 @@ export default async function handler(req: NextRequest) {
     }
 
     // Cambiar esta parte para manejar tanto GET como POST
-    let videoUrl, summaryFormat, language;
+    let videoUrl, summaryFormat, language, videoTitle;
     if (req.method === 'GET') {
       const url = new URL(req.url);
       videoUrl = url.searchParams.get('url');
       summaryFormat = url.searchParams.get('format');
       language = url.searchParams.get('lang') || i18n.defaultLocale;
+      videoTitle = url.searchParams.get('title');
     } else if (req.method === 'POST') {
       const body = await req.json();
       videoUrl = body.videoUrl;
       summaryFormat = body.summaryFormat;
       language = body.language || i18n.defaultLocale;
+      videoTitle = body.videoTitle;
     } else {
       return createErrorResponse(
         "Método no permitido",
@@ -187,6 +189,7 @@ export default async function handler(req: NextRequest) {
       transcript: transcript || "",
       user_id: user.id,
       format: summaryFormat,
+      title: videoTitle, // Añadir el título aquí
     };
 
     logger.info(

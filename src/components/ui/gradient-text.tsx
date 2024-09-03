@@ -1,6 +1,14 @@
-import React from 'react';
-import { motion, useInView, useAnimationControls } from 'framer-motion';
-import { TextGenerateEffect } from './text-generate-effect';
+import React, { useState, useEffect } from "react";
+import {
+  motion,
+  useInView,
+  useAnimation,
+  useMotionValue,
+  useSpring,
+  useMotionValueEvent,
+  animate,
+} from "framer-motion";
+import { TextGenerateEffect } from "./text-generate-effect";
 import { cn } from "@/lib/utils";
 
 interface GradientTextProps {
@@ -11,38 +19,74 @@ interface GradientTextProps {
   useTextGenerate?: boolean;
 }
 
-export const GradientText: React.FC<GradientTextProps> = ({ 
-  children, 
-  className = '',
-  gradientClassName = 'from-secondary to-secondary-foreground',
+export const GradientText: React.FC<GradientTextProps> = ({
+  children,
+  className = "",
+  gradientClassName = "from-secondary-foreground to-secondary",
   seoText,
-  useTextGenerate = false
+  useTextGenerate = false,
 }) => {
-  const ref = React.useRef(null);
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const hitboxRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
-  const controls = useAnimationControls();
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
+  const controls = useAnimation();
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      if (hitboxRef.current) {
+        const rect = hitboxRef.current.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        setMousePosition({
+          x: (x / rect.width) * 100,
+          y: (y / rect.height) * 100,
+        });
+      }
+    };
+
+    const handleMouseLeave = () => {
+      setMousePosition({ x: 50, y: 50 });
+    };
+
+    const hitboxElement = hitboxRef.current;
+    if (hitboxElement) {
+      hitboxElement.addEventListener("mousemove", handleMouseMove);
+      hitboxElement.addEventListener("mouseleave", handleMouseLeave);
+      return () => {
+        hitboxElement.removeEventListener("mousemove", handleMouseMove);
+        hitboxElement.removeEventListener("mouseleave", handleMouseLeave);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
     if (isInView) {
       controls.start({
-        backgroundSize: ['200% 100%', '100% 100%', '200% 100%', '100% 100%'],
-        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%', '0% 50%'],
-        transition: {
-          duration: 2,
-          ease: 'easeInOut',
-        },
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.5 },
       });
     }
-  }, [isInView]);
+  }, [isInView, controls]);
+
+  const x = useMotionValue(0);
+  const animateX = useSpring(x, { stiffness: 400, damping: 80 });
+
+  useMotionValueEvent(animateX, "change", (latest) => {
+    setMousePosition({ x: latest, y: 0 });
+  });
+
+  const handleViewportEnter = () => {
+    animate(x, 100, { duration: 1 });
+  };
 
   const renderChildren = () => {
-    if (useTextGenerate && typeof children === 'string') {
-      return (
-        <TextGenerateEffect words={children} className="inline" inheritStyles={true} />
-      );
+    if (useTextGenerate && typeof children === "string") {
+      return <span className="text-transparent">{children}</span>;
     } else if (React.isValidElement(children)) {
       return React.cloneElement(children, {
-        className: cn((children.props as any).className, 'text-transparent')
+        className: cn((children.props as any).className, "text-transparent"),
       } as any);
     } else {
       return children;
@@ -53,21 +97,27 @@ export const GradientText: React.FC<GradientTextProps> = ({
     <motion.span
       ref={ref}
       className={cn(
-        "relative inline-block bg-clip-text text-transparent bg-gradient-to-r",
-        className, gradientClassName
+        "relative inline-block bg-clip-text text-transparent",
+        className,
+        gradientClassName,
       )}
-      initial={{ backgroundSize: '200% 100%', backgroundPosition: '100% 50%', opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={controls}
-      whileInView={{ opacity: 1, y: 0 }}
-      style={{ 
-        backgroundSize: '200% 100%',
-        backgroundRepeat: 'no-repeat',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
+      style={{
+        backgroundImage: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 50%)`,
+        backgroundSize: "100% 100%",
+        backgroundRepeat: "no-repeat",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
       }}
-      viewport={{ once: true, amount: 0.5, margin: "0px 0px -50px 0px" }}
-      transition={{ duration: 0.8, delay: 0.2 }}
+      transition={{ duration: 0.3 }}
+      onViewportEnter={handleViewportEnter}
     >
+      <span
+        ref={hitboxRef}
+        className="absolute inset-0 -my-8 -mx-24 z-10"
+        aria-hidden="true"
+      />
       {seoText && <span className="sr-only">{seoText}</span>}
       {isInView ? renderChildren() : children}
     </motion.span>
