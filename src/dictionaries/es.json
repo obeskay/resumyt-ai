@@ -79,10 +79,14 @@
   },
   "summary": {
     "title": "Resumen del Video",
-    "loadingMessage": "Generando resumen...",
-    "errorMessage": "Error al generar el resumen. Por favor, intenta de nuevo.",
+    "pageTitle": "Resumen",
+    "summaryTitle": "Resumen del contenido",
+    "defaultTitle": "Título no disponible",
+    "videoIdLabel": "ID del video",
     "watchOnYoutube": "Ver en YouTube",
-    "videoIdLabel": "ID del video"
+    "backToHome": "Volver al inicio",
+    "notFound": "Resumen no encontrado",
+    "returnHome": "Volver a la página principal"
   },
   "auth": {
     "signIn": "Iniciar Sesión",

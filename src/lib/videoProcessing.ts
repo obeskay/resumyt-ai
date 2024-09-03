@@ -86,7 +86,20 @@ export async function processVideo(
       throw new SummaryGenerationError("Failed to generate summary: Summary is null or empty");
     }
 
-    await saveSummary(videoId, videoUrl, transcriptOrMetadata, summary, userId, summaryFormat);
+    const videoMetadata = await fetchVideoMetadata(videoId);
+    const videoTitle = videoMetadata.title;
+    const thumbnailUrl = videoMetadata.thumbnailUrl;
+
+    await saveSummary(
+      videoId,
+      videoUrl,
+      transcriptOrMetadata,
+      summary,
+      userId,
+      summaryFormat,
+      videoTitle,
+      thumbnailUrl
+    );
     console.log('Summary saved successfully');
 
     return { videoId, transcriptOrMetadata, summary };
@@ -183,8 +196,8 @@ export async function transcribeVideoWithFallback(videoId: string): Promise<stri
     console.log("Intentando obtener la transcripción para el video:", videoId);
     let transcript;
     try {
-      const transcriptArray = await retryOperation(() => YoutubeTranscript.fetchTranscript(videoId));
-      transcript = transcriptArray.map((item) => item.text).join(" ");
+      const transcriptArray:any = await retryOperation(() => YoutubeTranscript.fetchTranscript(videoId));
+      transcript = transcriptArray.map((item:any) => item.text).join(" ");
     } catch (ytError) {
       console.log("Error con YoutubeTranscript, intentando con la API de YouTube:", ytError);
       transcript = await fetchYouTubeSubtitles(videoId);
@@ -208,8 +221,12 @@ export async function transcribeVideoWithFallback(videoId: string): Promise<stri
     try {
       console.log("Intentando obtener metadatos del video");
       const metadata = await fetchVideoMetadata(videoId);
-      console.log("Metadatos obtenidos exitosamente, longitud:", metadata.length);
-      return metadata;
+      console.log("Metadatos obtenidos exitosamente:", {
+        title: metadata.title,
+        descriptionLength: metadata.description.length,
+        thumbnailUrl: metadata.thumbnailUrl
+      });
+      return `Title: ${metadata.title}\n\nDescription: ${metadata.description}`;
     } catch (metadataError) {
       console.error("Error al obtener los metadatos del video:", metadataError);
       try {
@@ -225,11 +242,11 @@ export async function transcribeVideoWithFallback(videoId: string): Promise<stri
   }
 }
 
-async function fetchVideoMetadata(videoId: string): Promise<string> {
+async function fetchVideoMetadata(videoId: string): Promise<{ title: string; thumbnailUrl: string; description: string }> {
   // Check cache first
   if (transcriptCache[videoId] && (Date.now() - transcriptCache[videoId].timestamp) < CACHE_EXPIRATION) {
     console.log('Metadata found in cache for video ID:', videoId);
-    return transcriptCache[videoId].data;
+    return transcriptCache[videoId].data as any;
   }
 
   try {
@@ -255,11 +272,19 @@ async function fetchVideoMetadata(videoId: string): Promise<string> {
     }
 
     const videoData = response.data.items[0].snippet;
-    const metadata = `Title: ${videoData.title}\n\nDescription: ${videoData.description}`;
-    console.log("Metadata fetched successfully, length:", metadata.length);
+    const metadata = {
+      title: videoData.title,
+      description: videoData.description,
+      thumbnailUrl: videoData.thumbnails.default.url
+    };
+    console.log("Metadata fetched successfully:", {
+      title: metadata.title,
+      descriptionLength: metadata.description.length,
+      thumbnailUrl: metadata.thumbnailUrl
+    });
     
     // Cache the metadata
-    transcriptCache[videoId] = { data: metadata, timestamp: Date.now() };
+    transcriptCache[videoId] = { data: metadata as any, timestamp: Date.now() };
     
     return metadata;
   } catch (error) {
@@ -361,13 +386,21 @@ async function saveSummary(
   transcriptOrMetadata: string,
   content: string,
   userId: string,
-  summaryFormat: 'bullet-points' | 'paragraph' | 'page'
+  summaryFormat: 'bullet-points' | 'paragraph' | 'page',
+  videoTitle: string,
+  thumbnailUrl: string
 ): Promise<void> {
   const supabase = createClient();
   try {
     console.log("Saving summary for video ID:", videoId);
     // Ensure the video exists in the database
-    const dbVideoId = await ensureVideoExists(supabase, videoUrl, userId);
+    const dbVideoId = await ensureVideoExists(
+      supabase,
+      videoUrl,
+      userId,
+      videoTitle,
+      thumbnailUrl
+    );
     console.log("Video ensured in database, ID:", dbVideoId);
 
     const { error } = await supabase.from("summaries").upsert(

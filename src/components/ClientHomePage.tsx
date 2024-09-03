@@ -44,7 +44,7 @@ const ErrorFallback: React.FC<{
 }> = ({ error, dict }) => (
   <div className="container mx-auto p-4">
     <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center text-red-600">
-      {dict.home.error.somethingWentWrong}
+      {dict.home?.error?.somethingWentWrong ?? "Something went wrong"}
     </h1>
     <pre className="bg-red-100 border border-red-400 text-red-700 p-4 rounded-lg overflow-auto">
       {error.message}
@@ -60,34 +60,36 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (url: string, format: string) => {
+  const handleSubmit = async (
+    url: string,
+    formats: string[],
+    videoTitle: string,
+  ) => {
     setIsSubmitting(true);
-    fetch(`/api/summarize?url=${url}&format=${format}&lang=${lang}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.videoId) {
-          router.push(`/${lang}/summary/${data.videoId}`);
-        } else {
-          throw new Error("No se recibió un videoId válido");
-        }
-      })
-      .catch((error) => {
-        console.error("Error al resumir el video:", error);
-        toast({
-          title: "Error",
-          description:
-            "Hubo un problema al resumir el video. Por favor, inténtelo de nuevo.",
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setIsSubmitting(false);
+    try {
+      const response = await fetch(
+        `/api/summarize?url=${url}&format=${formats.join(",")}&lang=${lang}`,
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.videoId) {
+        router.push(`/${lang}/summary/${data.videoId}`);
+      } else {
+        throw new Error("No se recibió un videoId válido");
+      }
+    } catch (error) {
+      console.error("Error al resumir el video:", error);
+      toast({
+        title: "Error",
+        description:
+          "Hubo un problema al resumir el video. Por favor, inténtelo de nuevo.",
+        variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -167,57 +169,101 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
 
   const features = [
     {
-      title: dict.home.features.quickSummaries,
-      description: dict.home.features.quickSummariesDesc,
       icon: <IconClipboard className="h-12 w-12 text-primary" />,
+      title: dict.home?.features?.quickSummaries ?? "Quick Summaries",
+      description:
+        dict.home?.features?.quickSummariesDesc ??
+        "Get concise summaries of YouTube videos in seconds.",
     },
     {
-      title: dict.home.features.timeSaving,
-      description: dict.home.features.timeSavingDesc,
       icon: <IconRocket className="h-12 w-12 text-primary" />,
+      title: dict.home?.features?.timeSaving ?? "Time Saving",
+      description:
+        dict.home?.features?.timeSavingDesc ??
+        "Save hours of watching time with our efficient summaries.",
     },
     {
-      title: dict.home.features.acceleratedLearning,
-      description: dict.home.features.acceleratedLearningDesc,
       icon: <IconBrain className="h-12 w-12 text-primary" />,
+      title: dict.home?.features?.acceleratedLearning ?? "Accelerated Learning",
+      description:
+        dict.home?.features?.acceleratedLearningDesc ??
+        "Absorb information faster with our summarized content.",
     },
     {
-      title: dict.home.features.forEveryone,
-      description: dict.home.features.forEveryoneDesc,
       icon: <IconUsers className="h-12 w-12 text-primary" />,
+      title: dict.home?.features?.forEveryone ?? "For Everyone",
+      description:
+        dict.home?.features?.forEveryoneDesc ??
+        "Suitable for students, professionals, and curious minds alike.",
     },
     {
-      title: dict.home.features.diverseContent,
-      description: dict.home.features.diverseContentDesc,
       icon: <IconYoutube className="h-12 w-12 text-primary" />,
+      title: dict.home?.features?.diverseContent ?? "Diverse Content",
+      description:
+        dict.home?.features?.diverseContentDesc ??
+        "Summarize a wide range of YouTube content, from lectures to documentaries.",
     },
     {
-      title: dict.home.features.valuableInsights,
-      description: dict.home.features.valuableInsightsDesc,
       icon: <IconLightbulb className="h-12 w-12 text-primary" />,
+      title: dict.home?.features?.valuableInsights ?? "Valuable Insights",
+      description:
+        dict.home?.features?.valuableInsightsDesc ??
+        "Extract key points and insights from any video.",
+    },
+  ];
+
+  const howItWorks = [
+    {
+      step: "1",
+      title: dict.home?.howItWorks?.step1 ?? "Paste the URL",
+      description:
+        dict.home?.howItWorks?.step1Desc ??
+        "Simply copy and paste the URL of the YouTube video you want to summarize.",
+    },
+    {
+      step: "2",
+      title: dict.home?.howItWorks?.step2 ?? "Choose the format",
+      description:
+        dict.home?.howItWorks?.step2Desc ??
+        "Select between key points, paragraph, or full page.",
+    },
+    {
+      step: "3",
+      title: dict.home?.howItWorks?.step3 ?? "Get your summary",
+      description:
+        dict.home?.howItWorks?.step3Desc ??
+        "In seconds, receive a concise and accurate summary of the video content.",
     },
   ];
 
   const testimonials = [
     {
-      quote: dict.home.testimonials.quote1,
-      name: dict.home.testimonials.name1,
-      title: dict.home.testimonials.title1,
+      quote:
+        dict.home?.testimonials?.quote1 ??
+        "Resumyt has saved me hours of time watching long videos. Now I can get the key information in minutes.",
+      name: dict.home?.testimonials?.name1 ?? "Mary G.",
+      title: dict.home?.testimonials?.title1 ?? "University student",
     },
     {
-      quote: dict.home.testimonials.quote2,
-      name: dict.home.testimonials.name2,
-      title: dict.home.testimonials.title2,
+      quote:
+        dict.home?.testimonials?.quote2 ??
+        "Amazing for preparing presentations. Resumyt extracts the key points I need to create impactful content.",
+      name: dict.home?.testimonials?.name2 ?? "James M.",
+      title: dict.home?.testimonials?.title2 ?? "Marketing manager",
     },
     {
-      quote: dict.home.testimonials.quote3,
-      name: dict.home.testimonials.name3,
-      title: dict.home.testimonials.title3,
+      quote:
+        dict.home?.testimonials?.quote3 ??
+        "Thanks to Resumyt, I can keep up with the latest programming tutorials without spending hours watching videos.",
+      name: dict.home?.testimonials?.name3 ?? "Anna L.",
+      title: dict.home?.testimonials?.title3 ?? "Software developer",
     },
     {
-      quote: dict.home.testimonials.quote4,
-      name: dict.home.testimonials.name4,
-      title: dict.home.testimonials.title4,
+      quote:
+        dict.home?.testimonials?.quote4 ??
+        "Resumyt is an essential tool for anyone who wants to learn quickly. Now I can absorb information more efficiently.",
+      name: dict.home?.testimonials?.name4 ?? "Charles V.",
+      title: dict.home?.testimonials?.title4 ?? "University student",
     },
   ];
 
@@ -228,27 +274,46 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
       )}
     >
       <Head>
-        <title>{dict.home.title}</title>
-        <meta name="description" content={dict.home.metaDescription} />
-        <meta name="keywords" content={dict.home.keywords} />
+        <title>
+          {dict.home?.title ?? "YouTube Video Summaries in Seconds"}
+        </title>
+        <meta
+          name="description"
+          content={
+            dict.home?.metaDescription ??
+            "Save time and learn faster with intelligent video summaries"
+          }
+        />
+        <meta
+          name="keywords"
+          content={
+            dict.home?.keywords ??
+            "YouTube, summaries, video, summarization, learning, education, time-saving"
+          }
+        />
         <link rel="canonical" href={`https://www.resumyt.com/${lang}`} />
       </Head>
       <NextSeo
-        title={dict.home?.title}
-        description={dict.home?.metaDescription}
+        title={dict.home?.title ?? "YouTube Video Summaries in Seconds"}
+        description={
+          dict.home?.metaDescription ??
+          "Save time and learn faster with intelligent video summaries"
+        }
         openGraph={{
           type: "website",
           locale: lang === "es" ? "es_ES" : "en_US",
           url: `https://www.resumyt.com/${lang}`,
           site_name: "Resumyt",
-          title: dict.home?.title,
-          description: dict.home?.metaDescription,
+          title: dict.home?.title ?? "YouTube Video Summaries in Seconds",
+          description:
+            dict.home?.metaDescription ??
+            "Save time and learn faster with intelligent video summaries",
           images: [
             {
               url: "https://www.resumyt.com/og-image.jpg",
               width: 1200,
               height: 630,
-              alt: dict.home?.title,
+              alt: dict.home?.title ?? "YouTube Video Summaries in Seconds",
             },
           ],
         }}
@@ -265,34 +330,44 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
           mainEntity: [
             {
               "@type": "Question",
-              name: dict.home?.faq?.q1,
+              name: dict.home?.faq?.q1 ?? "What is Resumyt?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: dict.home?.faq?.a1,
+                text:
+                  dict.home?.faq?.a1 ??
+                  "Resumyt is a platform that provides concise and accurate summaries of YouTube videos in seconds.",
               },
             },
             {
               "@type": "Question",
-              name: dict.home?.faq?.q2,
+              name: dict.home?.faq?.q2 ?? "How does Resumyt work?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: dict.home?.faq?.a2,
+                text:
+                  dict.home?.faq?.a2 ??
+                  "Resumyt uses advanced AI technology to analyze and summarize YouTube videos. It extracts key points, paragraphs, or full summaries based on your preferences.",
               },
             },
             {
               "@type": "Question",
-              name: dict.home?.faq?.q3,
+              name: dict.home?.faq?.q3 ?? "Is Resumyt free to use?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: dict.home?.faq?.a3,
+                text:
+                  dict.home?.faq?.a3 ??
+                  "Yes, Resumyt offers a free tier with limited usage. For unlimited access and additional features, you can upgrade to a premium plan.",
               },
             },
             {
               "@type": "Question",
-              name: dict.home?.faq?.q4,
+              name:
+                dict.home?.faq?.q4 ??
+                "Can I use Resumyt for educational purposes?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: dict.home?.faq?.a4,
+                text:
+                  dict.home?.faq?.a4 ??
+                  "Absolutely! Resumyt is an excellent tool for students, researchers, and educators to save time and learn faster from YouTube videos.",
               },
             },
           ],
@@ -326,7 +401,9 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.8 }}
                 >
-                  <GradientText>{dict.home?.title}</GradientText>
+                  <GradientText>
+                    {dict.home?.title ?? "YouTube Video Summaries in Seconds"}
+                  </GradientText>
                 </motion.h1>
                 <motion.div
                   className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto"
@@ -334,8 +411,16 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4, duration: 0.8 }}
                 >
-                  <TextGenerateEffect words={dict.home?.subtitle} />
-                  <span className="hidden">{dict.home?.metaDescription}</span>
+                  <TextGenerateEffect
+                    words={
+                      dict.home?.subtitle ??
+                      "Save time and learn faster with intelligent video summaries"
+                    }
+                  />
+                  <span className="hidden">
+                    {dict.home?.metaDescription ??
+                      "Save time and learn faster with intelligent video summaries"}
+                  </span>
                 </motion.div>
 
                 {/* Video Input Section */}
@@ -354,17 +439,14 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                   )}
                   <VideoInput
                     userId={user?.id || ""}
-                    isLoading={loading || isSubmitting}
                     quotaRemaining={user?.quota_remaining || 0}
-                    onSubmit={(url, format: any) => {
-                      handleSubmit(url, format);
-                    }}
+                    onSubmit={handleSubmit}
                     dict={dict}
                     lang={lang}
                   />
                   <p className="text-sm text-muted-foreground text-center">
                     <TextGenerateEffect
-                      words={`${dict.home?.remainingQuota}: ${user?.quota_remaining || 0}`}
+                      words={`${dict.home?.remainingQuota ?? "Remaining quota"}: ${user?.quota_remaining || 0}`}
                     />
                   </p>
                 </motion.div>
@@ -409,26 +491,12 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold text-center mb-10">
-                  <GradientText>{dict.home.howItWorks.title}</GradientText>
+                  <GradientText>
+                    {dict.home?.howItWorks?.title ?? "How It Works"}
+                  </GradientText>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {[
-                    {
-                      step: "1",
-                      title: dict.home.howItWorks.step1,
-                      description: dict.home.howItWorks.step1Desc,
-                    },
-                    {
-                      step: "2",
-                      title: dict.home.howItWorks.step2,
-                      description: dict.home.howItWorks.step2Desc,
-                    },
-                    {
-                      step: "3",
-                      title: dict.home.howItWorks.step3,
-                      description: dict.home.howItWorks.step3Desc,
-                    },
-                  ].map((item, index) => (
+                  {howItWorks.map((item, index) => (
                     <motion.div
                       key={index}
                       className="p-8 rounded-lg bg-card"
@@ -468,7 +536,9 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold text-center mb-10">
-                  <GradientText>{dict.home.testimonials.title}</GradientText>
+                  <GradientText>
+                    {dict.home?.testimonials?.title ?? "Testimonials"}
+                  </GradientText>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {testimonials.map((testimonial, index) => (
@@ -503,13 +573,20 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl font-bold mb-6">
-                  <GradientText>{dict.home.cta.title}</GradientText>
+                  <GradientText>
+                    {dict.home?.cta?.title ?? "Ready to Get Started?"}
+                  </GradientText>
                 </h2>
                 <p className="text-xl text-muted-foreground mb-8">
-                  <TextGenerateEffect words={dict.home.cta.description} />
+                  <TextGenerateEffect
+                    words={
+                      dict.home?.cta?.description ??
+                      "Join thousands of satisfied users and start summarizing your videos today."
+                    }
+                  />
                 </p>
                 <Button size="lg" className="text-lg px-8 py-4">
-                  {dict.home.cta.button}
+                  {dict.home?.cta?.button ?? "Get Started"}
                 </Button>
               </motion.section>
 
@@ -523,15 +600,41 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
               >
                 <h2 className="text-4xl font-bold text-center mb-10">
                   <GradientText>
-                    <TextGenerateEffect words={dict.home.faq.title} />
+                    <TextGenerateEffect
+                      words={
+                        dict.home?.faq?.title ?? "Frequently Asked Questions"
+                      }
+                    />
                   </GradientText>
                 </h2>
                 <div className="space-y-8 max-w-3xl mx-auto">
                   {[
-                    { q: dict.home.faq.q1, a: dict.home.faq.a1 },
-                    { q: dict.home.faq.q2, a: dict.home.faq.a2 },
-                    { q: dict.home.faq.q3, a: dict.home.faq.a3 },
-                    { q: dict.home.faq.q4, a: dict.home.faq.a4 },
+                    {
+                      q: dict.home?.faq?.q1 ?? "What is Resumyt?",
+                      a:
+                        dict.home?.faq?.a1 ??
+                        "Resumyt is a platform that provides concise and accurate summaries of YouTube videos in seconds.",
+                    },
+                    {
+                      q: dict.home?.faq?.q2 ?? "How does Resumyt work?",
+                      a:
+                        dict.home?.faq?.a2 ??
+                        "Resumyt uses advanced AI technology to analyze and summarize YouTube videos. It extracts key points, paragraphs, or full summaries based on your preferences.",
+                    },
+                    {
+                      q: dict.home?.faq?.q3 ?? "Is Resumyt free to use?",
+                      a:
+                        dict.home?.faq?.a3 ??
+                        "Yes, Resumyt offers a free tier with limited usage. For unlimited access and additional features, you can upgrade to a premium plan.",
+                    },
+                    {
+                      q:
+                        dict.home?.faq?.q4 ??
+                        "Can I use Resumyt for educational purposes?",
+                      a:
+                        dict.home?.faq?.a4 ??
+                        "Absolutely! Resumyt is an excellent tool for students, researchers, and educators to save time and learn faster from YouTube videos.",
+                    },
                   ].map((item, index) => (
                     <motion.div
                       key={index}

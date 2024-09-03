@@ -4,8 +4,8 @@ import { GetServerSideProps } from "next";
 import { getDictionary } from "@/lib/getDictionary";
 import { Locale, i18n } from "@/i18n-config";
 import { getSupabase } from "@/lib/supabase";
-import SummaryDisplay from "@/components/SummaryDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
+import SummaryDisplay from "@/components/SummaryDisplay";
 import Head from "next/head";
 import { NextSeo } from "next-seo";
 import MainLayout from "@/components/MainLayout";
@@ -16,6 +16,21 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import YouTubeThumbnail from "@/components/YouTubeThumbnail";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface Video {
+  id: string;
+  title: string;
+  thumbnail_url: string;
+}
+
+interface SummaryFromDB {
+  content: string;
+  transcript: string;
+  video_id: string;
+  format: string;
+  videos: Video[];
+}
 
 interface Summary {
   content: string;
@@ -70,28 +85,6 @@ export default function SummaryPage({
 
   return (
     <MainLayout>
-      <AnimatePresence>
-        {selectedSummary?.videoId && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed w-screen h-screen inset-0 bg-cover bg-center z-[0] pointer-events-none"
-          >
-            <motion.div
-              initial={{ scale: 1.1 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 1.1 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 bg-cover bg-center blur-sm"
-              style={{
-                backgroundImage: `url(https://img.youtube.com/vi/${selectedSummary?.videoId}/mqdefault.jpg)`,
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
       <Head>
         <title>{dict.summary.title}</title>
         <meta name="description" content={dict.summary.metaDescription} />
@@ -102,7 +95,7 @@ export default function SummaryPage({
         openGraph={{
           title: dict.summary.title,
           description: dict.summary.metaDescription,
-          url: `https://www.resumyt.com/${router.query.lang}/summary/${router.query.id}`,
+          url: `https://www.resumyt.com/${lang}/summary/${id}`,
           type: "article",
         }}
       />
@@ -115,11 +108,11 @@ export default function SummaryPage({
             transition={{ duration: 0.5 }}
             className="w-full max-w-3xl mx-auto sm:bg-background/90 sm:backdrop-blur-md sm:rounded-2xl sm:shadow-xl sm:overflow-hidden"
           >
-            <header className="py-4 border-b border-border flex justify-between items-center">
+            <header className="py-4 border-b border-border flex justify-between items-center px-6">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push("/")}
+                onClick={() => router.push(`/${lang}`)}
                 className="text-foreground hover:text-primary transition-colors"
               >
                 <ArrowLeftIcon className="mr-2 h-4 w-4" />
@@ -131,40 +124,38 @@ export default function SummaryPage({
             </header>
 
             {isLoading ? (
-              <div className="space-y-4">
-                <Skeleton className="w-full h-64 mb-4" />
+              <div className="space-y-4 p-6">
+                <Skeleton className="w-full h-48 mb-4" />
                 <Skeleton className="w-3/4 h-8 mb-2" />
                 <Skeleton className="w-1/2 h-6" />
               </div>
             ) : !selectedSummary ? (
-              <>
-                <div className="text-center text-foreground">
-                  <p className="text-xl">{dict.summary.notFound}</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push("/")}
-                    className="mt-4"
-                  >
-                    {dict.summary.returnHome}
-                  </Button>
-                </div>
-              </>
+              <div className="text-center text-foreground p-6">
+                <p className="text-xl">{dict.summary.notFound}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push(`/${lang}`)}
+                  className="mt-4"
+                >
+                  {dict.summary.returnHome}
+                </Button>
+              </div>
             ) : (
               <div className="p-6 space-y-4">
-                <div className="flex flex-col lg:flex-row items-start space-y-4 lg:space-y-0 lg:space-x-6 mb-6">
-                  {selectedSummary.videoId && (
-                    <div className="w-full lg:w-1/3 relative group">
-                      <YouTubeThumbnail
-                        src={`https://img.youtube.com/vi/${selectedSummary.videoId}/mqdefault.jpg`}
-                        alt={selectedSummary.title}
-                        layoutId="video-thumbnail"
-                      />
-                    </div>
-                  )}
+                <div className="flex items-start space-x-6 mb-6">
+                  <div className="w-1/3">
+                    <YouTubeThumbnail
+                      src={`https://img.youtube.com/vi/${selectedSummary.videoId}/mqdefault.jpg`}
+                      alt={selectedSummary.title || dict.summary.defaultTitle}
+                      layoutId="video-thumbnail"
+                    />
+                  </div>
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-2">
-                      <GradientText>{selectedSummary.title}</GradientText>
+                      <GradientText>
+                        {selectedSummary.title || dict.summary.defaultTitle}
+                      </GradientText>
                     </h2>
                     <p className="text-sm text-muted-foreground mb-3">
                       <TextGenerateEffect
@@ -203,12 +194,14 @@ export default function SummaryPage({
                   </div>
                 )}
 
-                {selectedSummary && (
-                  <SummaryDisplay
-                    summary={selectedSummary.content}
-                    className="text-lg leading-relaxed gap-y-8 flex flex-col"
-                  />
-                )}
+                <div className="mt-4">
+                  <h2 className="text-xl font-semibold mb-2">
+                    {dict.summary.summaryTitle}
+                  </h2>
+                  <ScrollArea className="h-[300px] p-4 rounded-md border">
+                    <SummaryDisplay summary={selectedSummary.content} />
+                  </ScrollArea>
+                </div>
               </div>
             )}
           </motion.div>
@@ -244,7 +237,17 @@ export const getServerSideProps: GetServerSideProps = async ({
     const { data: summaries, error } = await supabase
       .from("summaries")
       .select(
-        "content, transcript, video_id, title, format, videos(thumbnail_url)",
+        `
+        content,
+        transcript,
+        video_id,
+        format,
+        videos (
+          id,
+          title,
+          thumbnail_url
+        )
+      `,
       )
       .eq("video_id", id);
 
@@ -262,12 +265,12 @@ export const getServerSideProps: GetServerSideProps = async ({
       props: {
         dict,
         initialSummaries: summaries
-          ? summaries.map((summary) => ({
+          ? (summaries as SummaryFromDB[]).map((summary) => ({
               content: summary.content,
               transcript: summary.transcript,
               videoId: summary.video_id,
-              title: summary.title,
-              thumbnailUrl: summary?.videos?.[0]?.thumbnail_url || "",
+              title: summary.videos[0]?.title || dict.summary.defaultTitle,
+              thumbnailUrl: summary.videos[0]?.thumbnail_url || "",
               format: summary.format,
             }))
           : null,

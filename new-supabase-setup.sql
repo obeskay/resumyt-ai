@@ -41,7 +41,7 @@ CREATE TABLE public.anonymous_users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Crear tabla videos
+-- Modificar la tabla videos para incluir el título
 CREATE TABLE videos (
   id VARCHAR(255) PRIMARY KEY,
   url TEXT NOT NULL,

@@ -2,7 +2,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { useVideoStore } from "@/store/videoStore";
 import { useToast } from "@/components/ui/use-toast";
-import LoadingIndicator from "@/components/LoadingIndicator";
 import { Input } from "./ui/input";
 import YouTubeThumbnail from "./YouTubeThumbnail";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,22 +15,33 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Dictionary } from "@/lib/getDictionary";
+import { getDictionary } from "@/lib/getDictionary";
 import { Locale } from "@/i18n-config";
 
 interface VideoInputProps {
   userId: string;
   quotaRemaining: number | null;
-  isLoading: boolean;
-  onSubmit: (url: string, formats: string[], videoTitle: string) => void;
+  onSubmit: (
+    url: string,
+    formats: string[],
+    videoTitle: string,
+  ) => Promise<void>;
   dict: {
-    formats: Dictionary["formats"];
+    formats: {
+      bulletPoints: string;
+      paragraph: string;
+      page: string;
+    };
     home: {
-      error: Dictionary["home"]["error"];
+      error: {
+        invalidUrl: string;
+        quotaExceeded: string;
+        noFormatSelected: string;
+      };
       inputPlaceholder: string;
       summarizeButton: string;
-      continueButton: string; // Añadido
-      formatQuestion: string; // Añadido
+      continueButton: string;
+      formatQuestion: string;
     };
   };
   lang: Locale;
@@ -40,7 +50,6 @@ interface VideoInputProps {
 const VideoInput: React.FC<VideoInputProps> = ({
   userId,
   quotaRemaining,
-  isLoading,
   onSubmit,
   dict,
   lang,
@@ -56,6 +65,8 @@ const VideoInput: React.FC<VideoInputProps> = ({
   const [selectedFormat, setSelectedFormat] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<"url" | "format">("url");
+  const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const formatOptions = [
     {
@@ -95,16 +106,6 @@ const VideoInput: React.FC<VideoInputProps> = ({
     return true;
   }, [videoUrl, quotaRemaining, selectedFormat, dict]);
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (await validateSubmission()) {
-        onSubmit(videoUrl, [selectedFormat!], videoTitle);
-      }
-    },
-    [validateSubmission, onSubmit, videoUrl, selectedFormat, videoTitle],
-  );
-
   const handleFormatChange = (format: string) => {
     setSelectedFormat(format);
   };
@@ -142,7 +143,6 @@ const VideoInput: React.FC<VideoInputProps> = ({
 
   return (
     <TooltipProvider>
-      {/* Envuelve todo el contenido en un componente que se renderiza solo en el cliente */}
       {typeof window !== "undefined" && (
         <div className="w-full space-y-6">
           <div className="p-6 sm:p-10 bg-card rounded-lg shadow-lg">
@@ -247,7 +247,14 @@ const VideoInput: React.FC<VideoInputProps> = ({
             </AnimatePresence>
           </div>
 
-          {userId && isLoading && <LoadingIndicator />}
+          {isLoading && (
+            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          )}
 
           {error && (
             <Alert variant="destructive">

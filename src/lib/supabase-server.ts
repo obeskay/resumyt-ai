@@ -20,17 +20,22 @@ function extractYouTubeId(url: string): string | null {
   return match && match[2].length === 11 ? match[2] : null;
 }
 
-export async function ensureVideoExists(supabase: ReturnType<typeof createClient>, videoUrl: string, userId: string) {
+export async function ensureVideoExists(supabase: ReturnType<typeof createClient>, videoUrl: string, userId: string, title: string, thumbnailUrl: string) {
   const videoId = extractYouTubeId(videoUrl);
   if (!videoId) {
     throw new Error('Invalid YouTube URL');
   }
 
-  // First, try to upsert the video
   const { error: upsertError } = await supabase
     .from('videos')
     .upsert(
-      { id: videoId, url: videoUrl, user_id: userId },
+      { 
+        id: videoId, 
+        url: videoUrl, 
+        user_id: userId,
+        title: title,
+        thumbnail_url: thumbnailUrl
+      },
       { onConflict: 'id' }
     );
 
@@ -39,10 +44,9 @@ export async function ensureVideoExists(supabase: ReturnType<typeof createClient
     throw upsertError;
   }
 
-  // Then, select the video to return its id
   const { data: video, error: selectError } = await supabase
     .from('videos')
-    .select('id')
+    .select('id, title')
     .eq('id', videoId)
     .single();
 
@@ -55,5 +59,5 @@ export async function ensureVideoExists(supabase: ReturnType<typeof createClient
     throw new Error('Failed to retrieve video record');
   }
 
-  return video.id;
+  return video;
 }

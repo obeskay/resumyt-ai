@@ -1,6 +1,20 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getSupabase } from '@/lib/supabase';
 
+interface Video {
+  id: string;
+  title: string;
+  thumbnail_url: string;
+}
+
+interface SummaryFromDB {
+  content: string;
+  transcript: string;
+  video_id: string;
+  format: string;
+  videos: Video[];
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método no permitido' });
@@ -21,9 +35,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         content, 
         transcript, 
         video_id, 
-        title,
         format,
-        videos (thumbnail_url)
+        videos (
+          id,
+          title,
+          thumbnail_url
+        )
       `)
       .eq("video_id", id);
 
@@ -36,12 +53,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'Resúmenes no encontrados' });
     }
 
-    const response = summaries.map((summary) => ({
+    const response = (summaries as SummaryFromDB[]).map((summary) => ({
       content: summary.content,
       transcript: summary.transcript,
       videoId: summary.video_id,
-      title: summary.title,
-      thumbnailUrl: summary?.videos?.[0]?.thumbnail_url || '',
+      title: summary.videos[0]?.title || 'Título no disponible',
+      thumbnailUrl: summary.videos[0]?.thumbnail_url || '',
       format: summary.format,
     }));
 
