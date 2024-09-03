@@ -19,7 +19,7 @@ export const RecentVideoThumbnails: React.FC<RecentVideoThumbnailsProps> = ({
   const thumbnailAlt = dict.recentVideos?.thumbnailAlt || "Video thumbnail";
 
   return (
-    <div className="h-[50vh] w-full flex flex-col items-center justify-center overflow-hidden">
+    <div className="h-[50vh] md:h-[50vh] w-full flex flex-col items-center justify-center overflow-hidden">
       <MovingCards items={videoIds} thumbnailAlt={thumbnailAlt} />
     </div>
   );
@@ -53,8 +53,18 @@ export const MovingCards = ({
 
       // Configurar la animación con una velocidad constante
       const scrollerWidth = scrollerRef.current.scrollWidth;
-      const animationDuration =
-        speed === "fast" ? 30 : speed === "normal" ? 60 : 120;
+      const isMobile = window.innerWidth < 768;
+      const animationDuration = isMobile
+        ? speed === "fast"
+          ? 7
+          : speed === "normal"
+            ? 15
+            : 30
+        : speed === "fast"
+          ? 15
+          : speed === "normal"
+            ? 30
+            : 60;
       scrollerRef.current.style.setProperty(
         "--animation-duration",
         `${animationDuration}s`,
@@ -69,11 +79,14 @@ export const MovingCards = ({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
+        initial={{ opacity: 0, scale: 1.25 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, ease: "easeInOut" }}
         ref={containerRef}
-        className={cn("relative z-20 w-full overflow-hidden", className)}
+        className={cn(
+          "relative z-20 w-full overflow-hidden pointer-events-none",
+          className,
+        )}
       >
         <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-background to-transparent z-10"></div>
         <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-background to-transparent z-10"></div>
@@ -87,7 +100,7 @@ export const MovingCards = ({
         >
           {items.map((videoId, idx) => (
             <li
-              className="w-[420px] max-w-full flex-shrink-0 rounded-xl overflow-hidden"
+              className="w-[210px] md:w-[420px] max-w-full flex-shrink-0 rounded-xl overflow-hidden"
               key={idx}
             >
               <YouTubeThumbnail

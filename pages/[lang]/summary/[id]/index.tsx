@@ -16,7 +16,6 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import YouTubeThumbnail from "@/components/YouTubeThumbnail";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Video {
   id: string;
@@ -194,14 +193,21 @@ export default function SummaryPage({
                   </div>
                 )}
 
-                <div className="mt-4">
-                  <h2 className="text-xl font-semibold mb-2">
-                    {dict.summary.summaryTitle}
-                  </h2>
-                  <ScrollArea className="h-[300px] p-4 rounded-md border">
+                <AnimatePresence>
+                  <motion.div
+                    key={selectedFormat}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="mt-4"
+                  >
+                    <h2 className="text-xl font-semibold mb-2">
+                      {dict.summary.summaryTitle}
+                    </h2>
                     <SummaryDisplay summary={selectedSummary.content} />
-                  </ScrollArea>
-                </div>
+                  </motion.div>
+                </AnimatePresence>
               </div>
             )}
           </motion.div>
