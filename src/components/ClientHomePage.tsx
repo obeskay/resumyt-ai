@@ -267,6 +267,26 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
     },
   ];
 
+  const FeatureCard = React.memo(
+    ({ feature, index }: { feature: any; index: number }) => (
+      <motion.div
+        className="p-6 rounded-lg bg-background"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.1 }}
+        viewport={{ once: true }}
+      >
+        {feature?.icon}
+        <h3 className="text-xl font-semibold mb-2 mt-4">
+          <TextGenerateEffect words={feature?.title} />
+        </h3>
+        <p className="text-muted-foreground">
+          <TextGenerateEffect words={feature?.description} />
+        </p>
+      </motion.div>
+    ),
+  );
+
   return (
     <ErrorBoundary
       FallbackComponent={({ error }) => (
@@ -461,24 +481,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                 viewport={{ once: true }}
               >
                 {features.map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    className="p-6 rounded-lg bg-background"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    {feature?.icon}
-                    <h3 className="text-xl font-semibold mb-2 mt-4">
-                      <TextGenerateEffect words={feature?.title} />
-                      <span className="hidden">{feature?.title}</span>
-                    </h3>
-                    <p className="text-muted-foreground">
-                      <TextGenerateEffect words={feature?.description} />
-                      <span className="hidden">{feature?.description}</span>
-                    </p>
-                  </motion.div>
+                  <FeatureCard key={index} feature={feature} index={index} />
                 ))}
               </motion.section>
 

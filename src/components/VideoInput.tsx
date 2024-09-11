@@ -209,6 +209,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
                           onClick={() => handleFormatChange(option.value)}
                           className="flex items-center space-x-2 min-w-[120px] min-h-[44px] rounded-full"
                           aria-label={`Seleccionar formato ${option.label}`}
+                          aria-pressed={selectedFormat === option.value}
                         >
                           {option.icon}
                           <span>{option.label}</span>

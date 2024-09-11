@@ -96,5 +96,13 @@
   "recentVideos": {
     "title": "Recent videos",
     "thumbnailAlt": "Video thumbnail"
+  },
+  "videoChat": {
+    "title": "Chat about",
+    "suggestedQuestions": "Suggested questions:",
+    "inputPlaceholder": "Ask a question about the video...",
+    "sendButton": "Send",
+    "loadingChat": "Loading chat...",
+    "error": "Error:"
   }
 }
