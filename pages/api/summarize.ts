@@ -235,31 +235,16 @@ export default async function handler(req: NextRequest) {
       },
     });
   } catch (error) {
-    logger.error("Error in summarize API:", error);
-
+    logger.error("Error detallado:", error);
     if (error instanceof VideoFetchError) {
-      return createErrorResponse("Failed to fetch video", error.message, 400);
+      return createErrorResponse("Error al obtener el video", error.message, 400);
     } else if (error instanceof TranscriptNotFoundError) {
-      return createErrorResponse(
-        "Failed to transcribe video",
-        error.message,
-        400
-      );
+      return createErrorResponse("Transcripción no encontrada", error.message, 404);
     } else if (error instanceof SummaryGenerationError) {
-      return createErrorResponse(
-        "Failed to generate summary",
-        error.message,
-        500
-      );
-    } else if (error instanceof DatabaseInsertError) {
-      return createErrorResponse("Failed to save data", error.message, 500);
-    } else if (error instanceof DatabaseUpdateError) {
-      return createErrorResponse("Failed to update data", error.message, 500);
-    } else if (error instanceof Error) {
-      return createErrorResponse("An unexpected error occurred", error.message);
+      return createErrorResponse("Error al generar el resumen", error.message, 500);
+    } else {
+      return createErrorResponse("Error inesperado", "Ocurrió un error interno", 500);
     }
-
-    return createErrorResponse("An unknown error occurred");
   } finally {
     logger.info("API route completed");
   }

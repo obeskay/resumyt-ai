@@ -16,6 +16,15 @@ import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import YouTubeThumbnail from "@/components/YouTubeThumbnail";
+import dynamic from "next/dynamic";
+
+const DynamicVideoChat = dynamic(
+  () => import("@/components/custom/VideoChat"),
+  {
+    loading: () => <p>Cargando chat...</p>,
+    ssr: false,
+  },
+);
 
 interface Video {
   id: string;
@@ -208,6 +217,22 @@ export default function SummaryPage({
                     <SummaryDisplay summary={selectedSummary.content} />
                   </motion.div>
                 </AnimatePresence>
+
+                {/* Añadimos el DynamicVideoChat aquí */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="mt-8"
+                >
+                  <DynamicVideoChat
+                    videoId={selectedSummary.videoId}
+                    videoTitle={
+                      selectedSummary.title || dict.summary.defaultTitle
+                    }
+                    language={lang as "es" | "en"}
+                  />
+                </motion.div>
               </div>
             )}
           </motion.div>

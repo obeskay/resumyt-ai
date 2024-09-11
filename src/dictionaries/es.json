@@ -100,5 +100,13 @@
   "recentVideos": {
     "title": "Videos recientes",
     "thumbnailAlt": "Miniatura del video"
+  },
+  "videoChat": {
+    "title": "Chat sobre",
+    "suggestedQuestions": "Preguntas sugeridas:",
+    "inputPlaceholder": "Haz una pregunta sobre el video...",
+    "sendButton": "Enviar",
+    "loadingChat": "Cargando chat...",
+    "error": "Error:"
   }
 }
