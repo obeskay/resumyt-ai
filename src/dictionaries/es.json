@@ -86,7 +86,9 @@
     "watchOnYoutube": "Ver en YouTube",
     "backToHome": "Volver al inicio",
     "notFound": "Resumen no encontrado",
-    "returnHome": "Volver a la página principal"
+    "returnHome": "Volver a la página principal",
+    "loadingMessage": "Generando resumen...",
+    "errorMessage": "Error al generar el resumen. Por favor, inténtalo de nuevo."
   },
   "auth": {
     "signIn": "Iniciar Sesión",

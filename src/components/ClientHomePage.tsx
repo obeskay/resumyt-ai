@@ -52,6 +52,7 @@ const ErrorFallback: React.FC<{
   </div>
 );
 
+/* eslint-disable react/display-name */
 const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
   const [user, setUser] = useState<AnonymousUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -165,7 +166,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
 
     initializeUser();
     fetchRecentVideos();
-  }, []);
+  }, [toast]);
 
   const features = [
     {
@@ -665,5 +666,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
     </ErrorBoundary>
   );
 };
+
+ClientHomePage.displayName = "ClientHomePage";
 
 export default ClientHomePage;

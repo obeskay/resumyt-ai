@@ -77,7 +77,8 @@ const VideoChat: React.FC<VideoChatProps> = ({
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">
-        {language === "es" ? "Chat sobre" : "Chat about"} "{videoTitle}"
+        {language === "es" ? "Chat sobre" : "Chat about"} &quot;{videoTitle}
+        &quot;
       </h2>
       <ScrollArea
         ref={chatContainerRef}
@@ -169,7 +170,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
             animate={{ opacity: 1 }}
             className="text-red-500 text-center bg-red-100 dark:bg-red-900 p-2 rounded-lg"
           >
-            Error: {error.message}
+            Error: {error?.toString() || "Algo salió mal"}
           </motion.div>
         )}
       </ScrollArea>

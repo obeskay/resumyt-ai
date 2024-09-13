@@ -11,7 +11,8 @@ const dictionaries = {
   // Agrega otros idiomas aquí
 };
 
-export type Dictionary = typeof es; // Asumiendo que 'es' tiene todas las claves necesarias
+// Update the Dictionary type to be a union of both es and en types
+export type Dictionary = typeof es | typeof en;
 
 export const getDictionary = async (locale: string): Promise<Dictionary> => {
   try {
