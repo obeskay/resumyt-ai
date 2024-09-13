@@ -79,10 +79,16 @@
   },
   "summary": {
     "title": "Video Summary",
-    "loadingMessage": "Generating summary...",
-    "errorMessage": "Error generating summary. Please try again.",
+    "pageTitle": "Summary",
+    "summaryTitle": "Content Summary",
+    "defaultTitle": "Title not available",
+    "videoIdLabel": "Video ID",
     "watchOnYoutube": "Watch on YouTube",
-    "videoIdLabel": "Video ID"
+    "backToHome": "Back to Home",
+    "notFound": "Summary not found",
+    "returnHome": "Return to Home Page",
+    "loadingMessage": "Generating summary...",
+    "errorMessage": "Error generating summary. Please try again."
   },
   "auth": {
     "signIn": "Sign In",
