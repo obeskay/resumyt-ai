@@ -132,13 +132,13 @@ export default function SummaryPage({
             </header>
 
             {isLoading ? (
-              <div className="space-y-4 p-6">
+              <div className="space-y-4 sm:p-6">
                 <Skeleton className="w-full h-48 mb-4" />
                 <Skeleton className="w-3/4 h-8 mb-2" />
                 <Skeleton className="w-1/2 h-6" />
               </div>
             ) : !selectedSummary ? (
-              <div className="text-center text-foreground p-6">
+              <div className="text-center text-foreground">
                 <p className="text-xl">{dict.summary.notFound}</p>
                 <Button
                   variant="outline"
@@ -150,7 +150,7 @@ export default function SummaryPage({
                 </Button>
               </div>
             ) : (
-              <div className="p-6 space-y-4">
+              <div className="sm:p-6 space-y-4">
                 <div className="flex items-start space-x-6 mb-6">
                   <div className="w-1/3">
                     <YouTubeThumbnail
@@ -171,9 +171,7 @@ export default function SummaryPage({
                       />
                     </p>
                     <Button
-                      variant="outline"
                       size="sm"
-                      className="bg-red-600 text-white border-red-600 hover:bg-red-700 transition-colors duration-300"
                       onClick={() =>
                         window.open(
                           `https://www.youtube.com/watch?v=${selectedSummary.videoId}`,
