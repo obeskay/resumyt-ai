@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useChat } from "ai/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { ScrollArea } from "../ui/scroll-area";
 import ReactMarkdown from "react-markdown";
-import { supabase } from "@/lib/supabaseClient"; // Asegúrate de tener este import
+import { getSupabase } from "@/lib/supabase";
+import { generateAndSaveSuggestedQuestions } from "@/lib/utils";
 
 interface VideoChatProps {
   videoId: string;
@@ -38,33 +39,53 @@ const VideoChat: React.FC<VideoChatProps> = ({
     body: { videoId, language },
   });
 
-  useEffect(() => {
-    const loadSuggestedQuestions = async () => {
-      setIsLoadingSuggestions(true);
-      try {
-        const { data, error } = await supabase
-          .from("summaries")
-          .select("suggested_questions")
-          .eq("video_id", videoId)
-          .single();
+  const loadOrGenerateSuggestedQuestions = useCallback(async () => {
+    setIsLoadingSuggestions(true);
+    try {
+      console.log("Cargando preguntas sugeridas para videoId:", videoId);
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("summaries")
+        .select("suggested_questions")
+        .eq("video_id", videoId)
+        .single();
 
-        if (error) throw error;
+      if (error) throw error;
 
-        if (data && data.suggested_questions) {
-          setSuggestedQuestions(data.suggested_questions);
-        } else {
-          setSuggestedQuestions([]);
-        }
-      } catch (error) {
-        console.error("Error loading suggested questions:", error);
-        setSuggestedQuestions([]);
-      } finally {
-        setIsLoadingSuggestions(false);
+      console.log("Datos recibidos de Supabase:", data);
+
+      if (
+        data &&
+        data.suggested_questions &&
+        data.suggested_questions.length > 0
+      ) {
+        console.log(
+          "Preguntas sugeridas encontradas:",
+          data.suggested_questions,
+        );
+        setSuggestedQuestions(data.suggested_questions);
+      } else {
+        console.log(
+          "No se encontraron preguntas sugeridas. Generando nuevas...",
+        );
+        const generatedQuestions = await generateAndSaveSuggestedQuestions(
+          videoId,
+          language,
+        );
+        console.log("Preguntas generadas:", generatedQuestions);
+        setSuggestedQuestions(generatedQuestions);
       }
-    };
+    } catch (error) {
+      console.error("Error loading or generating suggested questions:", error);
+      setSuggestedQuestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  }, [videoId, language]);
 
-    loadSuggestedQuestions();
-  }, [videoId]);
+  useEffect(() => {
+    loadOrGenerateSuggestedQuestions();
+  }, [loadOrGenerateSuggestedQuestions]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -76,7 +97,6 @@ const VideoChat: React.FC<VideoChatProps> = ({
   const handleSuggestedQuestion = (question: string) => {
     setInput(question);
     handleSubmit(new Event("submit") as any);
-    setSuggestedQuestions([]);
   };
 
   return (
@@ -125,11 +145,8 @@ const VideoChat: React.FC<VideoChatProps> = ({
                           {...props}
                         />
                       ),
-                      code: ({ node, inline, ...props }) => (
-                        <code
-                          className={`${inline ? "inline-code" : "block-code"} break-words`}
-                          {...props}
-                        />
+                      code: ({ node, ...props }) => (
+                        <code className={`block-code break-words`} {...props} />
                       ),
                     }}
                   >
@@ -145,35 +162,58 @@ const VideoChat: React.FC<VideoChatProps> = ({
               animate={{ opacity: 1 }}
               className="text-center"
             >
+              <p className="text-gray-500 mb-4">
+                {language === "es"
+                  ? "Generando preguntas sugeridas..."
+                  : "Generating suggested questions..."}
+              </p>
               <Skeleton className="h-8 w-3/4 mx-auto bg-primary/20" />
             </motion.div>
+          ) : suggestedQuestions.length > 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 space-y-4 w-full"
+            >
+              <p className="text-lg font-semibold text-center text-primary">
+                {language === "es"
+                  ? "Preguntas sugeridas:"
+                  : "Suggested questions:"}
+              </p>
+              <div className="flex flex-col gap-3">
+                {suggestedQuestions.map((question, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="lg"
+                    onClick={() => handleSuggestedQuestion(question)}
+                    className="text-lg font-medium py-6 hover:bg-primary hover:text-primary-foreground transition-all duration-300 whitespace-normal text-left h-auto"
+                  >
+                    <span className="line-clamp-2">{question}</span>
+                  </Button>
+                ))}
+              </div>
+            </motion.div>
           ) : (
-            suggestedQuestions.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 space-y-4 w-full"
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center"
+            >
+              <p className="text-gray-500 mb-4">
+                {language === "es"
+                  ? "No hay preguntas sugeridas disponibles."
+                  : "No suggested questions available."}
+              </p>
+              <Button
+                onClick={loadOrGenerateSuggestedQuestions}
+                className="bg-primary hover:bg-primary/80 text-primary-foreground"
               >
-                <p className="text-lg font-semibold text-center text-primary">
-                  {language === "es"
-                    ? "Preguntas sugeridas:"
-                    : "Suggested questions:"}
-                </p>
-                <div className="flex flex-col gap-3">
-                  {suggestedQuestions.map((question, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="lg"
-                      onClick={() => handleSuggestedQuestion(question)}
-                      className="text-lg font-medium py-6 hover:bg-primary hover:text-primary-foreground transition-all duration-300 whitespace-normal text-left h-auto"
-                    >
-                      <span className="line-clamp-2">{question}</span>
-                    </Button>
-                  ))}
-                </div>
-              </motion.div>
-            )
+                {language === "es"
+                  ? "Generar preguntas sugeridas"
+                  : "Generate suggested questions"}
+              </Button>
+            </motion.div>
           )}
           {isLoading && (
             <motion.div
