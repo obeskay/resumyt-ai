@@ -75,8 +75,8 @@ const VideoChat: React.FC<VideoChatProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">
+    <div className="space-y-4 max-w-full">
+      <h2 className="text-2xl font-bold break-words">
         {language === "es" ? "Chat sobre" : "Chat about"} &quot;{videoTitle}
         &quot;
       </h2>
@@ -84,95 +84,111 @@ const VideoChat: React.FC<VideoChatProps> = ({
         ref={chatContainerRef}
         className="border rounded-lg p-4 h-96 overflow-y-auto bg-gradient-to-b from-background to-background/50 backdrop-blur-sm"
       >
-        <AnimatePresence initial={false}>
-          {messages.map((message) => (
-            <motion.div
-              key={message.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className={`mb-4 ${
-                message.role === "user" ? "text-right" : "text-left"
-              }`}
-            >
-              <span
-                className={`inline-block p-3 rounded-lg ${
+        <div className="max-w-full">
+          <AnimatePresence initial={false}>
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className={`mb-4 ${
                   message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary/10 text-foreground dark:bg-secondary/10 dark:text-secondary-foreground"
-                } shadow-md`}
+                    ? "flex justify-end"
+                    : "flex justify-start"
+                }`}
               >
-                <ReactMarkdown
-                  components={{
-                    ul: ({ node, ...props }) => (
-                      <ul className="list-disc pl-4" {...props} />
-                    ),
-                    ol: ({ node, ...props }) => (
-                      <ol className="list-decimal pl-4" {...props} />
-                    ),
-                  }}
+                <div
+                  className={`p-3 rounded-lg ${
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary/10 text-foreground dark:bg-secondary/10 dark:text-secondary-foreground"
+                  } shadow-md max-w-[75%]`}
                 >
-                  {message.content}
-                </ReactMarkdown>
-              </span>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        {isLoadingSuggestions ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center"
-          >
-            <Skeleton className="h-8 w-3/4 mx-auto bg-primary/20" />
-          </motion.div>
-        ) : (
-          suggestedQuestions.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-4 space-y-4"
-            >
-              <p className="text-lg font-semibold text-center text-primary">
-                {language === "es"
-                  ? "Preguntas sugeridas:"
-                  : "Suggested questions:"}
-              </p>
-              <div className="flex flex-col gap-3">
-                {suggestedQuestions.map((question, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="lg"
-                    onClick={() => handleSuggestedQuestion(question)}
-                    className="text-lg font-medium py-6 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                  <ReactMarkdown
+                    components={{
+                      ul: ({ node, ...props }) => (
+                        <ul className="list-disc pl-4" {...props} />
+                      ),
+                      ol: ({ node, ...props }) => (
+                        <ol className="list-decimal pl-4" {...props} />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <p
+                          className="whitespace-pre-wrap break-words"
+                          {...props}
+                        />
+                      ),
+                      code: ({ node, inline, ...props }) => (
+                        <code
+                          className={`${inline ? "inline-code" : "block-code"} break-words`}
+                          {...props}
+                        />
+                      ),
+                    }}
                   >
-                    {question}
-                  </Button>
-                ))}
-              </div>
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {isLoadingSuggestions ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center"
+            >
+              <Skeleton className="h-8 w-3/4 mx-auto bg-primary/20" />
             </motion.div>
-          )
-        )}
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center"
-          >
-            <Skeleton className="h-4 w-3/4 mx-auto bg-primary/20" />
-          </motion.div>
-        )}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-red-500 text-center bg-red-100 dark:bg-red-900 p-2 rounded-lg"
-          >
-            Error: {error?.toString() || "Algo salió mal"}
-          </motion.div>
-        )}
+          ) : (
+            suggestedQuestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 space-y-4 w-full"
+              >
+                <p className="text-lg font-semibold text-center text-primary">
+                  {language === "es"
+                    ? "Preguntas sugeridas:"
+                    : "Suggested questions:"}
+                </p>
+                <div className="flex flex-col gap-3">
+                  {suggestedQuestions.map((question, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="lg"
+                      onClick={() => handleSuggestedQuestion(question)}
+                      className="text-lg font-medium py-6 hover:bg-primary hover:text-primary-foreground transition-all duration-300 whitespace-normal text-left h-auto"
+                    >
+                      <span className="line-clamp-2">{question}</span>
+                    </Button>
+                  ))}
+                </div>
+              </motion.div>
+            )
+          )}
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center"
+            >
+              <Skeleton className="h-4 w-3/4 mx-auto bg-primary/20" />
+            </motion.div>
+          )}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-red-500 text-center bg-red-100 dark:bg-red-900 p-2 rounded-lg"
+            >
+              Error: {error?.toString() || "Algo salió mal"}
+            </motion.div>
+          )}
+        </div>
       </ScrollArea>
       <form onSubmit={handleSubmit} className="flex space-x-2">
         <Input
@@ -189,7 +205,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
         <Button
           type="submit"
           disabled={isLoading}
-          className="bg-primary hover:bg-primary/80 text-primary-foreground transition-colors duration-200"
+          className="bg-primary hover:bg-primary/80 text-primary-foreground transition-colors duration-200 whitespace-nowrap"
         >
           {isLoading ? (
             <motion.div
