@@ -52,95 +52,53 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
     navigator.clipboard.writeText(summary).then(() => {
       setCopied(true);
       toast({
-        title: "Copiado al portapapeles",
-        description: "El resumen ha sido copiado exitosamente.",
+        title: "Copiado",
+        description: "El resumen ha sido copiado al portapapeles.",
       });
       setTimeout(() => setCopied(false), 2000);
     });
   };
 
-  const nextCard = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % paragraphs.length);
-  };
-
   const prevCard = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + paragraphs.length) % paragraphs.length,
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? paragraphs.length - 1 : prevIndex - 1,
     );
   };
 
-  const cardVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 300 : -300,
-      opacity: 0,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 300 : -300,
-      opacity: 0,
-    }),
+  const nextCard = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === paragraphs.length - 1 ? 0 : prevIndex + 1,
+    );
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className={cn("w-full max-w-3xl mx-auto", className)}
-    >
-      <Button onClick={copyToClipboard} className="mb-4" variant="outline">
-        <Copy className="mr-2 h-4 w-4" />
-        {copied ? "Copiado" : "Copiar resumen"}
-      </Button>
-      <div className="relative w-full h-[60vh] overflow-hidden">
-        <AnimatePresence initial={false} custom={currentIndex}>
+    <div className={cn("relative", className)}>
+      <div className="relative">
+        <AnimatePresence initial={false}>
           <motion.div
             key={currentIndex}
-            custom={currentIndex}
-            variants={cardVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
-            className="absolute w-full h-full"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="bg-card p-6 rounded-lg shadow-lg mb-6"
           >
-            <Card className="w-full h-full border-primary/20">
-              <CardContent className="p-6 h-full">
-                <ScrollArea className="h-full pr-4">
+            <Card>
+              <CardContent>
+                <ScrollArea className="h-64">
                   <ReactMarkdown
                     components={{
                       h1: ({ children }) => (
-                        <h1 className="scroll-m-20 text-5xl font-extrabold tracking-tight lg:text-6xl mb-6">
-                          {children}
-                        </h1>
+                        <h1 className="text-2xl font-bold">{children}</h1>
                       ),
                       h2: ({ children }) => (
-                        <h2 className="scroll-m-20 border-b pb-2 text-4xl font-semibold tracking-tight first:mt-0 mb-6">
-                          {children}
-                        </h2>
-                      ),
-                      h3: ({ children }) => (
-                        <h3 className="scroll-m-20 text-3xl font-semibold tracking-tight mb-4">
-                          {children}
-                        </h3>
+                        <h2 className="text-xl font-semibold">{children}</h2>
                       ),
                       p: ({ children }) => (
-                        <p className="text-xl leading-8 [&:not(:first-child)]:mt-8">
-                          {children}
-                        </p>
+                        <p className="text-base leading-relaxed">{children}</p>
                       ),
                       strong: ({ children }) => (
-                        <strong className="font-semibold text-primary text-2xl">
-                          {children}
-                        </strong>
+                        <strong className="font-semibold">{children}</strong>
                       ),
                       em: ({ children }) => (
                         <em className="italic text-muted-foreground text-xl">
@@ -185,7 +143,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
           <ChevronRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
