@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { ScrollArea } from "../ui/scroll-area";
 import ReactMarkdown from "react-markdown";
+import { supabase } from "@/lib/supabaseClient"; // Asegúrate de tener este import
 
 interface VideoChatProps {
   videoId: string;
@@ -39,27 +40,31 @@ const VideoChat: React.FC<VideoChatProps> = ({
 
   useEffect(() => {
     const loadSuggestedQuestions = async () => {
+      setIsLoadingSuggestions(true);
       try {
-        const response = await fetch("/api/chat-with-video", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ videoId, language, messages: [] }),
-        });
-        const data = await response.json();
-        if (Array.isArray(data.suggestedQuestions)) {
-          setSuggestedQuestions(data.suggestedQuestions);
+        const { data, error } = await supabase
+          .from("summaries")
+          .select("suggested_questions")
+          .eq("video_id", videoId)
+          .single();
+
+        if (error) throw error;
+
+        if (data && data.suggested_questions) {
+          setSuggestedQuestions(data.suggested_questions);
+        } else {
+          setSuggestedQuestions([]);
         }
       } catch (error) {
         console.error("Error loading suggested questions:", error);
+        setSuggestedQuestions([]);
       } finally {
         setIsLoadingSuggestions(false);
       }
     };
 
     loadSuggestedQuestions();
-  }, [videoId, language]);
+  }, [videoId]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
