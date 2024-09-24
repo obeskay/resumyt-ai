@@ -402,23 +402,27 @@ export async function generateSummary(
     }
 
     const prompt = `
-      Genera un resumen detallado del siguiente contenido de video. 
-      Utiliza la siguiente estructura Markdown:
+      Genera un resumen detallado y bien estructurado del siguiente contenido de video. 
+      Utiliza la siguiente estructura Markdown para mejorar la legibilidad:
 
-      # Título principal del video
+      # ${language === "es" ? "Título principal del video" : "Main title of the video"}
 
-      ## Introducción
-      [Breve introducción al tema del video]
+      ## ${language === "es" ? "Introducción" : "Introduction"}
+      [Breve introducción al tema del video, 2-3 frases]
 
-      ## Puntos clave
-      - Punto clave 1
-      - Punto clave 2
-      - Punto clave 3
+      ## ${language === "es" ? "Puntos clave" : "Key points"}
+      - **${language === "es" ? "Punto clave 1" : "Key point 1"}**: [Breve explicación]
+      - **${language === "es" ? "Punto clave 2" : "Key point 2"}**: [Breve explicación]
+      - **${language === "es" ? "Punto clave 3" : "Key point 3"}**: [Breve explicación]
 
-      ## Detalles importantes
-      [Desarrolla los puntos clave con más detalle]
+      ## ${language === "es" ? "Detalles importantes" : "Important details"}
+      ### ${language === "es" ? "Subtema 1" : "Subtopic 1"}
+      [Desarrolla el primer punto clave con más detalle, 2-3 frases]
 
-      ## Conclusión
+      ### ${language === "es" ? "Subtema 2" : "Subtopic 2"}
+      [Desarrolla el segundo punto clave con más detalle, 2-3 frases]
+
+      ## ${language === "es" ? "Conclusión" : "Conclusion"}
       [Resumen de las ideas principales y conclusión]
 
       Asegúrate de usar **negrita** para términos importantes y *cursiva* para énfasis.
