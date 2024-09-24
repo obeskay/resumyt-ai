@@ -9,10 +9,15 @@ import { YoutubeTranscript } from "youtube-transcript";
 import axios, { AxiosError } from "axios";
 
 // Simple in-memory cache for transcripts and metadata
-const transcriptCache: { [key: string]: { data: string, timestamp: number } } = {};
+const transcriptCache: { [key: string]: { data: string; timestamp: number } } =
+  {};
 const CACHE_EXPIRATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-async function retryOperation<T>(operation: () => Promise<T>, maxRetries = 3, delay = 1000): Promise<T> {
+async function retryOperation<T>(
+  operation: () => Promise<T>,
+  maxRetries = 3,
+  delay = 1000,
+): Promise<T> {
   let lastError: Error | null = null;
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -20,31 +25,46 @@ async function retryOperation<T>(operation: () => Promise<T>, maxRetries = 3, de
     } catch (error) {
       console.error(`Attempt ${i + 1} failed:`, error);
       lastError = error instanceof Error ? error : new Error(String(error));
-      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+      await new Promise((resolve) =>
+        setTimeout(resolve, delay * Math.pow(2, i)),
+      );
     }
   }
-  throw lastError || new Error('Operation failed after max retries');
+  throw lastError || new Error("Operation failed after max retries");
 }
 
-export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page', language: string): Promise<{ summary: string, transcript: string }> {
+export async function summarizeVideo(
+  videoUrl: string,
+  summaryFormat: "bullet-points" | "paragraph" | "page",
+  language: string,
+): Promise<{ summary: string; transcript: string }> {
   try {
-    console.log('Starting summarizeVideo for URL:', videoUrl);
+    console.log("Starting summarizeVideo for URL:", videoUrl);
     const videoId = extractYouTubeId(videoUrl);
     if (!videoId) {
-      console.error('Invalid YouTube URL:', videoUrl);
+      console.error("Invalid YouTube URL:", videoUrl);
       throw new VideoFetchError("Invalid YouTube URL");
     }
-    console.log('Extracted video ID:', videoId);
+    console.log("Extracted video ID:", videoId);
 
     const transcriptOrMetadata = await transcribeVideoWithFallback(videoId);
-    console.log('Transcripción o metadatos recuperados, longitud:', transcriptOrMetadata.length);
+    console.log(
+      "Transcripción o metadatos recuperados, longitud:",
+      transcriptOrMetadata.length,
+    );
 
-    const summary = await generateSummary(transcriptOrMetadata, summaryFormat, language);
-    console.log('Resumen generado, longitud:', summary.length);
+    const summary = await generateSummary(
+      transcriptOrMetadata,
+      summaryFormat,
+      language,
+    );
+    console.log("Resumen generado, longitud:", summary.length);
 
     if (!summary) {
-      console.error('El resumen generado es nulo o está vacío');
-      throw new SummaryGenerationError("Failed to generate summary: Summary is null or empty");
+      console.error("El resumen generado es nulo o está vacío");
+      throw new SummaryGenerationError(
+        "Failed to generate summary: Summary is null or empty",
+      );
     }
 
     return { summary, transcript: transcriptOrMetadata };
@@ -64,27 +84,36 @@ export async function summarizeVideo(videoUrl: string, summaryFormat: 'bullet-po
 export async function processVideo(
   videoUrl: string,
   userId: string,
-  summaryFormat: 'bullet-points' | 'paragraph' | 'page',
-  videoTitle: string // Añadir este parámetro
+  summaryFormat: "bullet-points" | "paragraph" | "page",
+  videoTitle: string, // Añadir este parámetro
 ): Promise<{ videoId: string; transcriptOrMetadata: string; summary: string }> {
   try {
-    console.log('Starting processVideo for URL:', videoUrl);
+    console.log("Starting processVideo for URL:", videoUrl);
     const videoId = extractYouTubeId(videoUrl);
     if (!videoId) {
-      console.error('Invalid YouTube URL:', videoUrl);
+      console.error("Invalid YouTube URL:", videoUrl);
       throw new VideoFetchError("Invalid YouTube URL");
     }
-    console.log('Extracted video ID:', videoId);
+    console.log("Extracted video ID:", videoId);
 
     const transcriptOrMetadata = await transcribeVideoWithFallback(videoId);
-    console.log('Transcript o metadatos recuperados, longitud:', transcriptOrMetadata.length);
+    console.log(
+      "Transcript o metadatos recuperados, longitud:",
+      transcriptOrMetadata.length,
+    );
 
-    const summary = await generateSummary(transcriptOrMetadata, summaryFormat, userId);
-    console.log('Resumen generado, longitud:', summary.length);
+    const summary = await generateSummary(
+      transcriptOrMetadata,
+      summaryFormat,
+      userId,
+    );
+    console.log("Resumen generado, longitud:", summary.length);
 
     if (!summary) {
-      console.error('El resumen generado es nulo o está vacío');
-      throw new SummaryGenerationError("Failed to generate summary: Summary is null or empty");
+      console.error("El resumen generado es nulo o está vacío");
+      throw new SummaryGenerationError(
+        "Failed to generate summary: Summary is null or empty",
+      );
     }
 
     const videoMetadata = await fetchVideoMetadata(videoId);
@@ -98,9 +127,9 @@ export async function processVideo(
       userId,
       summaryFormat,
       videoTitle, // Usar el título proporcionado
-      thumbnailUrl
+      thumbnailUrl,
     );
-    console.log('Summary saved successfully');
+    console.log("Summary saved successfully");
 
     return { videoId, transcriptOrMetadata, summary };
   } catch (error) {
@@ -119,7 +148,9 @@ export async function processVideo(
 
 async function checkVideoAvailability(videoId: string): Promise<boolean> {
   try {
-    const response = await axios.get(`https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=${videoId}`);
+    const response = await axios.get(
+      `https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=${videoId}`,
+    );
     return response.status === 200;
   } catch (error) {
     return false;
@@ -127,7 +158,9 @@ async function checkVideoAvailability(videoId: string): Promise<boolean> {
 }
 
 async function getBasicVideoInfo(videoId: string): Promise<string> {
-  const response = await fetch(`https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=${videoId}`);
+  const response = await fetch(
+    `https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=${videoId}`,
+  );
   const data = await response.json();
   return `Title: ${data.title}\nAuthor: ${data.author_name}`;
 }
@@ -140,32 +173,41 @@ async function fetchYouTubeSubtitles(videoId: string): Promise<string> {
 
   try {
     // Obtener la lista de subtítulos disponibles
-    const captionsResponse = await axios.get(`https://www.googleapis.com/youtube/v3/captions`, {
-      params: {
-        part: 'snippet',
-        videoId: videoId,
-        key: apiKey
-      }
-    });
+    const captionsResponse = await axios.get(
+      `https://www.googleapis.com/youtube/v3/captions`,
+      {
+        params: {
+          part: "snippet",
+          videoId: videoId,
+          key: apiKey,
+        },
+      },
+    );
 
     if (captionsResponse.data.items && captionsResponse.data.items.length > 0) {
       const captionId = captionsResponse.data.items[0].id;
 
       // Obtener el contenido de los subtítulos
-      const subtitlesResponse = await axios.get(`https://www.googleapis.com/youtube/v3/captions/${captionId}`, {
-        params: {
-          tfmt: 'srt',
-          key: apiKey
+      const subtitlesResponse = await axios.get(
+        `https://www.googleapis.com/youtube/v3/captions/${captionId}`,
+        {
+          params: {
+            tfmt: "srt",
+            key: apiKey,
+          },
+          headers: {
+            Accept: "application/json",
+          },
         },
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      );
 
       // Procesar y limpiar los subtítulos
       const subtitles = subtitlesResponse.data;
-      const cleanedSubtitles = subtitles.replace(/\d+\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/g, '');
-      return cleanedSubtitles.replace(/\n/g, ' ').trim();
+      const cleanedSubtitles = subtitles.replace(
+        /\d+\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/g,
+        "",
+      );
+      return cleanedSubtitles.replace(/\n/g, " ").trim();
     } else {
       throw new Error("No se encontraron subtítulos para este video");
     }
@@ -175,56 +217,73 @@ async function fetchYouTubeSubtitles(videoId: string): Promise<string> {
   }
 }
 
-export async function transcribeVideoWithFallback(videoId: string): Promise<string> {
-  console.log('Iniciando transcribeVideoWithFallback para videoId:', videoId);
-  
+export async function transcribeVideoWithFallback(
+  videoId: string,
+): Promise<string> {
+  console.log("Iniciando transcribeVideoWithFallback para videoId:", videoId);
+
   // Verificar caché primero
-  if (transcriptCache[videoId] && (Date.now() - transcriptCache[videoId].timestamp) < CACHE_EXPIRATION) {
-    console.log('Transcript encontrado en caché para video ID:', videoId);
+  if (
+    transcriptCache[videoId] &&
+    Date.now() - transcriptCache[videoId].timestamp < CACHE_EXPIRATION
+  ) {
+    console.log("Transcript encontrado en caché para video ID:", videoId);
     return transcriptCache[videoId].data;
   }
 
   // Verificar disponibilidad del video
-  console.log('Verificando disponibilidad del video:', videoId);
+  console.log("Verificando disponibilidad del video:", videoId);
   const isAvailable = await checkVideoAvailability(videoId);
   if (!isAvailable) {
     console.error("El video no está disponible:", videoId);
-    throw new VideoFetchError("El video no está disponible o ha sido eliminado");
+    throw new VideoFetchError(
+      "El video no está disponible o ha sido eliminado",
+    );
   }
 
   try {
     console.log("Intentando obtener la transcripción para el video:", videoId);
     let transcript;
     try {
-      const transcriptArray:any = await retryOperation(() => YoutubeTranscript.fetchTranscript(videoId));
-      transcript = transcriptArray.map((item:any) => item.text).join(" ");
+      const transcriptArray: any = await retryOperation(() =>
+        YoutubeTranscript.fetchTranscript(videoId),
+      );
+      transcript = transcriptArray.map((item: any) => item.text).join(" ");
     } catch (ytError) {
-      console.log("Error con YoutubeTranscript, intentando con la API de YouTube:", ytError);
+      console.log(
+        "Error con YoutubeTranscript, intentando con la API de YouTube:",
+        ytError,
+      );
       transcript = await fetchYouTubeSubtitles(videoId);
     }
-    console.log("Transcripción obtenida exitosamente, longitud:", transcript.length);
-    
+    console.log(
+      "Transcripción obtenida exitosamente, longitud:",
+      transcript.length,
+    );
+
     // Cachear la transcripción
     transcriptCache[videoId] = { data: transcript, timestamp: Date.now() };
-    
+
     return transcript;
   } catch (error) {
     console.error("Error al obtener la transcripción:", error);
     console.error("Detalles del error:", JSON.stringify(error, null, 2));
-    
+
     if (error instanceof Error && error.message.includes("410")) {
-      console.log("Transcripción no disponible (error 410), recurriendo a los metadatos del video");
+      console.log(
+        "Transcripción no disponible (error 410), recurriendo a los metadatos del video",
+      );
     } else {
       console.log("Recurriendo a los metadatos del video para el ID:", videoId);
     }
-    
+
     try {
       console.log("Intentando obtener metadatos del video");
       const metadata = await fetchVideoMetadata(videoId);
       console.log("Metadatos obtenidos exitosamente:", {
         title: metadata.title,
         descriptionLength: metadata.description.length,
-        thumbnailUrl: metadata.thumbnailUrl
+        thumbnailUrl: metadata.thumbnailUrl,
       });
       return `Title: ${metadata.title}\n\nDescription: ${metadata.description}`;
     } catch (metadataError) {
@@ -232,20 +291,33 @@ export async function transcribeVideoWithFallback(videoId: string): Promise<stri
       try {
         console.log("Intentando obtener información básica del video");
         const basicInfo = await getBasicVideoInfo(videoId);
-        console.log("Información básica obtenida exitosamente, longitud:", basicInfo.length);
+        console.log(
+          "Información básica obtenida exitosamente, longitud:",
+          basicInfo.length,
+        );
         return basicInfo;
       } catch (basicInfoError) {
-        console.error("Error al obtener información básica del video:", basicInfoError);
-        throw new TranscriptNotFoundError("No se pudo obtener la transcripción, los metadatos ni la información básica");
+        console.error(
+          "Error al obtener información básica del video:",
+          basicInfoError,
+        );
+        throw new TranscriptNotFoundError(
+          "No se pudo obtener la transcripción, los metadatos ni la información básica",
+        );
       }
     }
   }
 }
 
-async function fetchVideoMetadata(videoId: string): Promise<{ title: string; thumbnailUrl: string; description: string }> {
+async function fetchVideoMetadata(
+  videoId: string,
+): Promise<{ title: string; thumbnailUrl: string; description: string }> {
   // Check cache first
-  if (transcriptCache[videoId] && (Date.now() - transcriptCache[videoId].timestamp) < CACHE_EXPIRATION) {
-    console.log('Metadata found in cache for video ID:', videoId);
+  if (
+    transcriptCache[videoId] &&
+    Date.now() - transcriptCache[videoId].timestamp < CACHE_EXPIRATION
+  ) {
+    console.log("Metadata found in cache for video ID:", videoId);
     return transcriptCache[videoId].data as any;
   }
 
@@ -257,14 +329,14 @@ async function fetchVideoMetadata(videoId: string): Promise<{ title: string; thu
     }
 
     console.log("Fetching video metadata for video ID:", videoId);
-    const response = await retryOperation(() => 
+    const response = await retryOperation(() =>
       axios.get(`https://www.googleapis.com/youtube/v3/videos`, {
         params: {
-          part: 'snippet',
+          part: "snippet",
           id: videoId,
-          key: apiKey
-        }
-      })
+          key: apiKey,
+        },
+      }),
     );
 
     if (!response.data.items || response.data.items.length === 0) {
@@ -275,17 +347,17 @@ async function fetchVideoMetadata(videoId: string): Promise<{ title: string; thu
     const metadata = {
       title: videoData.title,
       description: videoData.description,
-      thumbnailUrl: videoData.thumbnails.default.url
+      thumbnailUrl: videoData.thumbnails.default.url,
     };
     console.log("Metadata fetched successfully:", {
       title: metadata.title,
       descriptionLength: metadata.description.length,
-      thumbnailUrl: metadata.thumbnailUrl
+      thumbnailUrl: metadata.thumbnailUrl,
     });
-    
+
     // Cache the metadata
     transcriptCache[videoId] = { data: metadata as any, timestamp: Date.now() };
-    
+
     return metadata;
   } catch (error) {
     console.error("Error fetching video metadata:", error);
@@ -300,9 +372,16 @@ async function fetchVideoMetadata(videoId: string): Promise<{ title: string; thu
   }
 }
 
-export async function generateSummary(transcriptOrMetadata: string, summaryFormat: 'bullet-points' | 'paragraph' | 'page', language: string): Promise<string> {
+export async function generateSummary(
+  transcriptOrMetadata: string,
+  summaryFormat: "bullet-points" | "paragraph" | "page",
+  language: string,
+): Promise<string> {
   try {
-    console.log("Sending request to OpenRouter API, input length:", transcriptOrMetadata.length);
+    console.log(
+      "Sending request to OpenRouter API, input length:",
+      transcriptOrMetadata.length,
+    );
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
     if (!openRouterApiKey) {
       console.error("OpenRouter API key is not set");
@@ -311,13 +390,13 @@ export async function generateSummary(transcriptOrMetadata: string, summaryForma
 
     let promptInstructions = "";
     switch (summaryFormat) {
-      case 'bullet-points':
+      case "bullet-points":
         promptInstructions = `Provide a summary in the form of 5 bullet points or less. Each point should be concise and cover a key idea or fact from the content. Respond in ${language}.`;
         break;
-      case 'paragraph':
+      case "paragraph":
         promptInstructions = `Provide a brief summary in the form of a single, concise paragraph (no more than 3-4 sentences). The summary should cover the main points of the content. Respond in ${language}.`;
         break;
-      case 'page':
+      case "page":
         promptInstructions = `Provide a detailed summary, approximately one page in length. The summary should be comprehensive, covering all major points and some supporting details from the content. Organize the summary into paragraphs for better readability. Respond in ${language}.`;
         break;
     }
@@ -338,7 +417,7 @@ export async function generateSummary(transcriptOrMetadata: string, summaryForma
               content: `${promptInstructions}\n\nHere's the content to summarize. If it's a transcript, summarize the video based on the transcript. If it's metadata (title and description), provide a summary based on that information:\n\n${transcriptOrMetadata}`,
             },
           ],
-          max_tokens: summaryFormat === 'page' ? 1500 : 750,
+          max_tokens: summaryFormat === "page" ? 1500 : 750,
           temperature: 0.25,
         },
         {
@@ -346,14 +425,21 @@ export async function generateSummary(transcriptOrMetadata: string, summaryForma
             Authorization: `Bearer ${openRouterApiKey}`,
             "Content-Type": "application/json",
           },
-        }
-      )
+        },
+      ),
     );
 
     console.log("API Response received, status:", response.status);
 
-    if (!response.data || !response.data.choices || response.data.choices.length === 0) {
-      console.error("Invalid API response structure:", JSON.stringify(response.data, null, 2));
+    if (
+      !response.data ||
+      !response.data.choices ||
+      response.data.choices.length === 0
+    ) {
+      console.error(
+        "Invalid API response structure:",
+        JSON.stringify(response.data, null, 2),
+      );
       throw new SummaryGenerationError("Invalid API response structure");
     }
 
@@ -386,9 +472,9 @@ async function saveSummary(
   transcriptOrMetadata: string,
   content: string,
   userId: string,
-  summaryFormat: 'bullet-points' | 'paragraph' | 'page',
+  summaryFormat: "bullet-points" | "paragraph" | "page",
   videoTitle: string,
-  thumbnailUrl: string
+  thumbnailUrl: string,
 ): Promise<void> {
   const supabase = createClient();
   try {
@@ -399,7 +485,7 @@ async function saveSummary(
       videoUrl,
       userId,
       videoTitle,
-      thumbnailUrl
+      thumbnailUrl,
     );
     console.log("Video ensured in database, ID:", dbVideoId);
 
@@ -414,7 +500,7 @@ async function saveSummary(
       },
       {
         onConflict: "video_id,user_id",
-      }
+      },
     );
 
     if (error) {
@@ -436,31 +522,31 @@ function extractYouTubeId(url: string): string | null {
 }
 
 async function extractFrames(videoUrl: string): Promise<string[]> {
-    // Implementa la lógica para extraer fotogramas del video
-    // Por ejemplo, usando fluent-ffmpeg
-    const frames: string[] = [];
-    // Lógica para extraer fotogramas y almacenarlos en el array 'frames'
-    return frames;
+  // Implementa la lógica para extraer fotogramas del video
+  // Por ejemplo, usando fluent-ffmpeg
+  const frames: string[] = [];
+  // Lógica para extraer fotogramas y almacenarlos en el array 'frames'
+  return frames;
 }
 
 export async function analyzeVideo(videoUrl: string): Promise<string> {
-    const frames = await extractFrames(videoUrl);
-    // Aquí puedes enviar los fotogramas a la API de OpenAI para análisis
-    const analysisResults = await sendFramesToOpenAI(frames);
-    return analysisResults;
+  const frames = await extractFrames(videoUrl);
+  // Aquí puedes enviar los fotogramas a la API de OpenAI para análisis
+  const analysisResults = await sendFramesToOpenAI(frames);
+  return analysisResults;
 }
 
 async function sendFramesToOpenAI(frames: string[]): Promise<string> {
-    // Implementa la lógica para enviar los fotogramas a la API de OpenAI
-    // y recibir la respuesta
-    const response = await fetch("https://api.openai.com/v1/your-endpoint", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({ frames }),
-    });
-    const data = await response.json();
-    return data.result; // Ajusta según la estructura de la respuesta
+  // Implementa la lógica para enviar los fotogramas a la API de OpenAI
+  // y recibir la respuesta
+  const response = await fetch("https://api.openai.com/v1/your-endpoint", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({ frames }),
+  });
+  const data = await response.json();
+  return data.result; // Ajusta según la estructura de la respuesta
 }

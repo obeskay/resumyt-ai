@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import OpenAI from "openai";
-import { Response } from "node-fetch";
-import { streamText } from "ai";
+import { OpenAIStream, StreamingTextResponse } from "ai";
 
 export const runtime = "edge";
 
@@ -29,7 +28,13 @@ export default async function handler(req: NextRequest) {
     .single();
 
   if (error) {
-    throw new Error("Failed to fetch video data");
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch video data" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   const { transcript, content: summary } = data;
@@ -37,8 +42,8 @@ export default async function handler(req: NextRequest) {
 
   const systemMessage =
     language === "es"
-      ? "Eres un asistente AI que responde preguntas sobre un video de YouTube. Responde de manera concisa pero completa, usando emojis y viñetas cuando sea apropiado. Responde en español."
-      : "You are an AI assistant that answers questions about a YouTube video. Respond concisely but comprehensively, using emojis and bullet points when appropriate. Respond in English.";
+      ? `Eres un asistente AI que responde preguntas sobre un video de YouTube. Responde de manera concisa pero completa, usando emojis y viñetas cuando sea apropiado. Responde en español. Usa el siguiente contexto para responder:\n\n${context}`
+      : `You are an AI assistant that answers questions about a YouTube video. Respond concisely but comprehensively, using emojis and bullet points when appropriate. Respond in English. Use the following context to answer:\n\n${context}`;
 
   // Generar preguntas sugeridas si es el primer mensaje
   if (messages.length === 0) {
@@ -47,41 +52,56 @@ export default async function handler(req: NextRequest) {
         ? "Genera 3 preguntas sugeridas específicas sobre el contenido de este video, incluyendo emojis relevantes. Responde solo con las preguntas, una por línea."
         : "Generate 3 suggested questions specific to this video content, including relevant emojis. Respond only with the questions, one per line.";
 
-    const suggestedQuestionsResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
+    try {
+      const suggestedQuestionsResponse = await openai.chat.completions.create({
+        model: "openai/gpt-4-turbo",
+        messages: [
+          { role: "system", content: systemMessage },
+          { role: "user", content: suggestedQuestionsPrompt },
+        ],
+        max_tokens: 150,
+      });
+
+      const suggestedQuestions =
+        suggestedQuestionsResponse.choices[0].message?.content
+          ?.split("\n")
+          .filter((q: string) => q.trim() !== "") || [];
+
+      return new Response(JSON.stringify({ suggestedQuestions }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Error generating suggested questions:", error);
+      return new Response(
+        JSON.stringify({ error: "Failed to generate suggested questions" }),
         {
-          role: "system",
-          content: `${systemMessage}\n\nContext:\n${context}`,
+          status: 500,
+          headers: { "Content-Type": "application/json" },
         },
-        { role: "user", content: suggestedQuestionsPrompt },
-      ],
-      max_tokens: 150,
-    });
-
-    const suggestedQuestions =
-      suggestedQuestionsResponse.choices[0].message?.content
-        ?.split("\n")
-        .filter((q: string) => q.trim() !== "") || [];
-
-    return new Response(JSON.stringify({ suggestedQuestions }), {
-      headers: { "Content-Type": "application/json" },
-    });
+      );
+    }
   }
 
-  const apiMessages = [
-    { role: "system", content: `${systemMessage}\n\nContext:\n${context}` },
-    ...messages,
-  ];
+  const apiMessages = [{ role: "system", content: systemMessage }, ...messages];
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: apiMessages,
-    stream: true,
-    top_p: 0.1,
-    max_tokens: 500,
-  });
+  try {
+    const response = await openai.chat.completions.create({
+      model: "openai/gpt-4-turbo",
+      messages: apiMessages,
+      stream: true,
+      max_tokens: 500,
+    });
 
-  const stream = await streamText(response as any);
-  return stream;
+    const stream = OpenAIStream(response);
+    return new StreamingTextResponse(stream);
+  } catch (error) {
+    console.error("Error in chat completion:", error);
+    return new Response(
+      JSON.stringify({ error: "Failed to generate response" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
 }
