@@ -1,43 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../types/supabase";
 
-const getSupabaseUrl = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!url) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
-  return url;
-};
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const getSupabaseKey = () => {
-
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!key) {
-    console.error("NEXT_PUBLIC_SUPABASE_ANON_KEY is not set");
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  }
-  return key;
-};
-
-let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
-
-export function getSupabase() {
-  if (supabaseInstance) return supabaseInstance;
-
-  const supabaseUrl = getSupabaseUrl();
-  const supabaseKey = getSupabaseKey();
-
-  supabaseInstance = createClient<Database>(supabaseUrl, supabaseKey);
-
-  // Log the Supabase URL for debugging
-  console.log("Supabase URL:", supabaseUrl);
-
-  return supabaseInstance;
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing Supabase environment variables");
 }
 
-// Export the getSupabase function instead of a direct instance
-export { getSupabase as supabase };
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+
+export function getSupabase() {
+  return supabase;
+}
 
 export async function getOrCreateAnonymousUser(
-  ip: string
+  ip: string,
 ): Promise<Database["public"]["Tables"]["anonymous_users"]["Row"] | null> {
   console.log("Attempting to get or create anonymous user for IP:", ip);
 
@@ -64,7 +42,7 @@ export async function getOrCreateAnonymousUser(
     }
 
     console.log(
-      "No existing user found. Attempting to create a new anonymous user."
+      "No existing user found. Attempting to create a new anonymous user.",
     );
 
     // If no user exists, create a new anonymous user
@@ -102,7 +80,7 @@ export async function getOrCreateAnonymousUser(
 }
 
 export async function getAnonymousUserByIp(
-  ip: string
+  ip: string,
 ): Promise<Database["public"]["Tables"]["anonymous_users"]["Row"] | null> {
   console.log("Attempting to get anonymous user for IP:", ip);
 
@@ -146,7 +124,7 @@ export async function testSupabaseConnection(): Promise<boolean> {
 
 export async function updateUserPlan(
   userId: string,
-  newPlanId: number
+  newPlanId: number,
 ): Promise<boolean> {
   console.log(`Attempting to update user ${userId} to plan ${newPlanId}`);
 
@@ -180,7 +158,7 @@ export async function updateUserPlan(
     }
 
     console.log(
-      `Successfully updated user ${userId} to plan ${newPlanId} with new quota ${newQuota}`
+      `Successfully updated user ${userId} to plan ${newPlanId} with new quota ${newQuota}`,
     );
     return true;
   } catch (error) {

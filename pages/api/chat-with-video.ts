@@ -86,7 +86,7 @@ export default async function handler(req: NextRequest) {
 
   try {
     const response = await openai.chat.completions.create({
-      model: "openai/gpt-4-turbo",
+      model: "openai/gpt-4o-mini",
       messages: apiMessages,
       stream: true,
       max_tokens: 500,
