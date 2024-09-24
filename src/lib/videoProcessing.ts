@@ -401,6 +401,32 @@ export async function generateSummary(
         break;
     }
 
+    const prompt = `
+      Genera un resumen detallado del siguiente contenido de video. 
+      Utiliza la siguiente estructura Markdown:
+
+      # Título principal del video
+
+      ## Introducción
+      [Breve introducción al tema del video]
+
+      ## Puntos clave
+      - Punto clave 1
+      - Punto clave 2
+      - Punto clave 3
+
+      ## Detalles importantes
+      [Desarrolla los puntos clave con más detalle]
+
+      ## Conclusión
+      [Resumen de las ideas principales y conclusión]
+
+      Asegúrate de usar **negrita** para términos importantes y *cursiva* para énfasis.
+      Utiliza > para citas relevantes del video.
+      
+      Contenido: ${transcriptOrMetadata}
+    `;
+
     const response = await retryOperation(() =>
       axios.post(
         "https://openrouter.ai/api/v1/chat/completions",

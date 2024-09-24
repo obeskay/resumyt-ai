@@ -25,6 +25,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
+  const [showSuggestedQuestions, setShowSuggestedQuestions] = useState(true);
 
   const {
     messages,
@@ -96,6 +97,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
 
   const handleSuggestedQuestion = (question: string) => {
     setInput(question);
+    setShowSuggestedQuestions(false);
     handleSubmit(new Event("submit") as any);
   };
 
@@ -156,7 +158,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
               </motion.div>
             ))}
           </AnimatePresence>
-          {isLoadingSuggestions ? (
+          {isLoadingSuggestions && showSuggestedQuestions ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -169,10 +171,11 @@ const VideoChat: React.FC<VideoChatProps> = ({
               </p>
               <Skeleton className="h-8 w-3/4 mx-auto bg-primary/20" />
             </motion.div>
-          ) : suggestedQuestions.length > 0 ? (
+          ) : suggestedQuestions.length > 0 && showSuggestedQuestions ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className="mb-4 space-y-4 w-full"
             >
               <p className="text-lg font-semibold text-center text-primary">
@@ -194,27 +197,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
                 ))}
               </div>
             </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center"
-            >
-              <p className="text-gray-500 mb-4">
-                {language === "es"
-                  ? "No hay preguntas sugeridas disponibles."
-                  : "No suggested questions available."}
-              </p>
-              <Button
-                onClick={loadOrGenerateSuggestedQuestions}
-                className="bg-primary hover:bg-primary/80 text-primary-foreground"
-              >
-                {language === "es"
-                  ? "Generar preguntas sugeridas"
-                  : "Generate suggested questions"}
-              </Button>
-            </motion.div>
-          )}
+          ) : null}
           {isLoading && (
             <motion.div
               initial={{ opacity: 0 }}
