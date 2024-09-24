@@ -64,6 +64,9 @@ CREATE TABLE summaries (
   UNIQUE(user_id, video_id)
 );
 
+-- Añadir una nueva columna a la tabla summaries para las preguntas sugeridas
+ALTER TABLE summaries ADD COLUMN suggested_questions JSONB;
+
 -- Crear índices para búsquedas más rápidas
 CREATE INDEX idx_summaries_user_id ON summaries(user_id);
 CREATE INDEX idx_summaries_video_id ON summaries(video_id);
