@@ -28,7 +28,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
   const [showSuggestedQuestions, setShowSuggestedQuestions] = useState(true);
-  const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [isChatExpanded, setIsChatExpanded] = useState(true); // Cambiado a true por defecto
 
   const {
     messages,
@@ -112,31 +112,32 @@ const VideoChat: React.FC<VideoChatProps> = ({
       className="space-y-4 max-w-full"
     >
       <ShineBorder
-        className=" rounded-lg p-4 shadow-lg mx-auto"
+        className="rounded-lg p-4 shadow-lg mx-auto relative"
         color={["hsl(var(--secondary))", "hsl(var(--secondary-foreground))"]}
       >
-        <div className="flex items-center space-x-2 ">
-          <motion.div
-            animate={{ rotate: isChatExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <MessageCircle className="w-6 h-6 text-secondary" />
-          </motion.div>
-
+        <div className="flex items-center space-x-2">
+          <MessageCircle className="w-6 h-6 text-secondary" />
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className=" flex items-center space-x-2"
+            className="flex items-center space-x-2"
           >
             <Sparkles className="w-5 h-5 text-secondary" />
             <span className="text-xl font-medium text-secondary">
               {language === "es"
-                ? "¡Nuevo! Prueba el chat"
-                : "New! Try the chat"}
+                ? "¡Nuevo! Chat disponible"
+                : "New! Chat available"}
             </span>
           </motion.div>
         </div>
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+          className="absolute bottom-1 left-1/2 transform -translate-x-1/2"
+        >
+          <ChevronDown className="w-6 h-6 text-secondary" />
+        </motion.div>
       </ShineBorder>
 
       <AnimatePresence>
