@@ -157,6 +157,7 @@ export default function SummaryPage({
                       src={`https://img.youtube.com/vi/${selectedSummary.videoId}/mqdefault.jpg`}
                       alt={selectedSummary.title || dict.summary.defaultTitle}
                       layoutId="video-thumbnail"
+                      className="rounded-lg shadow-lg"
                     />
                   </div>
                   <div className="flex-1">
@@ -178,6 +179,7 @@ export default function SummaryPage({
                           "_blank",
                         )
                       }
+                      className="bg-gradient-to-r from-primary to-secondary text-white"
                     >
                       {dict.summary.watchOnYoutube}
                     </Button>
@@ -221,7 +223,7 @@ export default function SummaryPage({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
-                  className="mt-8 w-full max-w-3xl mx-auto" // Añadir w-full max-w-3xl mx-auto
+                  className="mt-8 w-full max-w-3xl mx-auto"
                 >
                   <DynamicVideoChat
                     videoId={selectedSummary.videoId}
