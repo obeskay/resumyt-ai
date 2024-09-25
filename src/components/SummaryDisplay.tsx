@@ -74,18 +74,17 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
   return (
     <div className={cn("relative", className)}>
       <div className="relative">
-        <AnimatePresence initial={false}>
+        <AnimatePresence initial={false} mode="popLayout">
           <motion.div
             key={currentIndex}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="bg-card p-6 rounded-lg shadow-lg mb-6"
           >
-            <Card>
-              <CardContent>
-                <ScrollArea className="h-64">
+            <Card className="flex items-center justify-center">
+              <CardContent className="p-4">
+                <ScrollArea className="flex items-center justify-center h-full">
                   <ReactMarkdown
                     components={{
                       h1: ({ children }) => (
@@ -95,13 +94,15 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                         <h2 className="text-xl font-semibold">{children}</h2>
                       ),
                       p: ({ children }) => (
-                        <p className="text-base leading-relaxed">{children}</p>
+                        <p className="text-2xl leading-relaxed">{children}</p>
                       ),
                       strong: ({ children }) => (
-                        <strong className="font-semibold">{children}</strong>
+                        <strong className="font-semibold text-2xl">
+                          {children}
+                        </strong>
                       ),
                       em: ({ children }) => (
-                        <em className="italic text-muted-foreground text-xl">
+                        <em className="italic text-muted-foreground text-2xl">
                           {children}
                         </em>
                       ),
@@ -111,12 +112,12 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                         </blockquote>
                       ),
                       ul: ({ children }) => (
-                        <ul className="my-8 ml-8 list-disc [&>li]:mt-4 text-xl">
+                        <ul className="mt-8 ml-8 list-disc [&>li]:mt-4 text-xl">
                           {children}
                         </ul>
                       ),
                       ol: ({ children }) => (
-                        <ol className="my-8 ml-8 list-decimal [&>li]:mt-4 text-xl">
+                        <ol className="mt-8 ml-8 list-decimal [&>li]:mt-4 text-xl">
                           {children}
                         </ol>
                       ),
@@ -134,11 +135,21 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
         </AnimatePresence>
       </div>
       <div className="flex justify-between mt-4">
-        <Button onClick={prevCard} variant="outline" size="lg">
+        <Button
+          disabled={currentIndex === 0}
+          onClick={prevCard}
+          variant="outline"
+          size="lg"
+        >
           <ChevronLeft className="mr-2 h-5 w-5" />
           Anterior
         </Button>
-        <Button onClick={nextCard} variant="outline" size="lg">
+        <Button
+          disabled={currentIndex === paragraphs.length - 1}
+          onClick={nextCard}
+          variant="outline"
+          size="lg"
+        >
           Siguiente
           <ChevronRight className="ml-2 h-5 w-5" />
         </Button>
