@@ -209,11 +209,7 @@ export default function SummaryPage({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="mt-4"
                   >
-                    <h2 className="text-xl font-semibold mb-2">
-                      {dict.summary.summaryTitle}
-                    </h2>
                     <SummaryDisplay summary={selectedSummary.content} />
                   </motion.div>
                 </AnimatePresence>
