@@ -22,15 +22,28 @@ const YouTubeThumbnail: React.FC<YouTubeThumbnailProps> = ({
   return (
     <motion.div
       layoutId={layoutId}
-      className="relative w-full pt-[56.25%]" // Aspect ratio 16:9
+      className="relative w-full h-0 pb-[56.25%] max-w-6xl mx-auto "
     >
-      <Image
-        src={src || thumbnailUrl || ""}
-        alt={alt || title || "Video thumbnail"}
-        layout="fill"
-        objectFit="cover"
-        className="rounded-xl absolute top-0 left-0 w-full h-full"
-      />
+      <div
+        className="absolute inset-0"
+        style={{
+          maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28.57 20'%3E%3Cpath d='M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 2.24288e-07 14.285 0 14.285 0C14.285 0 5.35042 2.24288e-07 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C2.24288e-07 5.35042 0 10 0 10C0 10 2.24288e-07 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324Z'/%3E%3C/svg%3E")`,
+          maskSize: "contain",
+          maskRepeat: "no-repeat",
+          maskPosition: "center",
+          WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28.57 20'%3E%3Cpath d='M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 2.24288e-07 14.285 0 14.285 0C14.285 0 5.35042 2.24288e-07 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C2.24288e-07 5.35042 0 10 0 10C0 10 2.24288e-07 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324Z'/%3E%3C/svg%3E")`,
+          WebkitMaskSize: "contain",
+          WebkitMaskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+        }}
+      >
+        <Image
+          src={src || thumbnailUrl || ""}
+          alt={alt || title || "Video thumbnail"}
+          layout="fill"
+          objectFit="cover"
+        />
+      </div>
     </motion.div>
   );
 };

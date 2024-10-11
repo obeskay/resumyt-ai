@@ -145,7 +145,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
     <TooltipProvider>
       {typeof window !== "undefined" && (
         <div className="w-full space-y-6">
-          <div className="p-6 sm:p-10 bg-card rounded-lg shadow-lg">
+          <div className="p-2 sm:p-4 bg-card/30 backdrop-blur-md border border-px border-border/50 rounded-3xl shadow-lg">
             {step === "url" ? (
               <motion.form
                 onSubmit={handleUrlSubmit}

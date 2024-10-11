@@ -20,16 +20,16 @@ const formatOptions: FormatOption[] = [
     value: "bullet-points",
   },
   {
-    icon: <FileText className="w-8 h-8" />,
-    title: "Párrafo",
-    description: "Resumen en formato de párrafo continuo",
-    value: "paragraph",
-  },
-  {
     icon: <Newspaper className="w-8 h-8" />,
     title: "Página",
     description: "Resumen detallado en formato de página",
     value: "page",
+  },
+  {
+    icon: <FileText className="w-8 h-8" />,
+    title: "Tutorial",
+    description: "Mejor para tutoriales",
+    value: "tutorial",
   },
 ];
 
@@ -47,7 +47,9 @@ const FormatSelector: React.FC<FormatSelectorProps> = ({ onSelect }) => {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">Elige el formato de resumen</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">
+        Elige el formato de resumen
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {formatOptions.map((option, index) => (
           <motion.div
@@ -58,7 +60,7 @@ const FormatSelector: React.FC<FormatSelectorProps> = ({ onSelect }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`bg-card p-6 rounded-full shadow-lg cursor-pointer ${
-              selectedFormat === option.value ? 'ring-2 ring-primary' : ''
+              selectedFormat === option.value ? "ring-2 ring-primary" : ""
             }`}
             onClick={() => handleSelect(option.value)}
           >
@@ -70,8 +72,12 @@ const FormatSelector: React.FC<FormatSelectorProps> = ({ onSelect }) => {
             >
               {option.icon}
             </motion.div>
-            <h3 className="text-lg font-semibold mb-2 text-center">{option.title}</h3>
-            <p className="text-sm text-muted-foreground text-center">{option.description}</p>
+            <h3 className="text-lg font-semibold mb-2 text-center">
+              {option.title}
+            </h3>
+            <p className="text-sm text-muted-foreground text-center">
+              {option.description}
+            </p>
           </motion.div>
         ))}
       </div>

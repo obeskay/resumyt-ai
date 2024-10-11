@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import MainLayout from "@/components/MainLayout";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,7 +10,6 @@ import { getSupabase } from "@/lib/supabase";
 import { Database } from "@/types/supabase";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { BackgroundBeams } from "@/components/ui/background-beams";
 import RecentVideoThumbnails from "@/components/RecentVideoThumbnails";
 import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
@@ -30,6 +29,7 @@ import { FAQPage } from "schema-dts";
 import ClientOnly from "./ClientOnly";
 import { useRouter } from "next/router";
 import { Locale } from "@/i18n-config";
+import { initSmoothScroll } from "@/lib/smoothScroll";
 
 type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
@@ -60,6 +60,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
   const [recentVideos, setRecentVideos] = useState<string[]>([]);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const videoInputRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (
     url: string,
@@ -271,7 +272,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
   const FeatureCard = React.memo(
     ({ feature, index }: { feature: any; index: number }) => (
       <motion.div
-        className="p-6 rounded-lg bg-background"
+        className="p-6 rounded-3xl bg-card/30 backdrop-blur-md border border-px border-border/50"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.1 }}
@@ -287,6 +288,13 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
       </motion.div>
     ),
   );
+
+  const scrollToVideoInput = () => {
+    if (videoInputRef.current) {
+      const lenis = initSmoothScroll();
+      lenis.scrollTo(videoInputRef.current);
+    }
+  };
 
   return (
     <ErrorBoundary
@@ -403,12 +411,12 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
               WebkitMaskImage:
                 "radial-gradient(circle at center, transparent, black 150%)",
             }}
-            className="fixed w-full h-[50%] pointer-events-none z-[0] left-0 top-0 opacity-40"
+            className="fixed w-full h-[50%] pointer-events-none z-[0] left-0 top-0 opacity-50 dark:opacity-80"
           >
             <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
           </div>
           <div className="relative min-h-screen flex flex-col justify-center items-center w-full overflow-hidden">
-            <div className="container mx-auto">
+            <div ref={videoInputRef} className="container mx-auto">
               {/* Hero Section */}
               <motion.div
                 initial={{ opacity: 0 }}
@@ -503,7 +511,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                   {howItWorks.map((item, index) => (
                     <motion.div
                       key={index}
-                      className="p-8 rounded-lg bg-card"
+                      className="p-8 rounded-3xl bg-card/30 backdrop-blur-sm border border-px border-border/50"
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -548,7 +556,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                   {testimonials.map((testimonial, index) => (
                     <motion.div
                       key={index}
-                      className="p-6 rounded-lg bg-card"
+                      className="p-6 rounded-3xl bg-card/30 backdrop-blur-md border border-px border-border/50"
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -589,7 +597,11 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                     }
                   />
                 </p>
-                <Button size="lg" className="text-lg px-8 py-4">
+                <Button
+                  size="lg"
+                  className="text-lg px-8 py-4"
+                  onClick={scrollToVideoInput}
+                >
                   {dict.home?.cta?.button ?? "Get Started"}
                 </Button>
               </motion.section>
@@ -642,7 +654,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
                   ].map((item, index) => (
                     <motion.div
                       key={index}
-                      className="bg-card p-6 rounded-lg"
+                      className="bg-card/30 p-6 rounded-3xl backdrop-blur-md border border-px border-border/50"
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
