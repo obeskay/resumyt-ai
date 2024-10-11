@@ -10,8 +10,8 @@
     --foreground: 0 0% 3.9%;
 
     --primary-hue: 0;
-    --primary-saturation: 72%;
-    --primary-lightness: 51%;
+    --primary-saturation: 120%;
+    --primary-lightness: 50%;
 
     --primary: var(--primary-hue) var(--primary-saturation)
       var(--primary-lightness);
@@ -87,4 +87,24 @@
       "rlig" 1,
       "calt" 1;
   }
+}
+
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }

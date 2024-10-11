@@ -97,13 +97,13 @@ const VideoChat: React.FC<VideoChatProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-2 max-w-full"
+      className="space-y-8 max-w-full"
     >
       <ShineBorder
         className="rounded-lg p-2 shadow-lg mx-auto relative"
         color={["hsl(var(--secondary))", "hsl(var(--secondary-foreground))"]}
       >
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1 pb-2">
           <MessageCircle className="w-4 h-4 text-secondary" />
           <motion.div
             initial={{ opacity: 0 }}
@@ -112,7 +112,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
             className="flex items-center space-x-1"
           >
             <Sparkles className="w-3 h-3 text-secondary" />
-            <span className="text-sm font-medium text-secondary">
+            <span className="text-base font-medium text-secondary">
               {language === "es"
                 ? "¡Nuevo! Chat disponible"
                 : "New! Chat available"}
@@ -122,9 +122,9 @@ const VideoChat: React.FC<VideoChatProps> = ({
         <motion.div
           animate={{ y: [0, 5, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
-          className="absolute bottom-1 left-1/2 transform -translate-x-1/2"
+          className="absolute bottom-2 left-1/2 transform -translate-x-1/2"
         >
-          <ChevronDown className="w-3 h-3 text-secondary" />
+          <ChevronDown className="w-3 h-3" />
         </motion.div>
       </ShineBorder>
 
@@ -150,7 +150,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
                   className={`mb-2 ${message.role === "user" ? "flex justify-end" : "flex justify-start"}`}
                 >
                   <div
-                    className={`p-2 rounded-lg ${message.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary/10 text-foreground dark:bg-secondary/10 dark:text-secondary-foreground"} shadow-md max-w-[85%]`}
+                    className={`p-2 rounded-lg ${message.role === "user" ? "bg-primary/20" : "bg-secondary/10 text-foreground dark:bg-secondary/10 dark:text-secondary-foreground"} shadow-3xl max-w-[85%]`}
                   >
                     <ReactMarkdown
                       components={{
@@ -200,21 +200,21 @@ const VideoChat: React.FC<VideoChatProps> = ({
                 exit={{ opacity: 0, y: -20 }}
                 className="mb-4 space-y-2 w-full"
               >
-                <p className="text-sm font-semibold text-center text-primary">
+                <p className="text-lg text-center font-semibold py-4">
                   {language === "es"
                     ? "Preguntas sugeridas:"
                     : "Suggested questions:"}
                 </p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {suggestedQuestions.map((question, index) => (
                     <Button
                       key={index}
                       variant="outline"
                       size="sm"
                       onClick={() => handleSuggestedQuestion(question)}
-                      className="text-sm font-medium py-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300 whitespace-normal text-left h-auto"
+                      className="text-sm font-medium py-3  whitespace-normal text-left h-auto"
                     >
-                      <span className="line-clamp-2">{question}</span>
+                      <span className="line-clamp-2 mr-auto">{question}</span>
                     </Button>
                   ))}
                 </div>

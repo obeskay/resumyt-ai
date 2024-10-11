@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, ChevronLeft, ChevronRight } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Timeline } from "@/components/ui/timeline";
+import { TextGenerateEffect } from "./ui/text-generate-effect";
 
 interface SummaryDisplayProps {
   summary: string | null;
@@ -19,13 +18,14 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
 }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [paragraphs, setParagraphs] = useState<string[]>([]);
+  const [timelineData, setTimelineData] = useState<
+    { title: string; content: React.ReactNode }[]
+  >([]);
 
   useEffect(() => {
     if (summary) {
       const processed = processedSummary(summary);
-      setParagraphs(processed.filter((p) => p.trim() !== ""));
+      setTimelineData(processed);
     }
   }, [summary]);
 
@@ -33,19 +33,106 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
     return null;
   }
 
-  const processedSummary = (text: string): string[] => {
+  const processedSummary = (
+    text: string,
+  ): { title: string; content: React.ReactNode }[] => {
     let processed = text.split("\n\n");
-    return processed.map((paragraph) => {
-      if (paragraph.length < 50 && !paragraph.startsWith("#")) {
-        return `## ${paragraph}`;
-      }
-      const keywords = ["importante", "clave", "destacado", "fundamental"];
-      keywords.forEach((keyword) => {
-        const regex = new RegExp(`\\b${keyword}\\b`, "gi");
-        paragraph = paragraph.replace(regex, `**${keyword}**`);
+    return processed
+      .filter((p) => p.trim() !== "")
+      .map((paragraph, index) => {
+        let title = ``;
+        if (paragraph.startsWith("# ")) {
+          const lines = paragraph.split("\n");
+          title = lines[0].replace("# ", "");
+          paragraph = lines.slice(1).join("\n");
+        } else if (paragraph.startsWith("## ")) {
+          title = paragraph.replace("## ", "");
+          paragraph = "";
+        }
+
+        const content = (
+          <ReactMarkdown
+            components={{
+              h1: ({ children }) => (
+                <h1 className="text-2xl font-bold mb-2 text-secondary">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="text-xl font-semibold mb-2">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </h2>
+              ),
+              p: ({ children }) => (
+                <p className="text-lg mb-2">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </p>
+              ),
+              strong: ({ children }) => (
+                <strong className="text-lg font-semibold">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </strong>
+              ),
+              em: ({ children }) => (
+                <em className="text-lg italic">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </em>
+              ),
+              blockquote: ({ children }) => (
+                <blockquote className="text-lg border-l-4 border-secondary pl-4 italic my-2">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </blockquote>
+              ),
+              ul: ({ children }) => (
+                <ul className="text-lg list-disc pl-5 mb-2">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="text-lg list-decimal pl-5 mb-2">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </ol>
+              ),
+              li: ({ children }) => (
+                <li className="text-lg mb-1">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children as string}
+                  />
+                </li>
+              ),
+            }}
+          >
+            {paragraph}
+          </ReactMarkdown>
+        );
+
+        return { title, content };
       });
-      return paragraph;
-    });
   };
 
   const copyToClipboard = () => {
@@ -59,101 +146,18 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
     });
   };
 
-  const prevCard = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? paragraphs.length - 1 : prevIndex - 1,
-    );
-  };
-
-  const nextCard = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === paragraphs.length - 1 ? 0 : prevIndex + 1,
-    );
-  };
-
   return (
-    <div className={cn("relative", className)}>
-      <div className="relative">
-        <AnimatePresence initial={false} mode="popLayout">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="flex items-center justify-center">
-              <CardContent className="p-4">
-                <ScrollArea className="flex items-center justify-center h-full">
-                  <ReactMarkdown
-                    components={{
-                      h1: ({ children }) => (
-                        <h1 className="text-2xl font-bold">{children}</h1>
-                      ),
-                      h2: ({ children }) => (
-                        <h2 className="text-xl font-semibold">{children}</h2>
-                      ),
-                      p: ({ children }) => (
-                        <p className="text-2xl leading-relaxed">{children}</p>
-                      ),
-                      strong: ({ children }) => (
-                        <strong className="font-semibold text-2xl">
-                          {children}
-                        </strong>
-                      ),
-                      em: ({ children }) => (
-                        <em className="italic text-muted-foreground text-2xl">
-                          {children}
-                        </em>
-                      ),
-                      blockquote: ({ children }) => (
-                        <blockquote className="mt-8 border-l-4 pl-6 italic text-xl">
-                          {children}
-                        </blockquote>
-                      ),
-                      ul: ({ children }) => (
-                        <ul className="mt-8 ml-8 list-disc [&>li]:mt-4 text-xl">
-                          {children}
-                        </ul>
-                      ),
-                      ol: ({ children }) => (
-                        <ol className="mt-8 ml-8 list-decimal [&>li]:mt-4 text-xl">
-                          {children}
-                        </ol>
-                      ),
-                      li: ({ children }) => (
-                        <li className="text-xl">{children}</li>
-                      ),
-                    }}
-                  >
-                    {paragraphs[currentIndex]}
-                  </ReactMarkdown>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-      <div className="flex justify-between mt-4">
-        <Button
-          disabled={currentIndex === 0}
-          onClick={prevCard}
-          variant="outline"
-          size="lg"
-        >
-          <ChevronLeft className="mr-2 h-5 w-5" />
-          Anterior
-        </Button>
-        <Button
-          disabled={currentIndex === paragraphs.length - 1}
-          onClick={nextCard}
-          variant="outline"
-          size="lg"
-        >
-          Siguiente
-          <ChevronRight className="ml-2 h-5 w-5" />
-        </Button>
-      </div>
+    <div className={cn("relative pt-12", className)}>
+      <Timeline data={timelineData} />
+
+      <Button
+        onClick={copyToClipboard}
+        variant="outline"
+        size="sm"
+        className="absolute top-2 right-2"
+      >
+        <Copy className="h-4 w-4" />
+      </Button>
     </div>
   );
 };

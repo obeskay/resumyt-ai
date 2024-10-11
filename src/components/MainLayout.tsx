@@ -31,13 +31,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <>
       <div className="min-h-screen text-foreground flex flex-col">
-        <header className="py-2 w-screen z-[10] sticky top-0 bg-background">
+        <header className="py-2 w-screen z-[10] sticky top-0 bg-background/40 backdrop-blur-md border-b border-px border-border/50">
           <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
             <Link href="/" className="flex items-center gap-2 mb-2 sm:mb-0">
               <YouTubeLogo />
               <div className="flex items-center cursor-pointer overflow-clip">
                 <motion.h1 className="text-2xl sm:text-4xl font-bold">
-                  ResumeYT
+                  ResumYT
                 </motion.h1>
               </div>
             </Link>

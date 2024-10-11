@@ -157,7 +157,6 @@ export default function SummaryPage({
                       src={`https://img.youtube.com/vi/${selectedSummary.videoId}/mqdefault.jpg`}
                       alt={selectedSummary.title || dict.summary.defaultTitle}
                       layoutId="video-thumbnail"
-                      className="rounded-lg shadow-lg"
                     />
                   </div>
                   <div className="flex-1">
@@ -179,7 +178,6 @@ export default function SummaryPage({
                           "_blank",
                         )
                       }
-                      className="bg-gradient-to-r from-primary to-secondary text-white"
                     >
                       {dict.summary.watchOnYoutube}
                     </Button>

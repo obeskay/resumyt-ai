@@ -4,6 +4,7 @@ import { Space_Grotesk } from "next/font/google";
 import "../styles/globals.css";
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { initSmoothScroll } from "@/lib/smoothScroll";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -11,6 +12,14 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    const lenis = initSmoothScroll();
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Component {...pageProps} />
