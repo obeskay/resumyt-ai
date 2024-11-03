@@ -42,26 +42,21 @@ export interface ButtonProps
   isLoading?: boolean;
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, children, disabled, type = "button", ...props }, ref) => {
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { className, variant, size, asChild = false, isLoading = false, ...props },
+    ref,
+  ) => {
+    const Comp = asChild ? Slot : "button";
     return (
-      <button
-        className={cn(
-          "focus:ring-2 focus:ring-offset-2 focus:ring-primary",
-          disabled && "opacity-50 cursor-not-allowed",
-          className,
-        )}
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        disabled={disabled}
-        type={type}
-        aria-disabled={disabled}
         {...props}
-      >
-        {children}
-      </button>
+      />
     );
   },
 );
 Button.displayName = "Button";
 
-export { buttonVariants };
+export { Button, buttonVariants };

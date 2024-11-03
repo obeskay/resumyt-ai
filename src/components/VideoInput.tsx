@@ -8,19 +8,15 @@ import { Loader2 } from "lucide-react";
 import { useLoadingAnimation } from "@/hooks/useLoadingAnimation";
 
 interface VideoInputProps {
-  userId: string;
   quotaRemaining: number;
   onSubmit: (url: string, videoTitle: string) => Promise<void>;
   dict: any;
-  lang: string;
 }
 
 const VideoInput: React.FC<VideoInputProps> = ({
-  userId,
   quotaRemaining,
   onSubmit,
   dict,
-  lang,
 }) => {
   const [url, setUrl] = useState("");
   const [isValidating, setIsValidating] = useState(false);
@@ -85,17 +81,13 @@ const VideoInput: React.FC<VideoInputProps> = ({
         </div>
       </form>
 
-      {currentAnimation && (
-        <div className="w-full max-w-md mx-auto">
-          {/* TODO: Implement RiveComponent or remove this section */}
-        </div>
-      )}
-
       {quotaRemaining <= 1 && (
         <Alert variant="destructive" className="mt-4">
-          <AlertTitle>{dict.quota?.lowTitle ?? "Low Quota Alert"}</AlertTitle>
+          <AlertTitle>
+            {dict.alerts?.lowQuota?.title ?? "Low Quota Alert"}
+          </AlertTitle>
           <AlertDescription>
-            {dict.quota?.lowMessage ??
+            {dict.alerts?.lowQuota?.message ??
               "You're running low on summaries. Consider upgrading your plan!"}
           </AlertDescription>
         </Alert>

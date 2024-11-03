@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  pageExtensions: ["ts", "tsx", "js", "jsx"],
+  pageExtensions: ["ts", "tsx", "js", "jsx", "json"],
   images: {
     remotePatterns: [
       {
@@ -24,6 +24,10 @@ const nextConfig = {
       };
     }
     return config;
+  },
+  i18n: {
+    locales: ["en", "es", "fr", "de", "it", "pt", "ru", "zh"],
+    defaultLocale: "en",
   },
 };
 

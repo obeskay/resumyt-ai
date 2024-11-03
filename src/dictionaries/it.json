@@ -2,74 +2,176 @@
   "home": {
     "title": "Riassunti di Video YouTube in Secondi",
     "subtitle": "Risparmia tempo e impara più velocemente con riassunti video intelligenti",
-    "description": "Resumyt ti permette di ottenere riassunti concisi e precisi di qualsiasi video YouTube. Ideale per studenti, professionisti e appassionati di apprendimento.",
-    "metaDescription": "Resumyt: Ottieni riassunti automatici di video YouTube. Risparmia tempo, impara più velocemente e migliora la tua produttività con il nostro strumento di IA.",
-    "keywords": "riassunto video, YouTube, apprendimento rapido, produttività, IA, intelligenza artificiale, contenuti educativi, risparmio di tempo, riassunti automatici, video educativi, strumento di studio, sintesi dei contenuti",
+    "metaDescription": "Risparmia tempo e impara più velocemente con riassunti video intelligenti",
+    "keywords": "YouTube, riassunti, video, riassunto, apprendimento, educazione, risparmio di tempo",
     "remainingQuota": "Quota rimanente",
-    "inputPlaceholder": "Incolla qui il link del video YouTube",
-    "summarizeButton": "Riassumi",
     "error": {
-      "somethingWentWrong": "Qualcosa è andato storto. Per favore, riprova.",
-      "invalidUrl": "URL YouTube non valido. Per favore, verifica il link.",
-      "quotaExceeded": "Hai raggiunto il tuo limite di quota giornaliero.",
-      "noFormatSelected": "Per favore, seleziona almeno un formato di riassunto."
-    },
-    "dialog": {
-      "title": "Benvenuto su Resumyt!",
-      "description": "Resumyt ti permette di ottenere riassunti rapidi di video YouTube. Basta incollare il link del video e noi faremo il resto.",
-      "button": "Capito"
+      "somethingWentWrong": "Qualcosa è andato storto"
     },
     "features": {
-      "title": "Caratteristiche",
       "quickSummaries": "Riassunti Rapidi",
+      "quickSummariesDesc": "Ottieni riassunti concisi di video YouTube in secondi.",
       "timeSaving": "Risparmio di Tempo",
+      "timeSavingDesc": "Risparmia ore di visualizzazione con i nostri riassunti efficienti.",
       "acceleratedLearning": "Apprendimento Accelerato",
+      "acceleratedLearningDesc": "Assimila le informazioni più velocemente con i nostri contenuti riassunti.",
       "forEveryone": "Per Tutti",
+      "forEveryoneDesc": "Adatto a studenti, professionisti e menti curiose.",
       "diverseContent": "Contenuti Diversificati",
-      "valuableInsights": "Approfondimenti Preziosi"
+      "diverseContentDesc": "Riassumi una vasta gamma di contenuti YouTube, dalle lezioni ai documentari.",
+      "valuableInsights": "Spunti Preziosi",
+      "valuableInsightsDesc": "Estrai punti chiave e approfondimenti da qualsiasi video."
     },
     "howItWorks": {
-      "title": "Come funziona",
-      "step1": "Incolla il link",
+      "title": "Come Funziona",
+      "step1": "Incolla l'URL",
+      "step1Desc": "Semplicemente copia e incolla l'URL del video YouTube che vuoi riassumere.",
       "step2": "Scegli il formato",
-      "step3": "Ottieni il tuo riassunto"
+      "step2Desc": "Seleziona tra punti chiave, paragrafo o pagina completa.",
+      "step3": "Ottieni il riassunto",
+      "step3Desc": "In pochi secondi, ricevi un riassunto conciso e accurato del contenuto del video."
     },
     "testimonials": {
-      "title": "Cosa dicono i nostri utenti"
+      "title": "Testimonianze",
+      "quote1": "Resumyt mi ha fatto risparmiare ore di visualizzazione di video lunghi. Ora posso ottenere le informazioni chiave in pochi minuti.",
+      "name1": "Maria G.",
+      "title1": "Studentessa universitaria",
+      "quote2": "Fantastico per preparare presentazioni. Resumyt estrae i punti chiave di cui ho bisogno.",
+      "name2": "Giacomo M.",
+      "title2": "Manager marketing",
+      "quote3": "Grazie a Resumyt, posso seguire gli ultimi tutorial di programmazione senza passare ore a guardare video.",
+      "name3": "Anna L.",
+      "title3": "Sviluppatrice software",
+      "quote4": "Resumyt è uno strumento essenziale per chi vuole imparare velocemente.",
+      "name4": "Carlo V.",
+      "title4": "Studente universitario"
     },
     "cta": {
-      "title": "Pronto per iniziare?",
-      "description": "Unisciti a migliaia di utenti che stanno già risparmiando tempo e imparando più velocemente con Resumyt.",
-      "button": "Prova Resumyt gratuitamente"
+      "title": "Pronto per Iniziare?",
+      "description": "Unisciti a migliaia di utenti soddisfatti e inizia a riassumere i tuoi video oggi.",
+      "button": "Inizia"
     },
     "faq": {
-      "title": "Domande frequenti",
-      "q1": "Come funziona Resumyt?",
-      "a1": "Resumyt utilizza l'intelligenza artificiale avanzata per analizzare e riassumere i video di YouTube. Devi solo incollare il link del video e selezionare il formato di riassunto che preferisci.",
-      "q2": "L'uso di Resumyt è gratuito?",
-      "a2": "Offriamo una quota gratuita giornaliera per tutti gli utenti. Per un uso illimitato, abbiamo piani premium a prezzi accessibili.",
-      "q3": "Che tipo di video posso riassumere?",
-      "a3": "Puoi riassumere qualsiasi video pubblico di YouTube, dai tutorial e conferenze ai documentari e interviste.",
-      "q4": "In quali lingue è disponibile Resumyt?",
-      "a4": "Attualmente, Resumyt può riassumere video in italiano, inglese, spagnolo, francese, tedesco, portoghese, russo e cinese."
-    }
+      "title": "Domande Frequenti",
+      "q1": "Cos'è Resumyt?",
+      "a1": "Resumyt è una piattaforma che fornisce riassunti concisi e accurati di video YouTube in pochi secondi.",
+      "q2": "Come funziona Resumyt?",
+      "a2": "Resumyt utilizza tecnologia AI avanzata per analizzare e riassumere i video YouTube.",
+      "q3": "Resumyt è gratuito?",
+      "a3": "Sì, Resumyt offre un piano gratuito con utilizzo limitato.",
+      "q4": "Posso usare Resumyt per scopi educativi?",
+      "a4": "Assolutamente! Resumyt è un ottimo strumento per studenti, ricercatori e educatori."
+    },
+    "description": "Resumyt ti permette di ottenere riassunti concisi e accurati di qualsiasi video YouTube. Ideale per studenti, professionisti e appassionati di apprendimento.",
+    "inputPlaceholder": "Incolla qui il link del video YouTube",
+    "summarizeButton": "Riassumi",
+    "dialog": {
+      "title": "Benvenuto su Resumyt!",
+      "description": "Resumyt ti permette di ottenere riassunti rapidi di video YouTube. Incolla semplicemente il link del video e noi faremo il resto.",
+      "button": "Ho capito"
+    },
+    "continueButton": "Continua",
+    "formatQuestion": "Come vuoi il riassunto?"
+  },
+  "loading": {
+    "title": "Elaborazione",
+    "description": "Attendere prego..."
   },
   "summary": {
-    "title": "Riassunto del Video",
-    "loadingMessage": "Generazione del riassunto in corso...",
-    "errorMessage": "Errore durante la generazione del riassunto. Si prega di riprovare."
+    "title": "Riassunto Video",
+    "pageTitle": "Riassunto",
+    "summaryTitle": "Riassunto del Contenuto",
+    "defaultTitle": "Titolo non disponibile",
+    "videoIdLabel": "ID Video",
+    "watchOnYoutube": "Guarda su YouTube",
+    "backToHome": "Torna alla Home",
+    "notFound": "Riassunto non trovato",
+    "returnHome": "Torna alla Pagina Iniziale",
+    "loadingMessage": "Generazione riassunto...",
+    "errorMessage": "Errore nella generazione del riassunto. Per favore riprova."
   },
-  "auth": {
-    "signIn": "Accedi",
-    "signOut": "Esci"
+  "error": {
+    "title": "Errore",
+    "message": "Impossibile generare il riassunto"
+  },
+  "videoInput": {
+    "placeholder": "Incolla qui l'URL del video YouTube",
+    "invalidUrl": "Inserisci un URL YouTube valido",
+    "submit": "Genera Riassunto",
+    "button": "Riassumi",
+    "quotaExceeded": "Hai raggiunto il limite della quota",
+    "upgrade": "Aggiorna",
+    "or": "o",
+    "waitTomorrow": "aspetta fino a domani",
+    "processing": "Elaborazione video...",
+    "errorProcessing": "Errore nell'elaborazione del video",
+    "tryAgain": "Per favore riprova"
   },
   "formats": {
-    "bulletPoints": "Punti chiave",
+    "title": "Seleziona Formato",
+    "keyPoints": "Punti Chiave",
+    "keyPointsDesc": "Elenco puntato delle idee principali",
     "paragraph": "Paragrafo",
+    "paragraphDesc": "Riassunto conciso in paragrafo",
+    "fullPage": "Pagina Completa",
+    "fullPageDesc": "Riassunto dettagliato completo",
+    "bulletPoints": "Punti chiave",
     "page": "Pagina"
+  },
+  "achievements": {
+    "unlocked": "Obiettivo Sbloccato!",
+    "summaryGenerated": "Primo Riassunto Generato",
+    "progress": "Progresso"
   },
   "recentVideos": {
     "title": "Video recenti",
-    "thumbnailAlt": "Miniatura del video"
+    "thumbnailAlt": "Anteprima video"
+  },
+  "videoChat": {
+    "title": "Chat su",
+    "suggestedQuestions": "Domande suggerite:",
+    "inputPlaceholder": "Fai una domanda sul video...",
+    "sendButton": "Invia",
+    "loadingChat": "Caricamento chat...",
+    "error": "Errore:"
+  },
+  "quota": {
+    "title": "La tua Quota",
+    "resetIn": "Si resetta in",
+    "hours": "ore",
+    "plan": "Piano"
+  },
+  "pricing": {
+    "title": "Piani & Prezzi",
+    "currentPlan": "Piano Attuale",
+    "month": "mese",
+    "selectPlanButton": "Seleziona Piano",
+    "currentPlanButton": "Piano Attuale",
+    "upgradeButton": "Aggiorna Piano",
+    "features": {
+      "summariesPerDay": "riassunti al giorno",
+      "support": "supporto",
+      "formats": "formati di riassunto",
+      "noAds": "nessuna pubblicità",
+      "apiAccess": "accesso API"
+    }
+  },
+  "profile": {
+    "title": "Il tuo Profilo",
+    "userInfo": "Informazioni Utente",
+    "email": "Email",
+    "quota": "Quota di Utilizzo",
+    "summaryHistory": "Cronologia Riassunti",
+    "recent": "Recenti",
+    "favorites": "Preferiti",
+    "statistics": "Statistiche",
+    "totalSummaries": "Totale Riassunti",
+    "memberSince": "Membro dal",
+    "settings": "Impostazioni",
+    "preferences": "Preferenze",
+    "language": "Lingua",
+    "theme": "Tema",
+    "notifications": "Notifiche",
+    "comingSoon": "Prossimamente"
   }
 }

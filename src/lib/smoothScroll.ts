@@ -1,12 +1,9 @@
-import Lenis from "@studio-freight/lenis";
+import Lenis from "lenis";
 
 export const initSmoothScroll = () => {
   const lenis = new Lenis({
-    duration: 0.75,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    // Eliminar 'direction' y 'gestureDirection'
-    touchMultiplier: 2,
-    infinite: false,
+    lerp: 0.95,
+    wheelMultiplier: 1,
   });
 
   function raf(time: number) {

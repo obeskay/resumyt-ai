@@ -1,75 +1,124 @@
 {
   "home": {
     "title": "Resumos de Vídeos do YouTube em Segundos",
-    "subtitle": "Economize tempo e aprenda mais rápido com resumos inteligentes de vídeos",
-    "description": "Resumyt permite que você obtenha resumos concisos e precisos de qualquer vídeo do YouTube. Ideal para estudantes, profissionais e entusiastas da aprendizagem.",
-    "metaDescription": "Resumyt: Obtenha resumos automáticos de vídeos do YouTube. Economize tempo, aprenda mais rápido e melhore sua produtividade com nossa ferramenta de IA.",
-    "keywords": "resumo de vídeo, YouTube, aprendizado rápido, produtividade, IA, inteligência artificial, conteúdo educacional, economia de tempo, resumos automáticos, vídeos educacionais, ferramenta de estudo, síntese de conteúdo",
+    "subtitle": "Economize tempo e aprenda mais rápido com resumos inteligentes",
+    "metaDescription": "Economize tempo e aprenda mais rápido com resumos inteligentes de vídeos",
+    "keywords": "YouTube, resumos, vídeo, resumo, aprendizagem, educação, economia de tempo",
     "remainingQuota": "Cota restante",
-    "inputPlaceholder": "Insira a URL do YouTube",
-    "summarizeButton": "Resumir",
     "error": {
-      "somethingWentWrong": "Algo deu errado. Por favor, tente novamente.",
-      "invalidUrl": "URL do YouTube inválida. Por favor, verifique o link.",
-      "quotaExceeded": "Você atingiu sua cota diária.",
-      "noFormatSelected": "Por favor, selecione pelo menos um formato de resumo."
-    },
-    "dialog": {
-      "title": "Bem-vindo ao Resumyt!",
-      "description": "Resumyt permite que você obtenha resumos rápidos de vídeos do YouTube. Basta inserir o link do vídeo e nós cuidaremos do resto.",
-      "button": "Entendi"
+      "somethingWentWrong": "Algo deu errado"
     },
     "features": {
       "title": "Recursos",
       "quickSummaries": "Resumos Rápidos",
+      "quickSummariesDesc": "Obtenha os pontos principais de qualquer vídeo em segundos.",
       "timeSaving": "Economia de Tempo",
+      "timeSavingDesc": "Economize horas de visualização com nossos resumos eficientes.",
       "acceleratedLearning": "Aprendizado Acelerado",
+      "acceleratedLearningDesc": "Aprenda mais rápido e eficientemente com nossos resumos potencializados por IA.",
       "forEveryone": "Para Todos",
+      "forEveryoneDesc": "Ideal para estudantes, profissionais e entusiastas do aprendizado.",
       "diverseContent": "Conteúdo Diversificado",
-      "valuableInsights": "Insights Valiosos"
+      "diverseContentDesc": "Resuma vídeos em vários idiomas e formatos.",
+      "valuableInsights": "Insights Valiosos",
+      "valuableInsightsDesc": "Obtenha insights valiosos de qualquer vídeo.",
+      "smartAnalysis": "Análise Inteligente",
+      "smartAnalysisDesc": "Nossa IA identifica e extrai os pontos mais importantes.",
+      "easySharing": "Compartilhamento Fácil",
+      "easySharingDesc": "Compartilhe resumos com colegas e amigos facilmente.",
+      "customFormats": "Formatos Personalizados",
+      "customFormatsDesc": "Escolha o formato que melhor atende às suas necessidades."
     },
     "howItWorks": {
       "title": "Como Funciona",
-      "step1": "Inserir Link",
-      "step2": "Escolher Formato",
-      "step3": "Obter Resumo"
+      "step1": "Cole a URL",
+      "step1Desc": "Simplesmente copie e cole a URL do vídeo do YouTube que você quer resumir.",
+      "step2": "Escolha o formato",
+      "step2Desc": "Selecione entre pontos-chave, parágrafo ou página completa.",
+      "step3": "Obtenha seu resumo",
+      "step3Desc": "Em segundos, receba um resumo conciso e preciso do conteúdo do vídeo."
     },
     "testimonials": {
-      "title": "O que Nossos Usuários Dizem"
+      "title": "O que nossos usuários dizem",
+      "quote1": "Resumyt me economizou horas assistindo vídeos longos. Agora posso obter as informações principais em minutos.",
+      "name1": "Maria G.",
+      "title1": "Estudante universitária",
+      "quote2": "Incrível para preparar apresentações. O Resumyt extrai os pontos-chave que preciso.",
+      "name2": "João M.",
+      "title2": "Gerente de marketing",
+      "quote3": "Graças ao Resumyt, posso acompanhar os últimos tutoriais de programação sem passar horas assistindo vídeos.",
+      "name3": "Ana L.",
+      "title3": "Desenvolvedora de software",
+      "quote4": "Resumyt é uma ferramenta essencial para quem quer aprender rapidamente.",
+      "name4": "Carlos V.",
+      "title4": "Estudante universitário",
+      "quote5": "Uso o Resumyt diariamente para me manter atualizado com as últimas tendências do mercado.",
+      "name5": "Pedro S.",
+      "title5": "Consultor empresarial",
+      "quote6": "Perfeito para pesquisa acadêmica. Economizo muito tempo revisando conteúdo em vídeo.",
+      "name6": "Beatriz R.",
+      "title6": "Pesquisadora",
+      "quote7": "A qualidade dos resumos é impressionante. A IA realmente entende o contexto.",
+      "name7": "Lucas T.",
+      "title7": "Professor universitário",
+      "quote8": "Indispensável para minha produtividade diária.",
+      "name8": "Sofia M.",
+      "title8": "Empreendedora"
     },
     "cta": {
       "title": "Pronto para Começar?",
-      "description": "Junte-se a milhares de usuários que já estão economizando tempo e aprendendo mais rápido com o Resumyt.",
-      "button": "Teste o Resumyt Gratuitamente"
+      "description": "Junte-se a milhares de usuários satisfeitos e comece a resumir seus vídeos hoje.",
+      "button": "Começar"
     },
     "faq": {
       "title": "Perguntas Frequentes",
-      "q1": "Como o Resumyt funciona?",
-      "a1": "O Resumyt utiliza inteligência artificial avançada para analisar e resumir vídeos do YouTube. Você só precisa inserir o link do vídeo e selecionar o formato de resumo desejado.",
-      "q2": "O uso do Resumyt é gratuito?",
-      "a2": "Oferecemos uma cota diária gratuita para todos os usuários. Para uso ilimitado, temos planos premium acessíveis.",
-      "q3": "Quais tipos de vídeos posso resumir?",
-      "a3": "Você pode resumir qualquer vídeo público do YouTube, desde tutoriais e palestras até documentários e entrevistas.",
-      "q4": "Em quais idiomas o Resumyt está disponível?",
-      "a4": "Atualmente, o Resumyt pode resumir vídeos em português, inglês, espanhol, alemão, francês, italiano, russo e chinês."
+      "q1": "O que é o Resumyt?",
+      "a1": "Resumyt é uma plataforma que fornece resumos concisos e precisos de vídeos do YouTube em segundos.",
+      "q2": "Como funciona o Resumyt?",
+      "a2": "Resumyt usa tecnologia avançada de IA para analisar e resumir vídeos do YouTube.",
+      "q3": "O Resumyt é gratuito?",
+      "a3": "Sim, o Resumyt oferece um plano gratuito com uso limitado.",
+      "q4": "Posso usar o Resumyt para fins educacionais?",
+      "a4": "Absolutamente! O Resumyt é uma excelente ferramenta para estudantes, pesquisadores e educadores."
     }
   },
-  "summary": {
-    "title": "Resumo do Vídeo",
-    "loadingMessage": "Gerando resumo...",
-    "errorMessage": "Erro ao gerar o resumo. Por favor, tente novamente."
+  "loading": {
+    "title": "Processando",
+    "description": "Por favor, aguarde..."
   },
-  "auth": {
-    "signIn": "Entrar",
-    "signOut": "Sair"
+  "summary": {
+    "title": "Sucesso",
+    "successMessage": "Resumo gerado com sucesso!"
+  },
+  "error": {
+    "title": "Erro",
+    "message": "Falha ao gerar resumo"
+  },
+  "videoInput": {
+    "placeholder": "Cole aqui a URL do vídeo do YouTube",
+    "invalidUrl": "Por favor, insira uma URL válida do YouTube",
+    "submit": "Gerar Resumo",
+    "button": "Resumir",
+    "quotaExceeded": "Você atingiu seu limite de cota",
+    "upgrade": "Atualizar",
+    "or": "ou",
+    "waitTomorrow": "espere até amanhã",
+    "processing": "Processando vídeo...",
+    "errorProcessing": "Erro ao processar vídeo",
+    "tryAgain": "Por favor, tente novamente"
   },
   "formats": {
-    "bulletPoints": "Pontos-chave",
+    "title": "Selecionar Formato",
+    "keyPoints": "Pontos-Chave",
+    "keyPointsDesc": "Tópicos com as principais ideias",
     "paragraph": "Parágrafo",
-    "page": "Página"
+    "paragraphDesc": "Resumo conciso em parágrafo",
+    "fullPage": "Página Completa",
+    "fullPageDesc": "Resumo detalhado completo"
   },
-  "recentVideos": {
-    "title": "Vídeos Resumidos Recentemente",
-    "thumbnailAlt": "Miniatura do Vídeo"
+  "achievements": {
+    "unlocked": "Conquista Desbloqueada!",
+    "summaryGenerated": "Primeiro Resumo Gerado",
+    "progress": "Progresso"
   }
 }
