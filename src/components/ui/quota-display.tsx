@@ -7,10 +7,10 @@ import { QuotaInfo } from "@/lib/quotaManager";
 import { formatDistanceToNow } from "date-fns";
 
 interface QuotaDisplayProps {
-  currentQuota: number;
-  maxQuota: number;
+  currentQuota: number | null;
+  maxQuota: number | null;
   resetDate: Date;
-  plan: string;
+  plan: string | null;
 }
 
 const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
@@ -19,8 +19,9 @@ const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   resetDate,
   plan,
 }) => {
-  const percentage = (currentQuota / maxQuota) * 100;
-  const timeUntilReset = formatDistanceToNow(resetDate);
+  const quota = currentQuota ?? 0;
+  const max = maxQuota ?? 0;
+  const planType = plan ?? "free";
 
   return (
     <motion.div
@@ -37,18 +38,20 @@ const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>
-                {currentQuota} / {maxQuota}
-              </span>
-              <span>{Math.round(percentage)}%</span>
+              <span>{quota} remaining</span>
+              <span>of {max} total</span>
             </div>
-            <Progress value={percentage} />
-          </div>
-          <div className="text-sm text-muted-foreground">
-            <TextGenerateEffect words={`Resets in ${timeUntilReset}`} />
-          </div>
-          <div className="text-sm font-medium">
-            <TextGenerateEffect words={`Plan: ${plan}`} />
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all"
+                style={{ width: `${(quota / max) * 100}%` }}
+              />
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Plan: {planType}
+              <br />
+              Resets: {resetDate.toLocaleDateString()}
+            </div>
           </div>
         </CardContent>
       </Card>

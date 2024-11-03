@@ -156,6 +156,9 @@
   },
   "profile": {
     "title": "Your Profile",
+    "userInfo": "User Information",
+    "email": "Email",
+    "quota": "Usage Quota",
     "summaryHistory": "Summary History",
     "recent": "Recent",
     "favorites": "Favorites",
@@ -166,6 +169,7 @@
     "preferences": "Preferences",
     "language": "Language",
     "theme": "Theme",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "comingSoon": "Coming soon"
   }
 }
