@@ -1,9 +1,12 @@
 import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
+// Define the possible status types
+type StatusType = "error" | "processing" | "success";
+
 interface LoadingAnimationProps {
-  status: "processing" | "success" | "error";
+  status: StatusType;
   progress?: number;
 }
 
@@ -17,13 +20,22 @@ export function LoadingAnimation({
     autoplay: true,
   });
 
-  const stateInput = useStateMachineInput(rive, "Processing", "state");
-  const progressInput = useStateMachineInput(rive, "Processing", "progress");
+  const container = useRef<HTMLDivElement>(null);
+  const stateInput = useRef<HTMLInputElement>(null);
+  const progressInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (stateInput) stateInput.value = status;
-    if (progressInput) progressInput.value = progress;
-  }, [status, progress, stateInput, progressInput]);
+    // Convert status to a number value for Lottie
+    const statusValue = {
+      processing: 0,
+      success: 1,
+      error: 2,
+    }[status];
+
+    if (stateInput?.current) stateInput.current.value = statusValue.toString();
+    if (progressInput?.current)
+      progressInput.current.value = progress.toString();
+  }, [status, progress]);
 
   const steps = {
     processing: [
