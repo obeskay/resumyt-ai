@@ -3,21 +3,21 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import QuotaDisplay from "@/components/ui/quota-display";
-import type { User } from "@supabase/auth-helpers-nextjs";
+import type { User } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
 interface ProfileClientProps {
-  user: User;
-  profile: Profile;
+  user: User | null;
   dict: any;
+  userData: AnonymousUser | null;
 }
 
 const ProfileClient: React.FC<ProfileClientProps> = ({
   user,
-  profile,
   dict,
+  userData,
 }) => {
   return (
     <div className="container mx-auto px-4 py-8">
@@ -33,15 +33,21 @@ const ProfileClient: React.FC<ProfileClientProps> = ({
                 <h2 className="text-lg font-semibold">{dict.profile.email}</h2>
                 <p>{user?.email}</p>
               </div>
-              <div>
-                <h2 className="text-lg font-semibold">{dict.profile.quota}</h2>
-                <QuotaDisplay
-                  currentQuota={profile.quota_remaining}
-                  maxQuota={profile.quota_max}
-                  resetDate={new Date(profile.quota_reset_date)}
-                  plan={profile.plan}
-                />
-              </div>
+              {userData && (
+                <div>
+                  <h2 className="text-lg font-semibold">
+                    {dict.profile.quota}
+                  </h2>
+                  <QuotaDisplay
+                    currentQuota={userData.quota_remaining}
+                    maxQuota={userData.quota_limit}
+                    resetDate={
+                      new Date(userData.quota_reset_date || Date.now())
+                    }
+                    plan={userData.plan_type}
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

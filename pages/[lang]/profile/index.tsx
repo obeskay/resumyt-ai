@@ -1,25 +1,32 @@
 import { GetServerSideProps } from "next";
 import { getDictionary } from "@/lib/getDictionary";
-import { getSupabase } from "@/lib/supabase";
-import ProfileClient from "@/components/profile/ProfileClient";
 import { Locale, i18n } from "@/i18n-config";
-import type { User } from "@supabase/auth-helpers-nextjs";
+import { User } from "@supabase/supabase-js";
+import ProfileClient from "@/components/profile/ProfileClient";
+import MainLayout from "@/components/MainLayout";
 import type { Database } from "@/types/supabase";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+// Change this to use anonymous_users instead of profiles
+type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
 interface ProfilePageProps {
   user: User | null;
-  profile: Profile | null;
   dict: any;
+  userData: AnonymousUser | null;
 }
 
-export default function ProfilePage({ user, profile, dict }: ProfilePageProps) {
-  if (!user || !profile) {
-    return <div>Loading...</div>; // Or redirect to login
-  }
+export default function ProfilePage({
+  user,
+  dict,
+  userData,
+}: ProfilePageProps) {
+  if (!dict) return null;
 
-  return <ProfileClient user={user} profile={profile} dict={dict} />;
+  return (
+    <MainLayout>
+      <ProfileClient user={user} dict={dict} userData={userData} />
+    </MainLayout>
+  );
 }
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -27,50 +34,22 @@ export const getServerSideProps: GetServerSideProps = async ({
   req,
 }) => {
   const lang = params?.lang as string;
+
+  if (!lang) {
+    return { notFound: true };
+  }
+
   const validLang: Locale = i18n.locales.includes(lang as Locale)
     ? (lang as Locale)
     : i18n.defaultLocale;
-
-  const supabase = getSupabase();
-
-  // Get user session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: `/${validLang}/login`,
-        permanent: false,
-      },
-    };
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", session.user.id)
-    .single();
-
-  if (!profile) {
-    // If no profile exists, redirect to signin
-    return {
-      redirect: {
-        destination: `/${validLang}/auth/signin`,
-        permanent: false,
-      },
-    };
-  }
 
   const dict = await getDictionary(validLang);
 
   return {
     props: {
-      user: session.user,
-      profile,
       dict,
+      user: null, // Handle user authentication as needed
+      userData: null, // Handle user data as needed
     },
   };
 };

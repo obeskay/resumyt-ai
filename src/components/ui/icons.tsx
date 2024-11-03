@@ -12,7 +12,6 @@ import {
   SunMedium,
   Twitter,
   Check,
-  Google,
 } from "lucide-react";
 
 export const IconClipboard = (props: LucideProps) => <Clipboard {...props} />;

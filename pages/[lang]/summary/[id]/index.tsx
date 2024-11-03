@@ -54,6 +54,36 @@ interface SummaryPageProps {
   initialSummaries: Summary[] | null;
 }
 
+interface Database {
+  public: {
+    Tables: {
+      summaries: {
+        Row: {
+          id: number;
+          video_id: string;
+          title: string | null;
+          content: string;
+          transcript: string;
+          format: string;
+          created_at: string;
+          user_id: string | null;
+          suggested_questions: any | null;
+        };
+      };
+      videos: {
+        Row: {
+          id: string;
+          url: string;
+          title: string | null;
+          thumbnail_url: string | null;
+          created_at: string;
+          user_id: string | null;
+        };
+      };
+    };
+  };
+}
+
 export default function SummaryPage({
   dict,
   initialSummaries,
@@ -259,10 +289,11 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   try {
     console.log("Fetching summaries for video ID:", id);
-    const { data: summaries, error } = await supabase
+    const { data: summariesData, error } = await supabase
       .from("summaries")
       .select(
         `
+        id,
         content,
         transcript,
         video_id,
@@ -286,19 +317,19 @@ export const getServerSideProps: GetServerSideProps = async ({
       };
     }
 
+    const formattedSummaries = summariesData?.map((summary) => ({
+      content: summary.content,
+      transcript: summary.transcript,
+      videoId: summary.video_id,
+      title: summary.title || dict.summary.defaultTitle,
+      thumbnailUrl: summary.videos?.[0]?.thumbnail_url || "",
+      format: summary.format,
+    }));
+
     return {
       props: {
         dict,
-        initialSummaries: summaries
-          ? (summaries as any[]).map((summary) => ({
-              content: summary.content,
-              transcript: summary.transcript,
-              videoId: summary.video_id,
-              title: summary.title || dict.summary.defaultTitle,
-              thumbnailUrl: summary.videos[0]?.thumbnail_url || "",
-              format: summary.format,
-            }))
-          : null,
+        initialSummaries: formattedSummaries || null,
       },
     };
   } catch (error) {

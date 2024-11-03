@@ -1,95 +1,96 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import QuotaDisplay from "@/components/ui/quota-display";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import type { User } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 import { motion } from "framer-motion";
-import { getDictionary } from "@/lib/getDictionary";
 
-interface ProfileProps {
-  profile: {
-    quota_remaining: number;
-    max_quota: number;
-    reset_date: string;
-    plan: string;
-    summaryHistory?: Array<{
-      id: string;
+type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
+
+interface ProfileComponentProps {
+  user: User | null;
+  dict: {
+    profile: {
       title: string;
-      date: string;
-      videoId: string;
-    }>;
+      userInfo: string;
+      email: string;
+      quota: string;
+      summaryHistory: string;
+      recent: string;
+      favorites: string;
+      statistics: string;
+      totalSummaries: string;
+      memberSince: string;
+      settings: string;
+      preferences: string;
+      language: string;
+      theme: string;
+      notifications: string;
+      comingSoon: string;
+    };
   };
-  lang: string;
+  userData: AnonymousUser | null;
 }
 
-const ProfileComponent: React.FC<ProfileProps> = async ({ profile, lang }) => {
-  const dict = await getDictionary(lang);
-
+const ProfileComponent: React.FC<ProfileComponentProps> = ({
+  user,
+  dict,
+  userData,
+}) => {
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-8"
+        transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold">
-          <TextGenerateEffect words={dict.profile?.title ?? "Your Profile"} />
-        </h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Cuota y Plan */}
-          <div className="md:col-span-1">
-            <QuotaDisplay
-              currentQuota={profile.quota_remaining}
-              maxQuota={profile.max_quota}
-              resetDate={new Date(profile.reset_date)}
-              plan={profile.plan}
-            />
-          </div>
-
-          {/* Historial de Resúmenes */}
-          <Card className="md:col-span-2">
+        <h1 className="text-2xl font-bold mb-4">{dict.profile.title}</h1>
+        <div className="grid gap-6">
+          <Card>
             <CardHeader>
-              <CardTitle>
-                <TextGenerateEffect
-                  words={dict.profile?.summaryHistory ?? "Summary History"}
-                />
-              </CardTitle>
+              <CardTitle>{dict.profile.userInfo}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="recent" className="w-full">
+              <Tabs defaultValue="recent" className="space-y-4">
                 <TabsList>
                   <TabsTrigger value="recent">
-                    {dict.profile?.recent ?? "Recent"}
+                    {dict.profile.recent}
                   </TabsTrigger>
                   <TabsTrigger value="favorites">
-                    {dict.profile?.favorites ?? "Favorites"}
+                    {dict.profile.favorites}
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="recent" className="space-y-4">
-                  {profile.summaryHistory?.map((summary) => (
-                    <motion.div
-                      key={summary.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="p-4 rounded-lg bg-card/50 hover:bg-card/80 transition-colors"
-                    >
-                      <h3 className="font-medium">{summary.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(summary.date).toLocaleDateString(lang)}
-                      </p>
-                    </motion.div>
-                  ))}
+                <TabsContent value="recent">
+                  {/* Implementar historial reciente aquí */}
+                  <p className="text-muted-foreground">
+                    {dict.profile.comingSoon}
+                  </p>
                 </TabsContent>
                 <TabsContent value="favorites">
                   {/* Implementar favoritos más tarde */}
                   <p className="text-muted-foreground">
-                    {dict.profile?.comingSoon ?? "Coming soon"}
+                    {dict.profile.comingSoon}
                   </p>
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
+          {userData && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{dict.profile.quota}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <QuotaDisplay
+                  currentQuota={userData.quota_remaining}
+                  maxQuota={userData.quota_limit}
+                  resetDate={new Date(userData.quota_reset_date || Date.now())}
+                  plan={userData.plan_type}
+                />
+              </CardContent>
+            </Card>
+          )}
         </div>
       </motion.div>
     </div>
