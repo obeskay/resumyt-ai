@@ -1,17 +1,115 @@
 {
   "home": {
-    "title": "YouTube 摘要生成器",
-    "description": "获取 YouTube 视频的快速摘要",
-    "inputPlaceholder": "输入 YouTube 链接",
-    "summarizeButton": "生成摘要"
+    "title": "几秒钟内生成YouTube视频摘要",
+    "subtitle": "通过智能视频摘要节省时间，加快学习速度",
+    "metaDescription": "通过智能视频摘要节省时间，加快学习速度",
+    "keywords": "YouTube, 摘要, 视频, 总结, 学习, 教育, 省时",
+    "remainingQuota": "剩余配额",
+    "error": {
+      "somethingWentWrong": "出现错误"
+    },
+    "features": {
+      "quickSummaries": "快速摘要",
+      "quickSummariesDesc": "几秒钟内获取YouTube视频的简明摘要。",
+      "timeSaving": "节省时间",
+      "timeSavingDesc": "通过我们的高效摘要节省观看时间。",
+      "acceleratedLearning": "加速学习",
+      "acceleratedLearningDesc": "通过我们的摘要内容更快地吸收信息。",
+      "forEveryone": "适合所有人",
+      "forEveryoneDesc": "适合学生、专业人士和求知欲强的人。",
+      "diverseContent": "多样化内容",
+      "diverseContentDesc": "总结各种YouTube内容，从讲座到纪录片。",
+      "valuableInsights": "有价值的见解",
+      "valuableInsightsDesc": "从任何视频中提取关键点和见解。"
+    },
+    "howItWorks": {
+      "title": "使用方法",
+      "step1": "粘贴URL",
+      "step1Desc": "只需复制并粘贴您想要总结的YouTube视频URL。",
+      "step2": "选择格式",
+      "step2Desc": "在关键点、段落或完整页面之间选择。",
+      "step3": "获取摘要",
+      "step3Desc": "几秒钟内，收到视频内容的简明准确摘要。"
+    },
+    "testimonials": {
+      "title": "用户评价",
+      "quote1": "Resumyt为我节省了观看长视频的时间。现在我可以在几分钟内获取关键信息。",
+      "name1": "玛丽",
+      "title1": "大学生",
+      "quote2": "非常适合准备演示。Resumyt提取我需要的关键点来创建有影响力的内容。",
+      "name2": "詹姆斯",
+      "title2": "市场经理",
+      "quote3": "感谢Resumyt，我可以跟上最新的编程教程而不用花费数小时观看视频。",
+      "name3": "安娜",
+      "title3": "软件开发者",
+      "quote4": "Resumyt是想要快速学习的人的必备工具。",
+      "name4": "查尔斯",
+      "title4": "大学生"
+    },
+    "cta": {
+      "title": "准备开始了吗？",
+      "description": "加入成千上万的满意用户，今天就开始总结您的视频。",
+      "button": "开始使用"
+    },
+    "faq": {
+      "title": "常见问题",
+      "q1": "什么是Resumyt？",
+      "a1": "Resumyt是一个在几秒钟内提供YouTube视频简明准确摘要的平台。",
+      "q2": "Resumyt是如何工作的？",
+      "a2": "Resumyt使用先进的AI技术来分析和总结YouTube视频。",
+      "q3": "Resumyt是免费的吗？",
+      "a3": "是的，Resumyt提供有限使用的免费计划。",
+      "q4": "我可以将Resumyt用于教育目的吗？",
+      "a4": "当然可以！Resumyt是学生、研究人员和教育工作者的优秀工具。"
+    }
+  },
+  "loading": {
+    "title": "处理中",
+    "description": "请稍候..."
   },
   "summary": {
-    "title": "视频摘要",
-    "loadingMessage": "正在生成摘要...",
-    "errorMessage": "生成摘要时出错。请重试。"
+    "title": "成功",
+    "successMessage": "摘要生成成功！"
   },
-  "auth": {
-    "signIn": "登录",
-    "signOut": "退出"
+  "error": {
+    "title": "错误",
+    "message": "生成摘要失败"
+  },
+  "videoInput": {
+    "placeholder": "在此粘贴YouTube视频URL",
+    "invalidUrl": "请输入有效的YouTube URL",
+    "submit": "生成摘要",
+    "quotaExceeded": "您已达到配额限制",
+    "upgrade": "升级",
+    "or": "或",
+    "waitTomorrow": "等到明天",
+    "processing": "正在处理视频...",
+    "errorProcessing": "处理视频时出错",
+    "tryAgain": "请重试",
+    "button": "生成摘要"
+  },
+  "formats": {
+    "title": "选择格式",
+    "keyPoints": "关键点",
+    "keyPointsDesc": "主要观点要点",
+    "paragraph": "段落",
+    "paragraphDesc": "简明段落摘要",
+    "fullPage": "完整页面",
+    "fullPageDesc": "详细完整的摘要"
+  },
+  "achievements": {
+    "unlocked": "成就解锁！",
+    "summaryGenerated": "生成第一个摘要",
+    "progress": "进度"
+  },
+  "quota": {
+    "lowTitle": "配额不足提醒",
+    "lowMessage": "您的摘要次数即将用完。考虑升级您的计划！"
+  },
+  "notifications": {
+    "success": "成功",
+    "error": "错误",
+    "info": "信息",
+    "warning": "警告"
   }
 }

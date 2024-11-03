@@ -2,40 +2,33 @@
   "home": {
     "title": "YouTube Video Summaries in Seconds",
     "subtitle": "Save time and learn faster with intelligent video summaries",
-    "description": "Resumyt allows you to get concise and accurate summaries of any YouTube video. Ideal for students, professionals, and learning enthusiasts.",
-    "metaDescription": "Resumyt: Get automatic summaries of YouTube videos. Save time, learn faster, and improve your productivity with our AI tool.",
-    "keywords": "video summary, YouTube, fast learning, productivity, AI, artificial intelligence, educational content, time-saving, automatic summaries, educational videos, study tool, content synthesis",
+    "metaDescription": "Save time and learn faster with intelligent video summaries",
+    "keywords": "YouTube, summaries, video, summarization, learning, education, time-saving",
     "remainingQuota": "Remaining quota",
-    "inputPlaceholder": "Paste the YouTube video link here",
-    "summarizeButton": "Summarize",
     "error": {
-      "somethingWentWrong": "Something went wrong. Please try again.",
-      "invalidUrl": "Invalid YouTube URL. Please check the link.",
-      "quotaExceeded": "You have reached your daily quota limit.",
-      "noFormatSelected": "Please select a summary format."
-    },
-    "dialog": {
-      "title": "Welcome to Resumyt!",
-      "description": "Resumyt allows you to get quick summaries of YouTube videos. Simply paste the video link and we'll do the rest.",
-      "button": "Got it"
+      "somethingWentWrong": "Something went wrong"
     },
     "features": {
       "title": "Features",
       "quickSummaries": "Quick Summaries",
       "quickSummariesDesc": "Get the key points of any video in seconds.",
       "timeSaving": "Time Saving",
+      "timeSavingDesc": "Save up to 90% of your time with instant video summaries.",
       "acceleratedLearning": "Accelerated Learning",
       "acceleratedLearningDesc": "Learn faster and more efficiently with our AI-powered summaries.",
-      "timeSavingDesc": "Consume content efficiently and productively.",
       "forEveryone": "For Everyone",
-      "forEveryoneDesc": "Resumyt is ideal for students, professionals, and learning enthusiasts.",
+      "forEveryoneDesc": "Perfect for students, professionals, and lifelong learners.",
       "diverseContent": "Diverse Content",
-      "diverseContentDesc": "Summarize videos in various languages and formats.",
+      "diverseContentDesc": "Support for multiple languages and video formats.",
       "valuableInsights": "Valuable Insights",
-      "valuableInsightsDesc": "Get valuable insights from any video."
+      "valuableInsightsDesc": "Extract key insights and main takeaways instantly.",
+      "customization": "Customization",
+      "customizationDesc": "Choose between different summary formats to suit your needs.",
+      "accessibility": "Accessibility",
+      "accessibilityDesc": "Make video content more accessible with text summaries."
     },
     "howItWorks": {
-      "title": "How it works",
+      "title": "How It Works",
       "step1": "Paste the URL",
       "step1Desc": "Simply copy and paste the URL of the YouTube video you want to summarize.",
       "step2": "Choose the format",
@@ -48,128 +41,88 @@
       "quote1": "Resumyt has saved me hours of time watching long videos. Now I can get the key information in minutes.",
       "name1": "Mary G.",
       "title1": "University student",
-      "quote2": "Amazing for preparing presentations. Resumyt extracts the key points I need to create impactful content.",
-      "name2": "James M.",
-      "title2": "Marketing manager",
-      "quote3": "Thanks to Resumyt, I can keep up with the latest programming tutorials without spending hours watching videos.",
-      "name3": "Anna L.",
-      "title3": "Software developer",
-      "quote4": "Resumyt is an essential tool for anyone who wants to learn quickly. Now I can absorb information more efficiently.",
-      "name4": "Charles V.",
-      "title4": "University student"
+      "quote2": "As a researcher, this tool is invaluable. It helps me quickly scan through hours of lecture content.",
+      "name2": "Dr. James Wilson",
+      "title2": "Research Scientist",
+      "quote3": "The AI summaries are surprisingly accurate and help me stay productive.",
+      "name3": "Sarah Chen",
+      "title3": "Content Creator",
+      "quote4": "I use Resumyt daily for my online courses. It's a game-changer!",
+      "name4": "Michael R.",
+      "title4": "University student",
+      "quote5": "Perfect for reviewing technical tutorials. Saves me so much time!",
+      "name5": "David Kumar",
+      "title5": "Software Developer",
+      "quote6": "The multiple summary formats are great. I use bullet points for quick reviews and full pages for detailed study.",
+      "name6": "Emma Thompson",
+      "title6": "Graduate Student"
     },
     "cta": {
-      "title": "Ready to start?",
-      "description": "Join thousands of users who are already saving time and learning faster with Resumyt.",
-      "button": "Try Resumyt for free"
+      "title": "Ready to Get Started?",
+      "description": "Join thousands of satisfied users and start summarizing your videos today.",
+      "button": "Get Started"
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "q1": "How does Resumyt work?",
-      "a1": "Resumyt uses advanced artificial intelligence to analyze and summarize YouTube videos. You just need to paste the video link and select your preferred summary format.",
-      "q2": "Is it free to use Resumyt?",
-      "a2": "We offer a free daily quota for all users. For unlimited use, we have affordable premium plans.",
-      "q3": "What types of videos can I summarize?",
-      "a3": "You can summarize any public YouTube video, from tutorials and lectures to documentaries and interviews.",
-      "q4": "In what languages is Resumyt available?",
-      "a4": "Currently, Resumyt can summarize videos in English, Spanish, French, German, Italian, Portuguese, Russian, and Chinese."
-    },
-    "continueButton": "Continue",
-    "formatQuestion": "How do you want the summary?"
-  },
-  "summary": {
-    "title": "Video Summary",
-    "pageTitle": "Summary",
-    "summaryTitle": "Content Summary",
-    "defaultTitle": "Title not available",
-    "videoIdLabel": "Video ID",
-    "watchOnYoutube": "Watch on YouTube",
-    "backToHome": "Back to Home",
-    "notFound": "Summary not found",
-    "returnHome": "Return to Home Page",
-    "loadingMessage": "Generating summary...",
-    "errorMessage": "Error generating summary. Please try again."
-  },
-  "auth": {
-    "signIn": "Sign In",
-    "signOut": "Sign Out"
-  },
-  "formats": {
-    "bulletPoints": "Key points",
-    "paragraph": "Paragraph",
-    "page": "Page"
-  },
-  "recentVideos": {
-    "title": "Recent videos",
-    "thumbnailAlt": "Video thumbnail"
-  },
-  "videoChat": {
-    "title": "Chat about",
-    "suggestedQuestions": "Suggested questions:",
-    "inputPlaceholder": "Ask a question about the video...",
-    "sendButton": "Send",
-    "loadingChat": "Loading chat...",
-    "error": "Error:"
-  },
-  "quota": {
-    "title": "Your Quota",
-    "resetIn": "Resets in",
-    "hours": "hours",
-    "plan": "Plan"
-  },
-  "pricing": {
-    "title": "Plans & Pricing",
-    "currentPlan": "Current Plan",
-    "month": "month",
-    "selectPlanButton": "Select Plan",
-    "currentPlanButton": "Current Plan",
-    "upgradeButton": "Upgrade Plan",
-    "features": {
-      "summariesPerDay": "summaries per day",
-      "support": "support",
-      "formats": "summary formats",
-      "noAds": "no ads",
-      "apiAccess": "API access"
+      "q1": "What is Resumyt?",
+      "a1": "Resumyt is a platform that provides concise and accurate summaries of YouTube videos in seconds.",
+      "q2": "How does Resumyt work?",
+      "a2": "Resumyt uses advanced AI technology to analyze and summarize YouTube videos. It extracts key points, paragraphs, or full summaries based on your preferences.",
+      "q3": "Is Resumyt free to use?",
+      "a3": "Yes, Resumyt offers a free tier with limited usage. For unlimited access and additional features, you can upgrade to a premium plan.",
+      "q4": "Can I use Resumyt for educational purposes?",
+      "a4": "Absolutely! Resumyt is an excellent tool for students, researchers, and educators to save time and learn faster from YouTube videos."
     }
   },
   "loading": {
-    "title": "Generating Summary",
-    "description": "Please wait while we process your video",
-    "step1": "Analyzing video",
-    "step2": "Extracting key information",
-    "step3": "Generating summary",
-    "step4": "Finishing up"
+    "title": "Processing",
+    "description": "Please wait..."
+  },
+  "summary": {
+    "title": "Success",
+    "successMessage": "Summary generated successfully!"
+  },
+  "error": {
+    "title": "Error",
+    "message": "Failed to generate summary"
+  },
+  "videoInput": {
+    "placeholder": "Paste your YouTube video URL here",
+    "invalidUrl": "Please enter a valid YouTube URL",
+    "submit": "Generate Summary",
+    "button": "Summarize",
+    "quotaExceeded": "You have reached your quota limit",
+    "upgrade": "Upgrade",
+    "or": "or",
+    "waitTomorrow": "wait until tomorrow",
+    "processing": "Processing video...",
+    "errorProcessing": "Error processing video",
+    "tryAgain": "Please try again"
+  },
+  "formats": {
+    "title": "Select Format",
+    "keyPoints": "Key Points",
+    "keyPointsDesc": "Bullet points with main ideas",
+    "paragraph": "Paragraph",
+    "paragraphDesc": "Concise paragraph summary",
+    "fullPage": "Full Page",
+    "fullPageDesc": "Detailed comprehensive summary"
   },
   "achievements": {
-    "title": "Achievements",
-    "unlockedOn": "Unlocked on",
-    "notifications": {
-      "unlocked": "Achievement unlocked!",
-      "progress": "Progress updated"
-    },
-    "categories": {
-      "summaries": "Summaries",
-      "streak": "Streak",
-      "shares": "Shares",
-      "special": "Special"
+    "unlocked": "Achievement Unlocked!",
+    "summaryGenerated": "First Summary Generated",
+    "progress": "Progress"
+  },
+  "alerts": {
+    "lowQuota": {
+      "title": "Low Quota Alert",
+      "message": "You're running low on summaries. Consider upgrading your plan!"
     }
   },
-  "profile": {
-    "title": "Your Profile",
-    "userInfo": "User Information",
-    "email": "Email",
-    "quota": "Usage Quota",
-    "summaryHistory": "Summary History",
-    "recent": "Recent",
-    "favorites": "Favorites",
-    "statistics": "Statistics",
-    "totalSummaries": "Total Summaries",
-    "memberSince": "Member Since",
-    "settings": "Settings",
-    "preferences": "Preferences",
-    "language": "Language",
-    "theme": "Theme",
-    "notifications": "Notifications",
-    "comingSoon": "Coming soon"
+  "notifications": {
+    "success": "Success",
+    "error": "Error",
+    "info": "Information",
+    "warning": "Warning"
   }
 }

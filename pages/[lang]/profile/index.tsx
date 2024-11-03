@@ -1,25 +1,12 @@
 import { GetServerSideProps } from "next";
 import { getDictionary } from "@/lib/getDictionary";
 import { Locale, i18n } from "@/i18n-config";
-import { User } from "@supabase/supabase-js";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import ProfileClient from "@/components/profile/ProfileClient";
 import MainLayout from "@/components/MainLayout";
-import type { Database } from "@/types/supabase";
 
-// Change this to use anonymous_users instead of profiles
-type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
-
-interface ProfilePageProps {
-  user: User | null;
-  dict: any;
-  userData: AnonymousUser | null;
-}
-
-export default function ProfilePage({
-  user,
-  dict,
-  userData,
-}: ProfilePageProps) {
+export default function ProfilePage({ user, dict, userData }) {
   if (!dict) return null;
 
   return (
@@ -30,13 +17,20 @@ export default function ProfilePage({
 }
 
 export const getServerSideProps: GetServerSideProps = async ({
-  params,
   req,
+  res,
+  params,
 }) => {
+  const session = await getServerSession(req, res, authOptions);
   const lang = params?.lang as string;
 
-  if (!lang) {
-    return { notFound: true };
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/${lang}/login`,
+        permanent: false,
+      },
+    };
   }
 
   const validLang: Locale = i18n.locales.includes(lang as Locale)
@@ -48,7 +42,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     props: {
       dict,
-      user: null, // Handle user authentication as needed
+      user: session.user,
       userData: null, // Handle user data as needed
     },
   };

@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Script from "next/script";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Función para manejar el inicio de sesión con Google
   async function handleSignInWithGoogle(response: any) {
@@ -17,7 +18,14 @@ export default function LoginPage() {
 
       if (error) throw error;
 
-      router.push("/profile"); // Redirige después del login exitoso
+      // Si el inicio de sesión es exitoso, redirigir a la URL de retorno o al perfil
+      const returnUrl = searchParams?.get("returnUrl");
+      if (returnUrl) {
+        router.push(decodeURIComponent(returnUrl));
+      } else {
+        const locale = window.location.pathname.split("/")[1];
+        router.push(`/${locale}/profile`);
+      }
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error);
     }

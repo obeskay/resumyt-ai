@@ -1,29 +1,16 @@
 import type { Locale } from "@/i18n-config";
 
-// Importa todos los diccionarios
-import es from "@/dictionaries/es.json";
-import en from "@/dictionaries/en.json";
-// Importa otros idiomas según sea necesario
-
 const dictionaries = {
-  es,
-  en,
-  // Agrega otros idiomas aquí
+  en: () => import("@/dictionaries/en.json").then((module) => module.default),
+  es: () => import("@/dictionaries/es.json").then((module) => module.default),
+  fr: () => import("@/dictionaries/fr.json").then((module) => module.default),
+  de: () => import("@/dictionaries/de.json").then((module) => module.default),
+  it: () => import("@/dictionaries/it.json").then((module) => module.default),
+  pt: () => import("@/dictionaries/pt.json").then((module) => module.default),
+  ru: () => import("@/dictionaries/ru.json").then((module) => module.default),
+  zh: () => import("@/dictionaries/zh.json").then((module) => module.default),
 };
 
-// Update the Dictionary type to be a union of both es and en types
-export type Dictionary = typeof es | typeof en;
-
-export const getDictionary = async (locale: string): Promise<Dictionary> => {
-  try {
-    if (locale in dictionaries) {
-      return dictionaries[locale as keyof typeof dictionaries] as Dictionary;
-    } else {
-      console.warn(`Dictionary for locale ${locale} not found. Falling back to en.`);
-      return dictionaries.en as Dictionary;
-    }
-  } catch (error) {
-    console.error(`Error loading dictionary for locale ${locale}:`, error);
-    return dictionaries.en as Dictionary;
-  }
+export const getDictionary = async (locale: Locale) => {
+  return dictionaries[locale]?.() ?? dictionaries.en();
 };

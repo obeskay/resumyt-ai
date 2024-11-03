@@ -1,6 +1,7 @@
 import { GetServerSideProps } from "next";
 import { getDictionary } from "@/lib/getDictionary";
 import ClientHomePage from "@/components/ClientHomePage";
+import { Locale } from "@/i18n-config";
 
 interface HomePageProps {
   dict: any;
@@ -24,7 +25,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     };
   }
 
-  const dict = await getDictionary(locale);
+  const dict = await getDictionary(locale as Locale);
   return {
     props: {
       dict,
