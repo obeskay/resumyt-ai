@@ -15,14 +15,13 @@ import { FAQSection } from "./home/FAQSection";
 import { CTASection } from "./home/CTASection";
 import { SEOHead } from "./home/SEOHead";
 import { RecentVideoThumbnails } from "@/components/RecentVideoThumbnails";
-import { Locale } from "@/i18n-config";
 import { getFeatures } from "@/lib/features";
 import { getFAQs } from "@/lib/faq";
 import { getTestimonials } from "@/lib/testimonials";
 
 interface ClientHomePageProps {
   dict: any;
-  lang: Locale;
+  lang: "en" | "es";
 }
 
 const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {

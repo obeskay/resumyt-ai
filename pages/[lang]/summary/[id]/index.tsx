@@ -293,7 +293,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       content: summary.content,
       transcript: summary.transcript,
       videoId: summary.video_id,
-      title: summary.title || dict.summary.defaultTitle,
+      title: summary.title || dict.summary.title,
       thumbnailUrl: summary.videos?.[0]?.thumbnail_url || "",
       format: summary.format,
       highlights: summary.highlights || [],
