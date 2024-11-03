@@ -110,5 +110,62 @@
     "sendButton": "Enviar",
     "loadingChat": "Cargando chat...",
     "error": "Error:"
+  },
+  "quota": {
+    "title": "Tu Cuota",
+    "resetIn": "Se renueva en",
+    "hours": "horas",
+    "plan": "Plan"
+  },
+  "pricing": {
+    "title": "Planes y Precios",
+    "currentPlan": "Plan Actual",
+    "month": "mes",
+    "selectPlanButton": "Seleccionar Plan",
+    "currentPlanButton": "Plan Actual",
+    "upgradeButton": "Mejorar Plan",
+    "features": {
+      "summariesPerDay": "resúmenes por día",
+      "support": "soporte",
+      "formats": "formatos de resumen",
+      "noAds": "sin publicidad",
+      "apiAccess": "acceso a API"
+    }
+  },
+  "loading": {
+    "title": "Generando Resumen",
+    "description": "Por favor espera mientras procesamos tu video",
+    "step1": "Analizando el video",
+    "step2": "Extrayendo información clave",
+    "step3": "Generando resumen",
+    "step4": "Finalizando"
+  },
+  "achievements": {
+    "title": "Logros",
+    "unlockedOn": "Desbloqueado el",
+    "notifications": {
+      "unlocked": "¡Logro desbloqueado!",
+      "progress": "Progreso actualizado"
+    },
+    "categories": {
+      "summaries": "Resúmenes",
+      "streak": "Racha",
+      "shares": "Compartidos",
+      "special": "Especiales"
+    }
+  },
+  "profile": {
+    "title": "Tu Perfil",
+    "summaryHistory": "Historial de Resúmenes",
+    "recent": "Recientes",
+    "favorites": "Favoritos",
+    "statistics": "Estadísticas",
+    "totalSummaries": "Total de Res��menes",
+    "memberSince": "Miembro desde",
+    "settings": "Configuración",
+    "preferences": "Preferencias",
+    "language": "Idioma",
+    "theme": "Tema",
+    "notifications": "Notificaciones"
   }
 }

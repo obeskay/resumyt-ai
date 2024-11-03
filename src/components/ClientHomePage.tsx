@@ -30,6 +30,11 @@ import ClientOnly from "./ClientOnly";
 import { useRouter } from "next/router";
 import { Locale } from "@/i18n-config";
 import { initSmoothScroll } from "@/lib/smoothScroll";
+import LoadingContainer from "@/components/LoadingContainer";
+import { useLoadingStore } from "@/store/loadingStore";
+import { useNotificationStore } from "@/store/notificationStore";
+import NotificationToast from "@/components/NotificationToast";
+import { useAchievements } from "@/hooks/useAchievements";
 
 type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 
@@ -55,12 +60,15 @@ const ErrorFallback: React.FC<{
 /* eslint-disable react/display-name */
 const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
   const [user, setUser] = useState<AnonymousUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
   const { toast } = useToast();
   const [recentVideos, setRecentVideos] = useState<string[]>([]);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const videoInputRef = useRef<HTMLDivElement>(null);
+  const { setLoading } = useLoadingStore();
+  const { addNotification } = useNotificationStore();
+  const { handleAchievementProgress } = useAchievements(dict);
 
   const handleSubmit = async (
     url: string,
@@ -68,36 +76,54 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
     videoTitle: string,
   ) => {
     setIsSubmitting(true);
+    setLoading(true);
     try {
+      addNotification({
+        type: "info",
+        title: dict.loading?.title ?? "Processing",
+        message: dict.loading?.description ?? "Please wait...",
+        duration: 3000,
+      });
+
       const response = await fetch(
-        `/api/summarize?url=${url}&format=${formats.join(",")}&lang=${lang}&title=${encodeURIComponent(videoTitle)}`,
+        `/api/summarize?url=${url}&format=unified&lang=${lang}&title=${encodeURIComponent(videoTitle)}`,
       );
-      if (!response.ok) {
+
+      if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
+
       const data = await response.json();
       if (data.videoId) {
+        handleAchievementProgress("summaries");
+        addNotification({
+          type: "success",
+          title: dict.summary?.title ?? "Success",
+          message:
+            dict.summary?.successMessage ?? "Summary generated successfully!",
+          duration: 5000,
+        });
         router.push(`/${lang}/summary/${data.videoId}`);
       } else {
         throw new Error("No se recibió un videoId válido");
       }
     } catch (error) {
       console.error("Error al resumir el video:", error);
-      toast({
-        title: "Error",
-        description:
-          "Hubo un problema al resumir el video. Por favor, inténtelo de nuevo.",
-        variant: "destructive",
+      addNotification({
+        type: "error",
+        title: dict.error?.title ?? "Error",
+        message: dict.error?.message ?? "Failed to generate summary",
+        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const initializeUser = async (retries = 3) => {
       try {
-        setLoading(true);
+        setIsInitializing(true);
         const response = await fetch("/api/getIp");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -146,7 +172,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
           });
         }
       } finally {
-        setLoading(false);
+        setIsInitializing(false);
       }
     };
 
@@ -673,6 +699,8 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
             </div>
           </div>
           <Toaster />
+          <LoadingContainer dict={dict} />
+          <NotificationToast />
         </MainLayout>
       </ClientOnly>
     </ErrorBoundary>

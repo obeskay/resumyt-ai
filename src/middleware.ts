@@ -1,25 +1,24 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const locales = ['es', 'en'];
-const defaultLocale = 'es';
-
 export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
+  // Rutas que necesitan Node.js Runtime
+  const nodeRoutes = ["/api/summarize", "/api/generate-questions"];
 
-  if (pathnameIsMissingLocale) {
-    const locale = defaultLocale;
-    return NextResponse.redirect(
-      new URL(`/${locale}${pathname}`, request.url)
-    );
+  if (nodeRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-middleware-runtime", "nodejs");
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: "/api/:path*",
 };

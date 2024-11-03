@@ -110,5 +110,62 @@
     "sendButton": "Send",
     "loadingChat": "Loading chat...",
     "error": "Error:"
+  },
+  "quota": {
+    "title": "Your Quota",
+    "resetIn": "Resets in",
+    "hours": "hours",
+    "plan": "Plan"
+  },
+  "pricing": {
+    "title": "Plans & Pricing",
+    "currentPlan": "Current Plan",
+    "month": "month",
+    "selectPlanButton": "Select Plan",
+    "currentPlanButton": "Current Plan",
+    "upgradeButton": "Upgrade Plan",
+    "features": {
+      "summariesPerDay": "summaries per day",
+      "support": "support",
+      "formats": "summary formats",
+      "noAds": "no ads",
+      "apiAccess": "API access"
+    }
+  },
+  "loading": {
+    "title": "Generating Summary",
+    "description": "Please wait while we process your video",
+    "step1": "Analyzing video",
+    "step2": "Extracting key information",
+    "step3": "Generating summary",
+    "step4": "Finishing up"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "unlockedOn": "Unlocked on",
+    "notifications": {
+      "unlocked": "Achievement unlocked!",
+      "progress": "Progress updated"
+    },
+    "categories": {
+      "summaries": "Summaries",
+      "streak": "Streak",
+      "shares": "Shares",
+      "special": "Special"
+    }
+  },
+  "profile": {
+    "title": "Your Profile",
+    "summaryHistory": "Summary History",
+    "recent": "Recent",
+    "favorites": "Favorites",
+    "statistics": "Statistics",
+    "totalSummaries": "Total Summaries",
+    "memberSince": "Member Since",
+    "settings": "Settings",
+    "preferences": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications"
   }
 }

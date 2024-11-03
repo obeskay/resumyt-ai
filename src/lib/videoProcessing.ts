@@ -7,6 +7,10 @@ import {
 } from "./errors";
 import { YoutubeTranscript } from "youtube-transcript";
 import axios, { AxiosError } from "axios";
+import { getSelfObject } from "@/config/environment";
+
+// Usar getSelfObject() en lugar de self directamente
+const globalSelf = getSelfObject();
 
 // Simple in-memory cache for transcripts and metadata
 const transcriptCache: { [key: string]: { data: string; timestamp: number } } =
