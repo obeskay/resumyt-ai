@@ -1,8 +1,8 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -18,7 +18,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        figma: "bg-black text-white font-bold relative overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105 hover:bg-gray-800 before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-white before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-10",
+        figma:
+          "bg-black text-white font-bold relative overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-105 hover:bg-gray-800 before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-white before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-10",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -31,28 +32,36 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean
-  isLoading?: boolean
+  asChild?: boolean;
+  isLoading?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, isLoading = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, children, disabled, type = "button", ...props }, ref) => {
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+      <button
+        className={cn(
+          "focus:ring-2 focus:ring-offset-2 focus:ring-primary",
+          disabled && "opacity-50 cursor-not-allowed",
+          className,
+        )}
         ref={ref}
+        disabled={disabled}
+        type={type}
+        aria-disabled={disabled}
         {...props}
-      />
-    )
-  }
-)
-Button.displayName = "Button"
+      >
+        {children}
+      </button>
+    );
+  },
+);
+Button.displayName = "Button";
 
-export { Button, buttonVariants }
+export { buttonVariants };

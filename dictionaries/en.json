@@ -1,0 +1,31 @@
+{
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "signInToContinue": "Sign in to continue",
+    "continueWithGoogle": "Continue with Google",
+    "error": "Authentication Error",
+    "genericError": "Something went wrong. Please try again.",
+    "loading": "Loading...",
+    "success": "Sign in successful!",
+    "redirecting": "Redirecting...",
+    "or": "Or continue with"
+  },
+  "profile": {
+    "title": "My Profile",
+    "userInfo": "User Information",
+    "email": "Email",
+    "quota": "Usage Quota",
+    "plan": "Current Plan",
+    "summaryHistory": "Summary History",
+    "recent": "Recent",
+    "favorites": "Favorites",
+    "comingSoon": "Coming Soon",
+    "loading": "Loading profile..."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "back": "Back"
+  }
+} 

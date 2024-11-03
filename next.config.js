@@ -1,20 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  pageExtensions: ["ts", "tsx", "js", "jsx"],
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'i.ytimg.com',
+        protocol: "https",
+        hostname: "i.ytimg.com",
       },
       {
-        protocol: 'https',
-        hostname: 'img.youtube.com',
+        protocol: "https",
+        hostname: "img.youtube.com",
       },
     ],
   },
-  // Eliminamos la configuración de 'i18n' ya que no es compatible con App Router
-}
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

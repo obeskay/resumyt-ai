@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, List, Newspaper } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface FormatOption {
   icon: React.ReactNode;
@@ -14,22 +15,11 @@ interface FormatOption {
 
 const formatOptions: FormatOption[] = [
   {
-    icon: <List className="w-8 h-8" />,
-    title: "Puntos clave",
-    description: "Resumen en forma de lista de puntos principales",
-    value: "bullet-points",
-  },
-  {
-    icon: <Newspaper className="w-8 h-8" />,
-    title: "Página",
-    description: "Resumen detallado en formato de página",
-    value: "page",
-  },
-  {
     icon: <FileText className="w-8 h-8" />,
-    title: "Tutorial",
-    description: "Mejor para tutoriales",
-    value: "tutorial",
+    title: "Resumen Unificado",
+    description:
+      "Resumen inteligente que combina los puntos clave con explicaciones detalladas",
+    value: "unified",
   },
 ];
 
@@ -38,50 +28,48 @@ interface FormatSelectorProps {
 }
 
 const FormatSelector: React.FC<FormatSelectorProps> = ({ onSelect }) => {
-  const [selectedFormat, setSelectedFormat] = useState<string | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<string>("unified");
 
-  const handleSelect = (format: string) => {
-    setSelectedFormat(format);
-    onSelect(format);
-  };
+  useEffect(() => {
+    // Automatically select the unified format
+    onSelect("unified");
+  }, [onSelect]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">
-        Elige el formato de resumen
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {formatOptions.map((option, index) => (
-          <motion.div
-            key={option.value}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`bg-card p-6 rounded-full shadow-lg cursor-pointer ${
-              selectedFormat === option.value ? "ring-2 ring-primary" : ""
-            }`}
-            onClick={() => handleSelect(option.value)}
-          >
-            <motion.div
-              className="mb-4 text-primary flex justify-center"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              {option.icon}
-            </motion.div>
-            <h3 className="text-lg font-semibold mb-2 text-center">
-              {option.title}
-            </h3>
-            <p className="text-sm text-muted-foreground text-center">
-              {option.description}
-            </p>
-          </motion.div>
-        ))}
-      </div>
-    </div>
+    <motion.div
+      className="grid grid-cols-1 gap-4 w-full max-w-2xl mx-auto"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      {formatOptions.map((option) => (
+        <motion.div
+          key={option.value}
+          className={cn(
+            "relative p-6 rounded-lg border-2 cursor-pointer transition-colors",
+            "bg-card hover:bg-accent",
+            selectedFormat === option.value
+              ? "border-primary"
+              : "border-border hover:border-primary",
+          )}
+          whileHover={{ scale: 1.02 }}
+          onClick={() => {
+            setSelectedFormat(option.value);
+            onSelect(option.value);
+          }}
+        >
+          <div className="flex items-center gap-4">
+            {option.icon}
+            <div>
+              <h3 className="font-semibold">{option.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                {option.description}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </motion.div>
   );
 };
 
