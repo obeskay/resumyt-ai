@@ -3,10 +3,14 @@ import { useRouter } from "next/router";
 import { getSupabase } from "@/lib/supabase";
 import LoadingContainer from "@/components/LoadingContainer";
 import { getDictionary } from "@/lib/getDictionary";
+import { Locale } from "@/i18n-config";
 
-export default function AuthCallback() {
+interface CallbackPageProps {
+  lang: Locale;
+}
+
+export default function CallbackPage({ lang }: CallbackPageProps) {
   const router = useRouter();
-  const { lang } = router.query;
   const supabase = getSupabase();
 
   useEffect(() => {
@@ -52,6 +56,27 @@ export default function AuthCallback() {
     handleAuthCallback();
   }, [router, lang]);
 
-  const dict = getDictionary(lang as string);
+  const dict = getDictionary(lang);
   return <LoadingContainer dict={dict} />;
+}
+
+export async function getServerSideProps({
+  params,
+}: {
+  params: { lang: string };
+}) {
+  const lang = params.lang as Locale;
+
+  // Validate that the lang parameter is valid
+  if (!["en", "es"].includes(lang)) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      lang,
+    },
+  };
 }
