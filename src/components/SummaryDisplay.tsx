@@ -7,31 +7,42 @@ import { useToast } from "@/components/ui/use-toast";
 import { Timeline } from "@/components/ui/timeline";
 import { TextGenerateEffect } from "./ui/text-generate-effect";
 
+interface Highlight {
+  text: string;
+  timestamp: string;
+  importance: number;
+}
+
 interface SummaryDisplayProps {
-  summary: string | null;
+  title: string;
+  highlights: Highlight[];
+  extendedSummary: string;
+  content: string;
   className?: string;
+  videoId?: string;
 }
 
 const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
-  summary,
+  title,
+  highlights,
+  extendedSummary,
+  content,
   className,
+  videoId,
 }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [showExtended, setShowExtended] = useState(false);
   const [timelineData, setTimelineData] = useState<
     { title: string; content: React.ReactNode }[]
   >([]);
+  const [activeSection, setActiveSection] = useState<string>("resumen");
 
   useEffect(() => {
-    if (summary) {
-      const processed = processedSummary(summary);
-      setTimelineData(processed);
-    }
-  }, [summary]);
-
-  if (!summary) {
-    return null;
-  }
+    // Procesar el resumen para el Timeline
+    const processed = processedSummary(content);
+    setTimelineData(processed);
+  }, [content]);
 
   const processedSummary = (
     text: string,
@@ -40,7 +51,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
     return processed
       .filter((p) => p.trim() !== "")
       .map((paragraph, index) => {
-        let title = ``;
+        let title = "";
         if (paragraph.startsWith("# ")) {
           const lines = paragraph.split("\n");
           title = lines[0].replace("# ", "");
@@ -50,6 +61,17 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
           paragraph = "";
         }
 
+        // Ensure title is a string for TextGenerateEffect
+        if (!title) {
+          title = `Section ${index + 1}`;
+        }
+
+        // Process paragraph content to ensure it's a string
+        let processedParagraph = paragraph;
+        if (typeof processedParagraph !== "string") {
+          processedParagraph = String(processedParagraph);
+        }
+
         const content = (
           <ReactMarkdown
             components={{
@@ -57,7 +79,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                 <h1 className="text-2xl font-bold mb-2 text-secondary">
                   <TextGenerateEffect
                     duration={0.125}
-                    words={children as string}
+                    words={children?.toString() || ""}
                   />
                 </h1>
               ),
@@ -65,7 +87,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                 <h2 className="text-xl font-semibold mb-2">
                   <TextGenerateEffect
                     duration={0.125}
-                    words={children as string}
+                    words={children?.toString() || ""}
                   />
                 </h2>
               ),
@@ -73,7 +95,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                 <p className="text-lg mb-2">
                   <TextGenerateEffect
                     duration={0.125}
-                    words={children as string}
+                    words={children?.toString() || ""}
                   />
                 </p>
               ),
@@ -81,7 +103,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                 <strong className="text-lg font-semibold">
                   <TextGenerateEffect
                     duration={0.125}
-                    words={children as string}
+                    words={children?.toString() || ""}
                   />
                 </strong>
               ),
@@ -89,7 +111,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                 <em className="text-lg italic">
                   <TextGenerateEffect
                     duration={0.125}
-                    words={children as string}
+                    words={children?.toString() || ""}
                   />
                 </em>
               ),
@@ -97,31 +119,21 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
                 <blockquote className="text-lg border-l-4 border-secondary pl-4 italic my-2">
                   <TextGenerateEffect
                     duration={0.125}
-                    words={children as string}
+                    words={children?.toString() || ""}
                   />
                 </blockquote>
               ),
               ul: ({ children }) => (
-                <ul className="text-lg list-disc pl-5 mb-2">
-                  <TextGenerateEffect
-                    duration={0.125}
-                    words={children as string}
-                  />
-                </ul>
+                <ul className="text-lg list-disc pl-5 mb-2">{children}</ul>
               ),
               ol: ({ children }) => (
-                <ol className="text-lg list-decimal pl-5 mb-2">
-                  <TextGenerateEffect
-                    duration={0.125}
-                    words={children as string}
-                  />
-                </ol>
+                <ol className="text-lg list-decimal pl-5 mb-2">{children}</ol>
               ),
               li: ({ children }) => (
                 <li className="text-lg mb-1">
                   <TextGenerateEffect
                     duration={0.125}
-                    words={children as string}
+                    words={children?.toString() || ""}
                   />
                 </li>
               ),
@@ -136,7 +148,8 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(summary).then(() => {
+    const textToCopy = showExtended ? extendedSummary : content;
+    navigator.clipboard.writeText(textToCopy).then(() => {
       setCopied(true);
       toast({
         title: "Copiado",
@@ -146,18 +159,107 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
     });
   };
 
-  return (
-    <div className={cn("relative pt-12", className)}>
-      <Timeline data={timelineData} />
+  const getYouTubeLink = () => `https://youtube.com/watch?v=${videoId}`;
 
-      <Button
-        onClick={copyToClipboard}
-        variant="outline"
-        size="sm"
-        className="absolute top-2 right-2"
-      >
-        <Copy className="h-4 w-4" />
-      </Button>
+  const SummaryHeader = () => (
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold">
+        <TextGenerateEffect duration={0.125} words={title} />
+      </h2>
+      <div className="flex gap-2">
+        {videoId && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.open(getYouTubeLink(), "_blank")}
+          >
+            Ver en YouTube
+          </Button>
+        )}
+        <Button
+          onClick={copyToClipboard}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <Copy className="h-4 w-4" />
+          {copied ? "Copiado" : "Copiar"}
+        </Button>
+      </div>
+    </div>
+  );
+
+  const TabNavigation = () => (
+    <div className="flex gap-4 mb-6 border-b">
+      {["resumen", "puntos", "detalles"].map((tab) => (
+        <Button
+          key={tab}
+          variant={activeSection === tab ? "default" : "ghost"}
+          onClick={() => setActiveSection(tab)}
+          className="capitalize"
+        >
+          {tab}
+        </Button>
+      ))}
+    </div>
+  );
+
+  return (
+    <div
+      className={cn(
+        "relative p-6 bg-background rounded-lg shadow-lg",
+        className,
+      )}
+    >
+      <SummaryHeader />
+      <TabNavigation />
+
+      {activeSection === "resumen" && (
+        <div className="prose dark:prose-invert max-w-none">
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => (
+                <p className="text-lg mb-4 leading-relaxed">
+                  <TextGenerateEffect
+                    duration={0.125}
+                    words={children?.toString() || ""}
+                  />
+                </p>
+              ),
+              // ... otros componentes de markdown
+            }}
+          >
+            {showExtended ? extendedSummary : content}
+          </ReactMarkdown>
+          <Button
+            variant="link"
+            onClick={() => setShowExtended(!showExtended)}
+            className="mt-4"
+          >
+            {showExtended ? "Ver menos" : "Ver más"}
+          </Button>
+        </div>
+      )}
+
+      {activeSection === "puntos" && (
+        <div className="space-y-4">
+          {highlights.map((highlight, index) => (
+            <div key={index} className="p-4 bg-muted rounded-lg">
+              <p className="text-lg">
+                <TextGenerateEffect
+                  duration={0.125}
+                  words={highlight.text?.toString() || ""}
+                />
+              </p>
+              <span className="text-sm text-muted-foreground">
+                {highlight.timestamp}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activeSection === "detalles" && <Timeline data={timelineData} />}
     </div>
   );
 };

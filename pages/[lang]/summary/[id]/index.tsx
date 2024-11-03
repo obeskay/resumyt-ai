@@ -26,18 +26,10 @@ const DynamicVideoChat = dynamic(
   },
 );
 
-interface Video {
-  id: string;
-  title: string;
-  thumbnail_url: string;
-}
-
-interface SummaryFromDB {
-  content: string;
-  transcript: string;
-  video_id: string;
-  format: string;
-  videos: Video[];
+interface Highlight {
+  text: string;
+  timestamp: string;
+  importance: number;
 }
 
 interface Summary {
@@ -47,41 +39,13 @@ interface Summary {
   title: string;
   thumbnailUrl: string;
   format: string;
+  highlights: Highlight[];
+  extended_summary: string;
 }
 
 interface SummaryPageProps {
   dict: any;
   initialSummaries: Summary[] | null;
-}
-
-interface Database {
-  public: {
-    Tables: {
-      summaries: {
-        Row: {
-          id: number;
-          video_id: string;
-          title: string | null;
-          content: string;
-          transcript: string;
-          format: string;
-          created_at: string;
-          user_id: string | null;
-          suggested_questions: any | null;
-        };
-      };
-      videos: {
-        Row: {
-          id: string;
-          url: string;
-          title: string | null;
-          thumbnail_url: string | null;
-          created_at: string;
-          user_id: string | null;
-        };
-      };
-    };
-  };
 }
 
 export default function SummaryPage({
@@ -181,8 +145,8 @@ export default function SummaryPage({
               </div>
             ) : (
               <div className="sm:p-6 space-y-4">
-                <div className="flex items-start space-x-6 mb-6">
-                  <div className="w-1/3">
+                <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
+                  <div className="w-full sm:w-1/3">
                     <YouTubeThumbnail
                       src={`https://img.youtube.com/vi/${selectedSummary.videoId}/mqdefault.jpg`}
                       alt={selectedSummary.title || dict.summary.defaultTitle}
@@ -238,7 +202,13 @@ export default function SummaryPage({
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
-                    <SummaryDisplay summary={selectedSummary.content} />
+                    <SummaryDisplay
+                      title={selectedSummary.title}
+                      content={selectedSummary.content}
+                      highlights={selectedSummary.highlights || []}
+                      extendedSummary={selectedSummary.extended_summary}
+                      className=""
+                    />
                   </motion.div>
                 </AnimatePresence>
 
@@ -299,6 +269,8 @@ export const getServerSideProps: GetServerSideProps = async ({
         video_id,
         format,
         title,
+        highlights,
+        extended_summary,
         videos (
           id,
           thumbnail_url
@@ -324,6 +296,8 @@ export const getServerSideProps: GetServerSideProps = async ({
       title: summary.title || dict.summary.defaultTitle,
       thumbnailUrl: summary.videos?.[0]?.thumbnail_url || "",
       format: summary.format,
+      highlights: summary.highlights || [],
+      extended_summary: summary.extended_summary || summary.content,
     }));
 
     return {

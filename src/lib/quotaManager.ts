@@ -5,6 +5,7 @@ export interface QuotaInfo {
   limit: number;
   resetDate: Date;
   planType: "free" | "basic" | "pro";
+  planDetails: any[];
 }
 
 export async function getQuotaInfo(userId: string): Promise<QuotaInfo | null> {
@@ -13,7 +14,18 @@ export async function getQuotaInfo(userId: string): Promise<QuotaInfo | null> {
   try {
     const { data, error } = await supabase
       .from("anonymous_users")
-      .select("quota_remaining, quota_limit, quota_reset_date, plan_type")
+      .select(
+        `
+        quota_remaining,
+        quota_limit,
+        quota_reset_date,
+        plan_type,
+        pricing_plans (
+          name,
+          quota_limit
+        )
+      `,
+      )
       .eq("id", userId)
       .single();
 
@@ -24,6 +36,7 @@ export async function getQuotaInfo(userId: string): Promise<QuotaInfo | null> {
       limit: data.quota_limit,
       resetDate: new Date(data.quota_reset_date),
       planType: data.plan_type,
+      planDetails: data.pricing_plans,
     };
   } catch (error) {
     console.error("Error fetching quota info:", error);
@@ -35,21 +48,22 @@ export async function decrementQuota(userId: string): Promise<boolean> {
   const supabase = getSupabase();
 
   try {
-    const { data: userData, error: userError } = await supabase
+    const { data: userData } = await supabase
       .from("anonymous_users")
-      .select("ip_address")
+      .select("quota_remaining")
       .eq("id", userId)
       .single();
 
-    if (userError) throw userError;
+    if (!userData || userData.quota_remaining <= 0) {
+      return false;
+    }
 
-    const { data, error } = await supabase.rpc("decrement_quota", {
-      user_ip: userData.ip_address,
+    const { error } = await supabase.rpc("decrement_quota", {
+      user_id: userId,
     });
 
     if (error) throw error;
-
-    return data as boolean;
+    return true;
   } catch (error) {
     console.error("Error decrementing quota:", error);
     return false;
