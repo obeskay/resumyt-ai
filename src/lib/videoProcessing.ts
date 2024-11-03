@@ -9,6 +9,8 @@ import { YoutubeTranscript } from "youtube-transcript";
 import axios, { AxiosError } from "axios";
 import { getSelfObject } from "@/config/environment";
 
+import { logger } from "./logger";
+
 // Usar getSelfObject() en lugar de self directamente
 const globalSelf = getSelfObject();
 
@@ -39,8 +41,7 @@ async function retryOperation<T>(
 
 export async function summarizeVideo(
   videoUrl: string,
-  summaryFormat: "bullet-points" | "paragraph" | "page",
-  language: string,
+  format: "bullet-points" | "paragraph" | "page",
 ): Promise<{ summary: string; transcript: string }> {
   try {
     console.log("Starting summarizeVideo for URL:", videoUrl);
@@ -57,11 +58,7 @@ export async function summarizeVideo(
       transcriptOrMetadata.length,
     );
 
-    const summary = await generateSummary(
-      transcriptOrMetadata,
-      summaryFormat,
-      language,
-    );
+    const summary = await generateSummary(transcriptOrMetadata, "es");
     console.log("Resumen generado, longitud:", summary.length);
 
     if (!summary) {
@@ -88,8 +85,7 @@ export async function summarizeVideo(
 export async function processVideo(
   videoUrl: string,
   userId: string,
-  summaryFormat: "bullet-points" | "paragraph" | "page",
-  videoTitle: string, // Añadir este parámetro
+  videoTitle: string,
 ): Promise<{ videoId: string; transcriptOrMetadata: string; summary: string }> {
   try {
     console.log("Starting processVideo for URL:", videoUrl);
@@ -106,22 +102,8 @@ export async function processVideo(
       transcriptOrMetadata.length,
     );
 
-    const summary = await generateSummary(
-      transcriptOrMetadata,
-      summaryFormat,
-      userId,
-    );
+    const summary = await generateSummary(transcriptOrMetadata, "es");
     console.log("Resumen generado, longitud:", summary.length);
-
-    if (!summary) {
-      console.error("El resumen generado es nulo o está vacío");
-      throw new SummaryGenerationError(
-        "Failed to generate summary: Summary is null or empty",
-      );
-    }
-
-    const videoMetadata = await fetchVideoMetadata(videoId);
-    const thumbnailUrl = videoMetadata.thumbnailUrl;
 
     await saveSummary(
       videoId,
@@ -129,9 +111,8 @@ export async function processVideo(
       transcriptOrMetadata,
       summary,
       userId,
-      summaryFormat,
-      videoTitle, // Usar el título proporcionado
-      thumbnailUrl,
+      "unified",
+      videoTitle,
     );
     console.log("Summary saved successfully");
 
@@ -378,7 +359,6 @@ async function fetchVideoMetadata(
 
 export async function generateSummary(
   transcriptOrMetadata: string,
-  summaryFormat: "bullet-points" | "paragraph" | "page",
   language: string,
 ): Promise<string> {
   try {
@@ -392,47 +372,30 @@ export async function generateSummary(
       throw new Error("OpenRouter API key is not set");
     }
 
-    let promptInstructions = "";
-    switch (summaryFormat) {
-      case "bullet-points":
-        promptInstructions = `Provide a summary in the form of 5 bullet points or less. Each point should be concise and cover a key idea or fact from the content. Respond in ${language}.`;
-        break;
-      case "paragraph":
-        promptInstructions = `Provide a brief summary in the form of a single, concise paragraph (no more than 3-4 sentences). The summary should cover the main points of the content. Respond in ${language}.`;
-        break;
-      case "page":
-        promptInstructions = `Provide a detailed summary, approximately one page in length. The summary should be comprehensive, covering all major points and some supporting details from the content. Organize the summary into paragraphs for better readability. Respond in ${language}.`;
-        break;
-    }
-
     const prompt = `
-      Genera un resumen detallado y bien estructurado del siguiente contenido de video. 
-      Utiliza la siguiente estructura Markdown para mejorar la legibilidad:
+      Generate a comprehensive and well-structured summary of the following video content.
+      Use this Markdown structure for better readability:
 
-      # ${language === "es" ? "Título principal del video" : "Main title of the video"}
+      # ${language === "es" ? "Resumen del Video" : "Video Summary"}
 
       ## ${language === "es" ? "Introducción" : "Introduction"}
-      [Breve introducción al tema del video, 2-3 frases]
+      [2-3 sentences introducing the video's main topic]
 
-      ## ${language === "es" ? "Puntos clave" : "Key points"}
-      - **${language === "es" ? "Punto clave 1" : "Key point 1"}**: [Breve explicación]
-      - **${language === "es" ? "Punto clave 2" : "Key point 2"}**: [Breve explicación]
-      - **${language === "es" ? "Punto clave 3" : "Key point 3"}**: [Breve explicación]
+      ## ${language === "es" ? "Puntos Principales" : "Main Points"}
+      - **${language === "es" ? "Punto 1" : "Point 1"}**: [Brief explanation]
+      - **${language === "es" ? "Punto 2" : "Point 2"}**: [Brief explanation]
+      - **${language === "es" ? "Punto 3" : "Point 3"}**: [Brief explanation]
 
-      ## ${language === "es" ? "Detalles importantes" : "Important details"}
-      ### ${language === "es" ? "Subtema 1" : "Subtopic 1"}
-      [Desarrolla el primer punto clave con más detalle, 2-3 frases]
-
-      ### ${language === "es" ? "Subtema 2" : "Subtopic 2"}
-      [Desarrolla el segundo punto clave con más detalle, 2-3 frases]
+      ## ${language === "es" ? "Detalles Importantes" : "Key Details"}
+      [Expand on the main points with supporting details]
 
       ## ${language === "es" ? "Conclusión" : "Conclusion"}
-      [Resumen de las ideas principales y conclusión]
+      [Summarize the key takeaways]
 
-      Asegúrate de usar **negrita** para términos importantes y *cursiva* para énfasis.
-      Utiliza > para citas relevantes del video.
+      Use **bold** for important terms and *italic* for emphasis.
+      Include relevant quotes using > notation.
       
-      Contenido: ${transcriptOrMetadata}
+      Content: ${transcriptOrMetadata}
     `;
 
     const response = await retryOperation(() =>
@@ -448,10 +411,10 @@ export async function generateSummary(
             },
             {
               role: "user",
-              content: `${promptInstructions}\n\nHere's the content to summarize. If it's a transcript, summarize the video based on the transcript. If it's metadata (title and description), provide a summary based on that information:\n\n${transcriptOrMetadata}`,
+              content: prompt,
             },
           ],
-          max_tokens: summaryFormat === "page" ? 1500 : 750,
+          max_tokens: 1500,
           temperature: 0.25,
         },
         {
@@ -506,7 +469,6 @@ async function saveSummary(
   transcriptOrMetadata: string,
   content: string,
   userId: string,
-  summaryFormat: "bullet-points" | "paragraph" | "page",
   videoTitle: string,
   thumbnailUrl: string,
 ): Promise<void> {
@@ -529,8 +491,8 @@ async function saveSummary(
         transcript: transcriptOrMetadata,
         content: content,
         user_id: userId,
-        format: summaryFormat,
-        title: videoTitle, // Añadir el título aquí
+        format: "unified",
+        title: videoTitle,
       },
       {
         onConflict: "video_id,user_id",
@@ -583,4 +545,57 @@ async function sendFramesToOpenAI(frames: string[]): Promise<string> {
   });
   const data = await response.json();
   return data.result; // Ajusta según la estructura de la respuesta
+}
+
+interface VideoInfo {
+  title: string;
+  thumbnailUrl: string;
+  duration: number;
+}
+
+export async function getVideoInfo(videoId: string): Promise<VideoInfo> {
+  try {
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) {
+      throw new Error("YouTube API key is not set");
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`,
+    );
+
+    if (!response.ok) {
+      throw new Error(`YouTube API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.items || data.items.length === 0) {
+      throw new Error("Video not found");
+    }
+
+    const videoData = data.items[0];
+    const duration = parseDuration(videoData.contentDetails.duration);
+
+    return {
+      title: videoData.snippet.title,
+      thumbnailUrl:
+        videoData.snippet.thumbnails.high?.url ||
+        videoData.snippet.thumbnails.default?.url,
+      duration,
+    };
+  } catch (error) {
+    logger.error("Error in getVideoInfo:", error);
+    throw new Error("Failed to fetch video information");
+  }
+}
+
+function parseDuration(duration: string): number {
+  const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+
+  const hours = match?.[1] ? parseInt(match[1]) : 0;
+  const minutes = match?.[2] ? parseInt(match[2]) : 0;
+  const seconds = match?.[3] ? parseInt(match[3]) : 0;
+
+  return hours * 3600 + minutes * 60 + seconds;
 }

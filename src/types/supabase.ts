@@ -140,3 +140,23 @@ export interface Database {
     };
   };
 }
+
+export interface AnonymousUser {
+  id: string;
+  ip_address: string;
+  quota_remaining: number;
+  quota_limit: number;
+  plan_type: string;
+  created_at: string;
+  quota_reset_date: string;
+  is_anonymous: boolean;
+  achievements: {
+    summaries: number;
+    shares: number;
+    streaks: number;
+  };
+  preferences: {
+    theme: "light" | "dark" | "system";
+    language: string;
+  };
+}

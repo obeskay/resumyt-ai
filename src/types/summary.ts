@@ -12,10 +12,25 @@ export interface SupabaseSummary {
 }
 
 export interface Summary {
-  id: string;
+  id: number;
+  video_id: string;
   title: string;
-  date: string;
-  videoId: string;
+  content: string;
+  highlights: {
+    text: string;
+    timestamp: string;
+    importance: number;
+  }[];
+  extended_summary: string;
+  transcript: string;
+  format: string;
+  created_at: string;
+  user_id: string;
+  suggested_questions?: any;
+  share_url?: string;
+  likes_count: number;
+  videoId?: string;
+  thumbnailUrl?: string;
 }
 
 export interface SummaryRequest {

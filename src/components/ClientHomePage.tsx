@@ -70,11 +70,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
   const { addNotification } = useNotificationStore();
   const { handleAchievementProgress } = useAchievements(dict);
 
-  const handleSubmit = async (
-    url: string,
-    formats: string[],
-    videoTitle: string,
-  ) => {
+  const handleSubmit = async (url: string, videoTitle: string) => {
     setIsSubmitting(true);
     setLoading(true);
     try {
@@ -131,43 +127,33 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
         const { ip } = await response.json();
         const supabase = getSupabase();
 
-        const { data: user, error } = await supabase
-          .from("anonymous_users")
-          .select("*")
-          .eq("ip_address", ip)
-          .single();
+        const { data: user, error: rpcError } = await supabase.rpc(
+          "get_or_create_anonymous_user",
+          {
+            user_ip: ip,
+            initial_quota: 3,
+            initial_plan: "F",
+          },
+        );
 
-        if (error) {
-          if (error.code === "PGRST116") {
-            const { data: newUser, error: insertError } = await supabase
-              .from("anonymous_users")
-              .insert({ ip_address: ip })
-              .select()
-              .single();
+        if (rpcError) {
+          throw new Error(`Failed to initialize user: ${rpcError.message}`);
+        }
 
-            if (insertError)
-              throw new Error(
-                `Failed to create anonymous user: ${insertError.message}`,
-              );
-            setUser(newUser as AnonymousUser);
-          } else {
-            throw new Error(`Failed to fetch anonymous user: ${error.message}`);
-          }
+        if (user) {
+          setUser(user);
         } else {
-          setUser(user as AnonymousUser);
+          throw new Error("Failed to create or retrieve user");
         }
       } catch (error) {
         console.error("Error initializing user:", error);
         if (retries > 0) {
-          console.log(
-            `Retrying user initialization. Attempts left: ${retries - 1}`,
-          );
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           await initializeUser(retries - 1);
         } else {
           toast({
             title: "Error",
-            description:
-              "Failed to initialize user. Please refresh the page or try again later.",
+            description: "Failed to initialize user. Please refresh the page.",
             variant: "destructive",
           });
         }

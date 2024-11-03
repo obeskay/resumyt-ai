@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import QuotaDisplay from "@/components/ui/quota-display";
 import type { User } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
+import SummaryDisplay from "@/components/SummaryDisplay";
 
 type AnonymousUser = Database["public"]["Tables"]["anonymous_users"]["Row"];
 

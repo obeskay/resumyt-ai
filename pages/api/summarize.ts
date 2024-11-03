@@ -52,30 +52,37 @@ export default async function handler(req: NextRequest) {
       return rateLimitResult;
     }
 
-    // Cambiar esta parte para manejar tanto GET como POST
-    let videoUrl, summaryFormat, language, videoTitle;
-    if (req.method === "GET") {
-      const url = new URL(req.url);
-      videoUrl = url.searchParams.get("url");
-      summaryFormat = url.searchParams.get("format");
-      language = url.searchParams.get("lang") || i18n.defaultLocale;
-      videoTitle = url.searchParams.get("title");
-    } else if (req.method === "POST") {
-      const body = await req.json();
-      videoUrl = body.videoUrl;
-      summaryFormat = body.summaryFormat;
-      language = body.language || i18n.defaultLocale;
-      videoTitle = body.videoTitle;
-    } else {
-      return createErrorResponse(
-        "Método no permitido",
-        "Solo se permiten solicitudes GET y POST",
-        405,
-      );
+    // Get URL parameters instead of JSON body
+    const url = new URL(req.url);
+    const videoUrl = url.searchParams.get("url");
+    const format = url.searchParams.get("format") || "unified";
+    const language = url.searchParams.get("lang") || "en";
+    const title = url.searchParams.get("title") || "";
+
+    if (!videoUrl) {
+      return createErrorResponse("URL is required", undefined, 400);
+    }
+
+    const supabase = getSupabase();
+    const ip = req.ip ?? "::1";
+
+    // Get or create user
+    const { data: user, error: userError } = await supabase.rpc(
+      "get_or_create_anonymous_user",
+      {
+        user_ip: ip,
+        initial_quota: 5,
+        initial_plan: "F",
+      },
+    );
+
+    if (userError) {
+      console.error("Error getting/creating user:", userError);
+      return createErrorResponse("Error processing request");
     }
 
     logger.info(
-      `Solicitud recibida para video: ${videoUrl}, formato: ${summaryFormat}`,
+      `Solicitud recibida para video: ${videoUrl}, formato: ${format}`,
     );
 
     if (!videoUrl || !isValidYouTubeUrl(videoUrl)) {
@@ -83,18 +90,6 @@ export default async function handler(req: NextRequest) {
       return createErrorResponse(
         "Invalid YouTube URL",
         "Please provide a valid YouTube URL",
-        400,
-      );
-    }
-
-    if (
-      !summaryFormat ||
-      !["bullet-points", "paragraph", "page"].includes(summaryFormat)
-    ) {
-      logger.info("Invalid summary format provided");
-      return createErrorResponse(
-        "Invalid summary format",
-        "Please provide a valid summary format (bullet-points, paragraph, or page)",
         400,
       );
     }
@@ -109,40 +104,9 @@ export default async function handler(req: NextRequest) {
       );
     }
 
-    const ipAddress = req.headers.get("x-forwarded-for") || req.ip || "unknown";
-    logger.info(`Request IP: ${ipAddress}`);
+    logger.info(`Request IP: ${ip}`);
 
-    const supabase = getSupabase();
     logger.info("Supabase client initialized");
-
-    // Check user's quota
-    const { data: user, error: userError } = await supabase
-      .from("anonymous_users")
-      .select("id, quota_remaining")
-      .eq("ip_address", ipAddress)
-      .single();
-
-    if (!supabase) {
-      logger.error("Failed to initialize Supabase client");
-      return createErrorResponse(
-        "Internal server error",
-        "Database connection failed",
-        500,
-      );
-    }
-
-    if (
-      !user ||
-      typeof user.id === "undefined" ||
-      typeof user.quota_remaining === "undefined"
-    ) {
-      logger.error("Invalid user data:", user);
-      return createErrorResponse(
-        "Internal server error",
-        "Invalid user data",
-        500,
-      );
-    }
 
     logger.info(`User quota remaining: ${user.quota_remaining}`);
 
@@ -158,8 +122,7 @@ export default async function handler(req: NextRequest) {
     logger.info("Attempting to summarize video:", videoUrl);
     const { summary, transcript } = await summarizeVideo(
       videoUrl,
-      summaryFormat as "bullet-points" | "paragraph" | "page",
-      language,
+      format as "bullet-points" | "paragraph" | "page",
     );
     logger.info("Summary generated successfully, length:", summary.length);
 
@@ -169,19 +132,6 @@ export default async function handler(req: NextRequest) {
         "Failed to generate summary: Summary is null or empty",
       );
     }
-
-    // Update the user's quota
-    const { error: updateError } = await supabase
-      .from("anonymous_users")
-      .update({ quota_remaining: user.quota_remaining - 1 })
-      .eq("id", user.id);
-
-    if (updateError) {
-      logger.error("Failed to update user quota:", updateError);
-      throw new DatabaseUpdateError("Failed to update user quota");
-    }
-
-    logger.info("User quota updated successfully");
 
     // Insert or update the video in the database
     const { data: insertedVideo, error: videoUpsertError } = await supabase
@@ -201,16 +151,13 @@ export default async function handler(req: NextRequest) {
     logger.info("Video saved successfully:", insertedVideo);
 
     // Insert the summary into the database
-    const summaryInsert: Omit<
-      Database["public"]["Tables"]["summaries"]["Insert"],
-      "format"
-    > & { format: string } = {
+    const summaryInsert = {
       video_id: videoId,
       content: summary,
       transcript: transcript || "",
       user_id: user.id,
-      format: summaryFormat,
-      title: videoTitle, // Añadir el título aquí
+      format: format,
+      title: title || videoUrl, // Use provided title or fallback to URL
     };
 
     logger.info(
@@ -241,6 +188,19 @@ export default async function handler(req: NextRequest) {
     }
 
     logger.info("Summary inserted successfully:", insertedSummary);
+
+    // After successful summary generation, decrease quota
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({
+        quota_remaining: user.quota_remaining - 1,
+        transcriptions_used: user.transcriptions_used + 1,
+      })
+      .eq("ip_address", ip);
+
+    if (updateError) {
+      console.error("Error updating quota:", updateError);
+    }
 
     logger.info("API route completed successfully");
     return NextResponse.json(
