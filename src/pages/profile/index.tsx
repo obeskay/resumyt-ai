@@ -2,10 +2,9 @@ import { GetServerSideProps } from "next";
 import { getDictionary } from "@/lib/getDictionary";
 import { Locale, i18n } from "@/i18n-config";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../api/auth/[...nextauth]";
+import { authOptions } from "@/lib/auth";
 import ProfileClient from "@/components/profile/ProfileClient";
 import MainLayout from "@/components/MainLayout";
-import { Session } from "next-auth";
 
 // Definimos el tipo User que coincide con el esperado por ProfileClient
 type User = {
@@ -58,7 +57,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   const dict = await getDictionary(validLang);
 
   // Aseguramos que user sea del tipo correcto
-  const user: User = session.user
+  const user: any = session.user
     ? {
         name: session.user.name,
         email: session.user.email,

@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import VideoInput from "@/components/VideoInput";
+import VideoInput from "@/components/summary/VideoInput";
 import { AnonymousUser } from "@/types/supabase";
 
 interface HeroSectionProps {

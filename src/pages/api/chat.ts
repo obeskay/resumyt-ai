@@ -17,13 +17,30 @@ const openai = new OpenAI({
   baseURL: OPENROUTER_BASE_URL,
 });
 
+const getSystemPrompt = (language: string, context: string, questions: any) => {
+  const questionsContext = questions?.questions
+    ? `\n\nPreguntas sugeridas y sus respuestas correctas:\n${questions.questions
+        .map(
+          (q: any, i: number) =>
+            `${i + 1}. ${q.question}\nRespuesta correcta: ${
+              q.correct_answer
+            }\nExplicación: ${q.explanation}`,
+        )
+        .join("\n\n")}`
+    : "";
+
+  return language === "es"
+    ? `Eres un asistente AI que responde preguntas sobre un video de YouTube. Responde de manera concisa pero completa, usando emojis y viñetas cuando sea apropiado. Responde en español. Usa el siguiente contexto para responder:\n\n${context}${questionsContext}`
+    : `You are an AI assistant that answers questions about a YouTube video. Respond concisely but comprehensively, using emojis and bullet points when appropriate. Respond in English. Use the following context to answer:\n\n${context}${questionsContext}`;
+};
+
 export default async function handler(req: NextRequest) {
   const { messages, videoId, language } = await req.json();
 
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("summaries")
-    .select("transcript, content")
+    .select("transcript, content, suggested_questions")
     .eq("video_id", videoId)
     .single();
 
@@ -37,13 +54,10 @@ export default async function handler(req: NextRequest) {
     );
   }
 
-  const { transcript, content: summary } = data;
+  const { transcript, content: summary, suggested_questions } = data;
   const context = `Summary: ${summary}\n\nTranscript: ${transcript}`;
 
-  const systemMessage =
-    language === "es"
-      ? `Eres un asistente AI que responde preguntas sobre un video de YouTube. Responde de manera concisa pero completa, usando emojis y viñetas cuando sea apropiado. Responde en español. Usa el siguiente contexto para responder:\n\n${context}`
-      : `You are an AI assistant that answers questions about a YouTube video. Respond concisely but comprehensively, using emojis and bullet points when appropriate. Respond in English. Use the following context to answer:\n\n${context}`;
+  const systemMessage = getSystemPrompt(language, context, suggested_questions);
 
   // Generar preguntas sugeridas si es el primer mensaje
   if (messages.length === 0) {

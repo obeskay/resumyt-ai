@@ -61,6 +61,12 @@
       "a3": "是的，Resumyt提供有限使用的免费计划。",
       "q4": "我可以将Resumyt用于教育目的吗？",
       "a4": "当然可以！Resumyt是学生、研究人员和教育工作者的优秀工具。"
+    },
+    "alerts": {
+      "lowQuota": {
+        "title": "配额不足提醒",
+        "message": "您的摘要次数即将用完。考虑升级您的计划！"
+      }
     }
   },
   "loading": {
@@ -79,14 +85,14 @@
     "placeholder": "在此粘贴YouTube视频URL",
     "invalidUrl": "请输入有效的YouTube URL",
     "submit": "生成摘要",
+    "button": "生成摘要",
     "quotaExceeded": "您已达到配额限制",
     "upgrade": "升级",
     "or": "或",
     "waitTomorrow": "等到明天",
     "processing": "正在处理视频...",
     "errorProcessing": "处理视频时出错",
-    "tryAgain": "请重试",
-    "button": "生成摘要"
+    "tryAgain": "请重试"
   },
   "formats": {
     "title": "选择格式",

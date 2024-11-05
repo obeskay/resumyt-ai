@@ -80,6 +80,12 @@
       "a3": "Sim, o Resumyt oferece um plano gratuito com uso limitado.",
       "q4": "Posso usar o Resumyt para fins educacionais?",
       "a4": "Absolutamente! O Resumyt é uma excelente ferramenta para estudantes, pesquisadores e educadores."
+    },
+    "alerts": {
+      "lowQuota": {
+        "title": "Alerta de Cota Baixa",
+        "message": "Você está ficando sem resumos. Considere fazer um upgrade do seu plano!"
+      }
     }
   },
   "loading": {

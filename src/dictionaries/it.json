@@ -71,7 +71,13 @@
       "button": "Ho capito"
     },
     "continueButton": "Continua",
-    "formatQuestion": "Come vuoi il riassunto?"
+    "formatQuestion": "Come vuoi il riassunto?",
+    "alerts": {
+      "lowQuota": {
+        "title": "Avviso Quota Bassa",
+        "message": "Stai esaurendo i riassunti. Considera di aggiornare il tuo piano!"
+      }
+    }
   },
   "loading": {
     "title": "Elaborazione",

@@ -8,7 +8,8 @@ import { Toaster } from "./ui/toaster";
 import YouTubeLogo from "./YouTubeLogo";
 import { BackgroundBeams } from "./ui/background-beams";
 import { Button } from "./ui/button";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
+import { i18n } from "@/i18n-config";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -18,8 +19,13 @@ interface MainLayoutProps {
 export default function MainLayout({ children, dict }: MainLayoutProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const router = useRouter();
-  const locale = router.locale || "es";
+  const pathname = usePathname();
+
+  const locale = pathname?.split("/")[1] || i18n.defaultLocale;
+
+  const validLocale = i18n.locales.includes(locale as any)
+    ? locale
+    : i18n.defaultLocale;
 
   useEffect(() => {
     setMounted(true);
@@ -39,7 +45,7 @@ export default function MainLayout({ children, dict }: MainLayoutProps) {
         <header className="py-2 w-screen z-[10] sticky top-0 bg-background/40 backdrop-blur-md border-b border-px border-border/50">
           <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
             <Link
-              href={`/${locale}`}
+              href={`/${validLocale}`}
               className="flex items-center gap-2 mb-2 sm:mb-0"
             >
               <YouTubeLogo />
@@ -51,7 +57,7 @@ export default function MainLayout({ children, dict }: MainLayoutProps) {
             </Link>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" asChild>
-                <Link href={`/${locale}/profile`}>
+                <Link href={`/${validLocale}/profile`}>
                   <User className="h-5 w-5" />
                   <span className="sr-only">
                     {dict?.profile?.title ?? "Profile"}

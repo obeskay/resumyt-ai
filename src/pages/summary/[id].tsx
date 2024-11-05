@@ -159,11 +159,7 @@ export default function SummaryPage({
                         {selectedSummary.title || dict.summary.defaultTitle}
                       </GradientText>
                     </h2>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      <TextGenerateEffect
-                        words={`${dict.summary.videoIdLabel}: ${selectedSummary.videoId}`}
-                      />
-                    </p>
+
                     <Button
                       size="sm"
                       onClick={() =>
@@ -241,16 +237,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   locale,
 }) => {
   console.log("Entrando a getServerSideProps de /summary/[id]");
-  const lang = params?.lang as string;
-  const id = params?.id as string;
 
-  if (!lang || !id) {
-    console.log("Missing lang or id:", { lang, id });
-    return { notFound: true };
-  }
-
-  const validLang: Locale = i18n.locales.includes(lang as Locale)
-    ? (lang as Locale)
+  const validLang: Locale = i18n.locales.includes(locale as Locale)
+    ? (locale as Locale)
     : i18n.defaultLocale;
 
   const dict = await getDictionary(validLang);
@@ -258,26 +247,14 @@ export const getServerSideProps: GetServerSideProps = async ({
   const supabase = getSupabase();
 
   try {
-    console.log("Fetching summaries for video ID:", id);
     const { data: summariesData, error } = await supabase
       .from("summaries")
       .select(
         `
-        id,
-        content,
-        transcript,
-        video_id,
-        format,
-        title,
-        highlights,
-        extended_summary,
-        videos (
-          id,
-          thumbnail_url
-        )
+        *
       `,
       )
-      .eq("video_id", id);
+      .eq("video_id", params?.id);
 
     if (error) {
       console.error("Error fetching summaries:", error);
