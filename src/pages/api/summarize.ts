@@ -5,13 +5,9 @@ import {
   TranscriptNotFoundError,
   SummaryGenerationError,
   DatabaseInsertError,
-  DatabaseUpdateError,
 } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rateLimit";
-import { logger } from "@/lib/logger"; // Asegúrate de crear este módulo
-import { Database } from "@/types/supabase";
-import { i18n } from "@/i18n-config";
 
 interface ErrorResponse {
   error: string;
@@ -23,7 +19,6 @@ function createErrorResponse(
   details?: string,
   status: number = 500,
 ): NextResponse<ErrorResponse> {
-  logger.error(`Error: ${message}${details ? ` - ${details}` : ""}`);
   return NextResponse.json({ error: message, details }, { status });
 }
 
@@ -43,12 +38,9 @@ export const runtime = "edge";
 
 export default async function handler(req: NextRequest) {
   try {
-    logger.info("API ruta iniciada");
-
     // Verificar límite de tasa
     const rateLimitResult = await rateLimit(req);
     if (rateLimitResult) {
-      logger.info("Límite de tasa excedido");
       return rateLimitResult;
     }
 
@@ -81,12 +73,7 @@ export default async function handler(req: NextRequest) {
       return createErrorResponse("Error processing request");
     }
 
-    logger.info(
-      `Solicitud recibida para video: ${videoUrl}, formato: ${format}`,
-    );
-
     if (!videoUrl || !isValidYouTubeUrl(videoUrl)) {
-      logger.info("Invalid YouTube URL provided");
       return createErrorResponse(
         "Invalid YouTube URL",
         "Please provide a valid YouTube URL",
@@ -96,7 +83,6 @@ export default async function handler(req: NextRequest) {
 
     const videoId = extractYouTubeId(videoUrl);
     if (!videoId) {
-      logger.info("Failed to extract video ID");
       return createErrorResponse(
         "Invalid YouTube URL",
         "Unable to extract video ID from the URL",
@@ -104,14 +90,7 @@ export default async function handler(req: NextRequest) {
       );
     }
 
-    logger.info(`Request IP: ${ip}`);
-
-    logger.info("Supabase client initialized");
-
-    logger.info(`User quota remaining: ${user.quota_remaining}`);
-
     if (user.quota_remaining <= 0) {
-      logger.info("User quota exhausted");
       return createErrorResponse(
         "Quota exhausted",
         "You have reached your quota limit for video summaries",
@@ -119,15 +98,9 @@ export default async function handler(req: NextRequest) {
       );
     }
 
-    logger.info("Attempting to summarize video:", videoUrl);
-    const { summary, transcript } = await summarizeVideo(
-      videoUrl,
-      format as "bullet-points" | "paragraph" | "page",
-    );
-    logger.info("Summary generated successfully, length:", summary.length);
+    const { summary, transcript } = await summarizeVideo(videoUrl, language);
 
     if (!summary) {
-      logger.error("Generated summary is null or empty");
       throw new SummaryGenerationError(
         "Failed to generate summary: Summary is null or empty",
       );
@@ -141,15 +114,15 @@ export default async function handler(req: NextRequest) {
       .single();
 
     if (videoUpsertError) {
-      logger.error("Failed to save video:", videoUpsertError);
-      logger.error("Error details:", JSON.stringify(videoUpsertError, null, 2));
+      console.error("Failed to save video:", videoUpsertError);
+      console.error(
+        "Error details:",
+        JSON.stringify(videoUpsertError, null, 2),
+      );
       throw new DatabaseInsertError(
         `Failed to save video: ${videoUpsertError.message}`,
       );
     }
-
-    logger.info("Video saved successfully:", insertedVideo);
-
     // Insert the summary into the database
     const summaryInsert = {
       video_id: videoId,
@@ -159,11 +132,6 @@ export default async function handler(req: NextRequest) {
       format: format,
       title: title || videoUrl, // Use provided title or fallback to URL
     };
-
-    logger.info(
-      "Attempting to insert summary:",
-      JSON.stringify(summaryInsert, null, 2),
-    );
 
     const { data: insertedSummary, error: insertError } = await supabase
       .from("summaries")
@@ -175,19 +143,16 @@ export default async function handler(req: NextRequest) {
       .single();
 
     if (insertError) {
-      logger.error("Failed to save summary:", insertError);
-      logger.error("Error details:", JSON.stringify(insertError, null, 2));
+      console.error("Failed to save summary:", insertError);
+      console.error("Error details:", JSON.stringify(insertError, null, 2));
       throw new DatabaseInsertError(
         `Failed to save summary: ${insertError.message}`,
       );
     }
 
     if (!insertedSummary) {
-      logger.error("No summary data returned after insertion");
       throw new DatabaseInsertError("Failed to save summary: No data returned");
     }
-
-    logger.info("Summary inserted successfully:", insertedSummary);
 
     // After successful summary generation, decrease quota
     const { error: updateError } = await supabase
@@ -202,24 +167,24 @@ export default async function handler(req: NextRequest) {
       console.error("Error updating quota:", updateError);
     }
 
-    logger.info("API route completed successfully");
     return NextResponse.json(
       {
         summary,
         transcript,
         videoId,
         quotaRemaining: user.quota_remaining - 1,
+        redirectUrl: `/summary/${videoId}`,
       },
       {
         headers: {
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin":
+            "localhost:3000, 127.0.0.1:3000, resumyt.com",
           "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       },
     );
   } catch (error) {
-    logger.error("Error detallado:", error);
     if (error instanceof VideoFetchError) {
       return createErrorResponse(
         "Error al obtener el video",
@@ -245,7 +210,5 @@ export default async function handler(req: NextRequest) {
         500,
       );
     }
-  } finally {
-    logger.info("API route completed");
   }
 }

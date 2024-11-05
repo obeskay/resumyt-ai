@@ -111,5 +111,11 @@
     "unlocked": "Succès Débloqué !",
     "summaryGenerated": "Premier Résumé Généré",
     "progress": "Progression"
+  },
+  "alerts": {
+    "lowQuota": {
+      "title": "Alerte de Quota Faible",
+      "message": "Vous êtes à court de résumés. Pensez à mettre à niveau votre forfait !"
+    }
   }
 }

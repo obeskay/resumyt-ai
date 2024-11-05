@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 export async function getVideoDetails(videoUrl: string) {
   const videoId = extractVideoId(videoUrl);
@@ -14,13 +14,14 @@ export async function getVideoDetails(videoUrl: string) {
       thumbnail: videoData.thumbnails.high.url,
     };
   } catch (error) {
-    console.error('Error al obtener detalles del video:', error);
+    console.error("Error al obtener detalles del video:", error);
     throw error;
   }
 }
 
 function extractVideoId(url: string): string {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const regex =
+    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
   const match = url.match(regex);
-  return match ? match[1] : '';
+  return match ? match[1] : "";
 }

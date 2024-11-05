@@ -64,16 +64,16 @@
     },
     "videoInput": {
       "placeholder": "Pega aquí la URL del video de YouTube",
-      "invalidUrl": "Por favor ingresa una URL válida de YouTube",
+      "invalidUrl": "Por favor ingrese una URL válida de YouTube",
       "submit": "Generar Resumen",
       "button": "Resumir",
-      "quotaExceeded": "Has alcanzado tu límite de cuota",
+      "processing": "Procesando video...",
+      "quotaExceeded": "Ha alcanzado su límite de cuota",
       "upgrade": "Actualizar",
       "or": "o",
-      "waitTomorrow": "espera hasta mañana",
-      "processing": "Procesando video...",
+      "waitTomorrow": "espere hasta mañana",
       "errorProcessing": "Error al procesar el video",
-      "tryAgain": "Por favor intenta de nuevo"
+      "tryAgain": "Por favor intente de nuevo"
     },
     "formats": {
       "title": "Seleccionar Formato",
@@ -90,7 +90,6 @@
       "progress": "Progreso"
     },
     "description": "Resumyt te permite obtener resúmenes concisos y precisos de cualquier video de YouTube. Ideal para estudiantes, profesionales y entusiastas del aprendizaje.",
-    "inputPlaceholder": "Pega aquí el enlace del video de YouTube",
     "summarizeButton": "Resumir",
     "dialog": {
       "title": "¡Bienvenido a Resumyt!",

@@ -7,12 +7,8 @@ import {
 } from "./errors";
 import { YoutubeTranscript } from "youtube-transcript";
 import axios, { AxiosError } from "axios";
-import { getSelfObject } from "@/config/environment";
 
 import { logger } from "./logger";
-
-// Usar getSelfObject() en lugar de self directamente
-const globalSelf = getSelfObject();
 
 // Simple in-memory cache for transcripts and metadata
 const transcriptCache: { [key: string]: { data: string; timestamp: number } } =
@@ -41,7 +37,7 @@ async function retryOperation<T>(
 
 export async function summarizeVideo(
   videoUrl: string,
-  format: "bullet-points" | "paragraph" | "page",
+  language: string,
 ): Promise<{ summary: string; transcript: string }> {
   try {
     console.log("Starting summarizeVideo for URL:", videoUrl);
@@ -58,7 +54,7 @@ export async function summarizeVideo(
       transcriptOrMetadata.length,
     );
 
-    const summary = await generateSummary(transcriptOrMetadata, "es");
+    const summary = await generateSummary(transcriptOrMetadata, language);
     console.log("Resumen generado, longitud:", summary.length);
 
     if (!summary) {
@@ -598,4 +594,23 @@ function parseDuration(duration: string): number {
   const seconds = match?.[3] ? parseInt(match[3]) : 0;
 
   return hours * 3600 + minutes * 60 + seconds;
+}
+
+export async function getVideoDetails(videoUrl: string) {
+  const videoId = extractYouTubeId(videoUrl);
+  const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+  const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`;
+
+  try {
+    const response = await axios.get(apiUrl);
+    const videoData = response.data.items[0].snippet;
+
+    return {
+      title: videoData.title,
+      thumbnail: videoData.thumbnails.high.url,
+    };
+  } catch (error) {
+    console.error("Error al obtener detalles del video:", error);
+    throw error;
+  }
 }

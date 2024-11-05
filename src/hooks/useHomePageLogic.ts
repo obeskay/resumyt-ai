@@ -86,51 +86,17 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
     fetchRecentVideos();
   }, []);
 
-  const handleSubmit = async (url: string, videoTitle: string) => {
-    if (!user) return;
-
-    setIsSubmitting(true);
-    setLoading(true);
+  const handleSubmit = async (url: string, lang: string) => {
     try {
-      addNotification({
-        type: "info",
-        title: dict.loading?.title ?? "Processing",
-        message: dict.loading?.description ?? "Please wait...",
-        duration: 3000,
-      });
-
       const response = await fetch(
-        `/api/summarize?url=${url}&format=unified&lang=${lang}&title=${encodeURIComponent(videoTitle)}`,
+        `/api/summarize?url=${encodeURIComponent(url)}&lang=${lang}`,
       );
-
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-
       const data = await response.json();
-      if (data.videoId) {
-        handleAchievementProgress("summaries");
-        addNotification({
-          type: "success",
-          title: dict.summary?.title ?? "Success",
-          message:
-            dict.summary?.successMessage ?? "Summary generated successfully!",
-          duration: 5000,
-        });
-        router.push(`/${lang}/summary/${data.videoId}`);
-      } else {
-        throw new Error("No valid videoId received");
+      if (data.redirectUrl) {
+        router.push(data.redirectUrl);
       }
     } catch (error) {
-      console.error("Error summarizing video:", error);
-      addNotification({
-        type: "error",
-        title: dict.error?.title ?? "Error",
-        message: dict.error?.message ?? "Failed to generate summary",
-        duration: 5000,
-      });
-    } finally {
-      setIsSubmitting(false);
-      setLoading(false);
+      // Error handling
     }
   };
 
