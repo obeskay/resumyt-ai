@@ -13,7 +13,7 @@ export const CardHoverEffect = ({
     <div
       className={cn(
         "group relative flex items-center justify-center overflow-hidden rounded-xl shadow-xl transition-all hover:shadow-2xl",
-        className
+        className,
       )}
       {...props}
     >

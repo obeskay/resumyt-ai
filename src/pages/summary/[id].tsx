@@ -37,7 +37,7 @@ interface Summary {
   transcript: string;
   videoId: string;
   title: string;
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
   format: string;
   highlights: Highlight[];
   extended_summary: string;
@@ -236,28 +236,22 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
   locale,
 }) => {
-  console.log("Entrando a getServerSideProps de /summary/[id]");
-
   const validLang: Locale = i18n.locales.includes(locale as Locale)
     ? (locale as Locale)
     : i18n.defaultLocale;
 
   const dict = await getDictionary(validLang);
-
   const supabase = getSupabase();
 
   try {
     const { data: summariesData, error } = await supabase
       .from("summaries")
-      .select(
-        `
-        *
-      `,
-      )
-      .eq("video_id", params?.id);
+      .select("*")
+      .eq("video_id", params?.id)
+      .single();
 
     if (error) {
-      console.error("Error fetching summaries:", error);
+      console.error("Error fetching summary:", error);
       return {
         props: {
           dict,
@@ -266,21 +260,20 @@ export const getServerSideProps: GetServerSideProps = async ({
       };
     }
 
-    const formattedSummaries = summariesData?.map((summary) => ({
-      content: summary.content,
-      transcript: summary.transcript,
-      videoId: summary.video_id,
-      title: summary.title || dict.summary.title,
-      thumbnailUrl: summary.videos?.[0]?.thumbnail_url || "",
-      format: summary.format,
-      highlights: summary.highlights || [],
-      extended_summary: summary.extended_summary || summary.content,
-    }));
+    const formattedSummary = {
+      content: summariesData.content,
+      transcript: summariesData.transcript,
+      videoId: summariesData.video_id,
+      title: summariesData.title,
+      format: summariesData.format,
+      highlights: summariesData.highlights || [],
+      extended_summary: summariesData.extended_summary || summariesData.content,
+    };
 
     return {
       props: {
         dict,
-        initialSummaries: formattedSummaries || null,
+        initialSummaries: [formattedSummary],
       },
     };
   } catch (error) {

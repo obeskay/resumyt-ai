@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { useLoadingAnimation } from "@/hooks/useLoadingAnimation";
-import { VideoFetchError } from "@/lib/errors";
+import { VideoFetchError, VideoTitleError } from "@/lib/errors";
 import YouTubeThumbnail from "../YouTubeThumbnail";
 
 interface VideoInputProps {
@@ -40,27 +40,6 @@ const VideoInput: React.FC<VideoInputProps> = ({
         throw new Error(dict.home.error?.invalidUrl ?? "Invalid YouTube URL");
       }
 
-      const response = await fetch(`/api/validate-url`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url, videoUrl: url }),
-      });
-
-      if (!response.ok) {
-        throw new VideoFetchError(
-          dict.home.error?.videoFetch ?? "Failed to fetch video data",
-        );
-      }
-
-      const data = await response.json();
-      if (!data.valid) {
-        throw new Error(
-          (data.error || dict.home.error?.invalidVideo) ?? "Invalid video",
-        );
-      }
-
       const videoDetailsResponse = await fetch("/api/video-processing", {
         method: "POST",
         headers: {
@@ -73,9 +52,15 @@ const VideoInput: React.FC<VideoInputProps> = ({
         throw new Error("Failed to fetch video details");
       }
 
-      const videoDetailsAux = await videoDetailsResponse.json();
-      setVideoDetails(videoDetailsAux);
-      await onSubmit(url, videoDetailsAux.title || "");
+      const videoDetailsData = await videoDetailsResponse.json();
+
+      if (!videoDetailsData.title) {
+        throw new VideoTitleError("No se pudo obtener el título del video");
+      }
+
+      setVideoDetails(videoDetailsData);
+
+      await onSubmit(url, videoDetailsData.title);
     } catch (error) {
       console.error("Error:", error);
       toast({

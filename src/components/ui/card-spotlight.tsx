@@ -1,74 +1,103 @@
 "use client";
 
-import { useMotionValue, motion, useMotionTemplate } from "framer-motion";
-import React, { MouseEvent as ReactMouseEvent, useState } from "react";
-import { CanvasRevealEffect } from "@/components/ui/canvas-reveal-effect";
+import {
+  useMotionValue,
+  motion,
+  useMotionTemplate,
+  AnimatePresence,
+} from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const CardSpotlight = ({
   children,
-  radius = 350,
-  color = "#262626",
   className,
   ...props
 }: {
-  radius?: number;
-  color?: string;
   children: React.ReactNode;
+  className?: string;
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const divRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  function handleMouseMove({
-    currentTarget,
-    clientX,
-    clientY,
-  }: ReactMouseEvent<HTMLDivElement>) {
-    let { left, top } = currentTarget.getBoundingClientRect();
+  const [rect, setRect] = useState({ width: 0, height: 0 });
 
-    mouseX.set(clientX - left);
-    mouseY.set(clientY - top);
-  }
+  useEffect(() => {
+    if (typeof window === "undefined" || !divRef.current) return;
 
-  const [isHovering, setIsHovering] = useState(false);
-  const handleMouseEnter = () => setIsHovering(true);
-  const handleMouseLeave = () => setIsHovering(false);
+    const updateRect = () => {
+      if (!divRef.current) return;
+      const { width, height } = divRef.current.getBoundingClientRect();
+      setRect({ width, height });
+      mouseX.set(width / 2);
+      mouseY.set(height / 2);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!divRef.current) return;
+      const { left, top } = divRef.current.getBoundingClientRect();
+      mouseX.set(e.clientX - left);
+      mouseY.set(e.clientY - top);
+    };
+
+    const handleMouseLeave = () => {
+      mouseX.set(rect.width / 2);
+      mouseY.set(rect.height / 2);
+    };
+
+    updateRect();
+    window.addEventListener("resize", updateRect);
+
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      divRef.current.addEventListener("mousemove", handleMouseMove);
+      divRef.current.addEventListener("mouseleave", handleMouseLeave);
+
+      return () => {
+        window.removeEventListener("resize", updateRect);
+        if (!divRef.current) return;
+        divRef.current.removeEventListener("mousemove", handleMouseMove);
+        divRef.current.removeEventListener("mouseleave", handleMouseLeave);
+      };
+    }
+
+    return () => {
+      window.removeEventListener("resize", updateRect);
+    };
+  }, [mouseX, mouseY, rect.width, rect.height]);
+
   return (
-    <div
+    <motion.div
+      ref={divRef}
       className={cn(
-        "group/spotlight p-10 rounded-md relative border border-neutral-800 bg-black dark:border-neutral-800",
-        className
+        "group relative overflow-hidden rounded-xl",
+        "bg-background/50 backdrop-blur-[2px]",
+        "border border-border/50",
+        "transition-colors duration-300",
+        className,
       )}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      {...props}
+      {...(props as any)}
     >
-      <motion.div
-        className="pointer-events-none absolute z-0 -inset-px rounded-md opacity-0 transition duration-300 group-hover/spotlight:opacity-100"
-        style={{
-          backgroundColor: color,
-          maskImage: useMotionTemplate`
-            radial-gradient(
-              ${radius}px circle at ${mouseX}px ${mouseY}px,
-              white,
-              transparent 80%
+      {/* Efecto de spotlight sutil */}
+      <AnimatePresence>
+        {window.matchMedia("(min-width: 768px)").matches && (
+          <motion.div
+            layoutId="spotlight"
+            className="pointer-events-none text-[hsl(var(--secondary)/0.085)] dark:text-[hsl(var(--primary)/0.15)] absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            style={{
+              background: useMotionTemplate`
+          radial-gradient(
+            800px circle at ${mouseX}px ${mouseY}px,
+            currentColor,
+            transparent 40%
             )
-          `,
-        }}
-      >
-        {isHovering && (
-          <CanvasRevealEffect
-            animationSpeed={5}
-            containerClassName="bg-transparent absolute inset-0 pointer-events-none"
-            colors={[
-              [59, 130, 246],
-              [139, 92, 246],
-            ]}
-            dotSize={3}
+            `,
+            }}
           />
         )}
-      </motion.div>
-      {children}
-    </div>
+      </AnimatePresence>
+
+      {/* Contenido */}
+      <div className="relative">{children}</div>
+    </motion.div>
   );
 };
