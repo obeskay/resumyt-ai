@@ -121,7 +121,7 @@
   "videoChat": {
     "title": "Chat über",
     "suggestedQuestions": "Vorgeschlagene Fragen:",
-    "inputPlaceholder": "Stellen Sie eine Frage zum Video...",
+    "inputPlaceholder": "Frage zum Video...",
     "sendButton": "Senden",
     "loadingChat": "Chat wird geladen...",
     "error": "Fehler:"
@@ -162,7 +162,12 @@
     "preferences": "Präferenzen",
     "language": "Sprache",
     "theme": "Theme",
-    "notifications": "Benachrichtigungen",
+    "notifications": {
+      "success": "Erfolg",
+      "error": "Fehler",
+      "info": "Information",
+      "warning": "Warnung"
+    },
     "comingSoon": "Demnächst verfügbar"
   }
 }

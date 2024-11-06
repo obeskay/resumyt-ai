@@ -220,7 +220,8 @@ export default function SummaryPage({
                     videoTitle={
                       selectedSummary.title || dict.summary.defaultTitle
                     }
-                    language={lang as "es" | "en"}
+                    language={router.locale as "es" | "en"}
+                    dict={dict}
                   />
                 </motion.div>
               </div>

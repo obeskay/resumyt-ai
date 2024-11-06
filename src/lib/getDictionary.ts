@@ -12,5 +12,31 @@ const dictionaries = {
 };
 
 export const getDictionary = async (locale: Locale) => {
-  return dictionaries[locale]?.() ?? dictionaries.en();
+  try {
+    const dictionary = await dictionaries[locale]?.();
+    return validateAndFillMissingTranslations(
+      dictionary,
+      await dictionaries.en(),
+    );
+  } catch (error) {
+    console.error(`Error loading dictionary for locale ${locale}:`, error);
+    return dictionaries.en();
+  }
 };
+
+function validateAndFillMissingTranslations(dictionary: any, fallback: any) {
+  const result = { ...dictionary };
+
+  function fillMissing(target: any, source: any) {
+    for (const key in source) {
+      if (!(key in target)) {
+        target[key] = source[key];
+      } else if (typeof source[key] === "object") {
+        fillMissing(target[key], source[key]);
+      }
+    }
+  }
+
+  fillMissing(result, fallback);
+  return result;
+}

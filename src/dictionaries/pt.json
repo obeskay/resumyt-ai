@@ -86,6 +86,20 @@
         "title": "Alerta de Cota Baixa",
         "message": "Você está ficando sem resumos. Considere fazer um upgrade do seu plano!"
       }
+    },
+    "notifications": {
+      "success": "Sucesso",
+      "error": "Erro",
+      "info": "Informação",
+      "warning": "Aviso"
+    },
+    "videoChat": {
+      "title": "Chat sobre",
+      "suggestedQuestions": "Perguntas sugeridas:",
+      "inputPlaceholder": "Faça uma pergunta sobre o vídeo...",
+      "sendButton": "Enviar",
+      "loadingChat": "Carregando chat...",
+      "error": "Erro:"
     }
   },
   "loading": {

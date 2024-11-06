@@ -97,7 +97,17 @@
       "button": "Entendido"
     },
     "continueButton": "Continuar",
-    "formatQuestion": "¿Cómo quieres el resumen?"
+    "formatQuestion": "¿Cómo quieres el resumen?",
+    "videoChat": {
+      "title": "Chat sobre",
+      "suggestedQuestions": "Preguntas sugeridas:",
+      "inputPlaceholder": "Pregunta sobre el video...",
+      "sendButton": "Enviar",
+      "loadingChat": "Cargando chat...",
+      "error": "Error:",
+      "generatingQuestions": "Generando preguntas sugeridas...",
+      "newChatAvailable": "¡Nuevo! Chat disponible"
+    }
   },
   "loading": {
     "title": "Procesando",

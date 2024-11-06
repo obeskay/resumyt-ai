@@ -11,17 +11,20 @@ import { getSupabase } from "@/lib/supabase";
 import { generateAndSaveSuggestedQuestions } from "@/lib/utils";
 import { MessageCircle, Sparkles, ChevronDown } from "lucide-react";
 import ShineBorder from "@/components/ui/shine-border";
+import { Dictionary } from "@/types/dictionary";
 
 interface VideoChatProps {
   videoId: string;
   videoTitle: string;
   language: "es" | "en";
+  dict: Dictionary;
 }
 
 const VideoChat: React.FC<VideoChatProps> = ({
   videoId,
   videoTitle,
   language,
+  dict,
 }) => {
   const { theme } = useTheme();
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -39,7 +42,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
     error,
     setInput,
   } = useChat({
-    api: "/api/chat-with-video",
+    api: "/api/chat",
     body: { videoId, language },
   });
 
@@ -113,9 +116,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
           >
             <Sparkles className="w-3 h-3 text-secondary" />
             <span className="text-base font-medium text-secondary">
-              {language === "es"
-                ? "¡Nuevo! Chat disponible"
-                : "New! Chat available"}
+              {dict.home.videoChat.newChatAvailable}
             </span>
           </motion.div>
         </div>
@@ -187,9 +188,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
                 className="text-center"
               >
                 <p className="text-gray-500 mb-4">
-                  {language === "es"
-                    ? "Generando preguntas sugeridas..."
-                    : "Generating suggested questions..."}
+                  {dict.home.videoChat.generatingQuestions}
                 </p>
                 <Skeleton className="h-8 w-3/4 mx-auto bg-primary/20" />
               </motion.div>
@@ -201,9 +200,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
                 className="mb-4 space-y-2 w-full"
               >
                 <p className="text-lg text-center font-semibold py-4">
-                  {language === "es"
-                    ? "Preguntas sugeridas:"
-                    : "Suggested questions:"}
+                  {dict.home.videoChat.suggestedQuestions}
                 </p>
                 <div className="flex flex-col gap-3">
                   {suggestedQuestions.map((question, index) => (
@@ -235,7 +232,8 @@ const VideoChat: React.FC<VideoChatProps> = ({
                 animate={{ opacity: 1 }}
                 className="text-red-500 text-center bg-red-100 dark:bg-red-900 p-2 rounded-lg"
               >
-                Error: {error?.toString() || "Algo salió mal"}
+                {dict.home.videoChat.error}{" "}
+                {error?.toString() || "Algo salió mal"}
               </motion.div>
             )}
           </div>
@@ -244,11 +242,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
           <Input
             value={input}
             onChange={handleInputChange}
-            placeholder={
-              language === "es"
-                ? "Pregunta sobre el video..."
-                : "Ask about the video..."
-            }
+            placeholder={dict.home.videoChat.inputPlaceholder}
             className="flex-grow bg-background/50 backdrop-blur-sm text-sm"
             disabled={isLoading}
           />
@@ -263,10 +257,8 @@ const VideoChat: React.FC<VideoChatProps> = ({
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full"
               />
-            ) : language === "es" ? (
-              "Enviar"
             ) : (
-              "Send"
+              dict.home.videoChat.sendButton
             )}
           </Button>
         </form>
