@@ -23,3 +23,10 @@ export class APIError extends CustomError {
     super(message);
   }
 }
+
+export class VideoTitleError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "VideoTitleError";
+  }
+}

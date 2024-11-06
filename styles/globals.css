@@ -108,3 +108,21 @@ html.lenis {
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
 }
+
+@layer utilities {
+  .backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+  }
+
+  .prose {
+    @apply transition-colors duration-200;
+  }
+
+  .prose p {
+    @apply text-foreground/80 hover:text-foreground transition-colors duration-200;
+  }
+
+  .glass-card {
+    @apply bg-background/50 backdrop-blur-xl border border-foreground/10;
+  }
+}
