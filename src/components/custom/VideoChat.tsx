@@ -8,7 +8,6 @@ import { useTheme } from "next-themes";
 import { ScrollArea } from "../ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
-import { generateAndSaveSuggestedQuestions } from "@/lib/utils";
 import { MessageCircle, Sparkles, ChevronDown } from "lucide-react";
 import ShineBorder from "@/components/ui/shine-border";
 import { Dictionary } from "@/types/dictionary";
@@ -58,20 +57,46 @@ const VideoChat: React.FC<VideoChatProps> = ({
 
       if (error) throw error;
 
-      if (
-        data &&
-        data.suggested_questions &&
-        data.suggested_questions.length > 0
-      ) {
+      if (data?.suggested_questions?.length > 0) {
         setSuggestedQuestions(data.suggested_questions);
       } else {
-        const generatedQuestions = await generateAndSaveSuggestedQuestions(
-          videoId,
-          language,
-        );
-        setSuggestedQuestions(generatedQuestions);
+        const response = await fetch("/api/generate-questions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            videoId,
+            language,
+            count: 5,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error details:", errorData);
+          throw new Error(errorData.error || "Failed to generate questions");
+        }
+
+        const { questions } = await response.json();
+
+        // Extraer solo el texto de las preguntas
+        const questionTexts = questions.map((q: any) => q.question);
+
+        if (!questionTexts || questionTexts.length === 0) {
+          throw new Error("No questions were received");
+        }
+
+        setSuggestedQuestions(questionTexts);
+
+        // Guardar en Supabase
+        await supabase
+          .from("summaries")
+          .update({ suggested_questions: questionTexts })
+          .eq("video_id", videoId);
       }
     } catch (error) {
+      console.error("Error loading questions:", error);
       setSuggestedQuestions([]);
     } finally {
       setIsLoadingSuggestions(false);

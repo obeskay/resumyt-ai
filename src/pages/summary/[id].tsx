@@ -114,7 +114,7 @@ export default function SummaryPage({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push(`/${lang}`)}
+                onClick={() => router.push(`/`)}
                 className="text-foreground hover:text-primary transition-colors"
               >
                 <ArrowLeftIcon className="mr-2 h-4 w-4" />
