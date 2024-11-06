@@ -21,6 +21,28 @@ export const CardSpotlight = ({
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const [rect, setRect] = useState({ width: 0, height: 0 });
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  const backgroundTemplate = useMotionTemplate`
+    radial-gradient(
+      800px circle at ${mouseX}px ${mouseY}px,
+      currentColor,
+      transparent 40%
+    )
+  `;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    setIsLargeScreen(mediaQuery.matches);
+
+    const handleMediaQueryChange = (e: MediaQueryListEvent) => {
+      setIsLargeScreen(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleMediaQueryChange);
+    return () =>
+      mediaQuery.removeEventListener("change", handleMediaQueryChange);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || !divRef.current) return;
@@ -48,7 +70,7 @@ export const CardSpotlight = ({
     updateRect();
     window.addEventListener("resize", updateRect);
 
-    if (window.matchMedia("(min-width: 768px)").matches) {
+    if (isLargeScreen) {
       divRef.current.addEventListener("mousemove", handleMouseMove);
       divRef.current.addEventListener("mouseleave", handleMouseLeave);
 
@@ -63,7 +85,7 @@ export const CardSpotlight = ({
     return () => {
       window.removeEventListener("resize", updateRect);
     };
-  }, [mouseX, mouseY, rect.width, rect.height]);
+  }, [mouseX, mouseY, rect.width, rect.height, isLargeScreen]);
 
   return (
     <motion.div
@@ -77,26 +99,20 @@ export const CardSpotlight = ({
       )}
       {...(props as any)}
     >
-      {/* Efecto de spotlight sutil */}
+      {/* Spotlight effect */}
       <AnimatePresence>
-        {window.matchMedia("(min-width: 768px)").matches && (
+        {isLargeScreen && (
           <motion.div
             layoutId="spotlight"
             className="pointer-events-none text-[hsl(var(--secondary)/0.085)] dark:text-[hsl(var(--primary)/0.15)] absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{
-              background: useMotionTemplate`
-          radial-gradient(
-            800px circle at ${mouseX}px ${mouseY}px,
-            currentColor,
-            transparent 40%
-            )
-            `,
+              background: backgroundTemplate,
             }}
           />
         )}
       </AnimatePresence>
 
-      {/* Contenido */}
+      {/* Content */}
       <div className="relative">{children}</div>
     </motion.div>
   );
