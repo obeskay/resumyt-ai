@@ -134,12 +134,14 @@
     "thumbnailAlt": "Anteprima video"
   },
   "videoChat": {
-    "title": "Chat su",
+    "title": "Chat sul video",
     "suggestedQuestions": "Domande suggerite:",
     "inputPlaceholder": "Fai una domanda sul video...",
     "sendButton": "Invia",
     "loadingChat": "Caricamento chat...",
-    "error": "Errore:"
+    "error": "Errore:",
+    "generatingQuestions": "Generazione domande suggerite...",
+    "newChatAvailable": "Novità! Chat disponibile"
   },
   "quota": {
     "title": "La tua Quota",
@@ -177,7 +179,12 @@
     "preferences": "Preferenze",
     "language": "Lingua",
     "theme": "Tema",
-    "notifications": "Notifiche",
+    "notifications": {
+      "success": "Successo",
+      "error": "Errore",
+      "info": "Informazione",
+      "warning": "Avviso"
+    },
     "comingSoon": "Prossimamente"
   }
 }

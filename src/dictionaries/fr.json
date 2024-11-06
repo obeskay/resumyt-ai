@@ -117,5 +117,19 @@
       "title": "Alerte de Quota Faible",
       "message": "Vous êtes à court de résumés. Pensez à mettre à niveau votre forfait !"
     }
+  },
+  "notifications": {
+    "success": "Succès",
+    "error": "Erreur",
+    "info": "Information",
+    "warning": "Avertissement"
+  },
+  "videoChat": {
+    "title": "Chat sur",
+    "suggestedQuestions": "Questions suggérées :",
+    "inputPlaceholder": "Posez une question sur la vidéo...",
+    "sendButton": "Envoyer",
+    "loadingChat": "Chargement du chat...",
+    "error": "Erreur :"
   }
 }

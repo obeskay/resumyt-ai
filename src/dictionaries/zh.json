@@ -117,5 +117,53 @@
     "error": "错误",
     "info": "信息",
     "warning": "警告"
+  },
+  "videoChat": {
+    "title": "视频聊天",
+    "suggestedQuestions": "建议的问题：",
+    "inputPlaceholder": "询问关于视频的问题...",
+    "sendButton": "发送",
+    "loadingChat": "加载聊天中...",
+    "error": "错误：",
+    "generatingQuestions": "正在生成建议问题...",
+    "newChatAvailable": "新功能！聊天功能已开放"
+  },
+  "profile": {
+    "title": "个人资料",
+    "userInfo": "用户信息",
+    "email": "电子邮件",
+    "quota": "使用配额",
+    "summaryHistory": "摘要历史",
+    "recent": "最近",
+    "favorites": "收藏",
+    "statistics": "统计",
+    "totalSummaries": "摘要总数",
+    "memberSince": "注册时间",
+    "settings": "设置",
+    "preferences": "偏好设置",
+    "language": "语言",
+    "theme": "主题",
+    "notifications": {
+      "success": "成功",
+      "error": "错误",
+      "info": "信息",
+      "warning": "警告"
+    },
+    "comingSoon": "即将推出"
+  },
+  "pricing": {
+    "title": "价格方案",
+    "currentPlan": "当前方案",
+    "month": "月",
+    "selectPlanButton": "选择方案",
+    "currentPlanButton": "当前方案",
+    "upgradeButton": "升级方案",
+    "features": {
+      "summariesPerDay": "每日摘要数",
+      "support": "支持",
+      "formats": "摘要格式",
+      "noAds": "无广告",
+      "apiAccess": "API访问"
+    }
   }
 }

@@ -84,7 +84,12 @@
   },
   "error": {
     "title": "Error",
-    "message": "Failed to generate summary"
+    "message": "Failed to generate summary",
+    "generic": "Something went wrong",
+    "invalidInput": "Invalid input",
+    "networkError": "Network error",
+    "serverError": "Server error",
+    "tryAgain": "Please try again later"
   },
   "videoInput": {
     "placeholder": "Paste your YouTube video URL here",
@@ -123,6 +128,20 @@
     "success": "Success",
     "error": "Error",
     "info": "Information",
-    "warning": "Warning"
+    "warning": "Warning",
+    "copied": "Copied to clipboard",
+    "saved": "Changes saved",
+    "updated": "Successfully updated",
+    "deleted": "Successfully deleted"
+  },
+  "videoChat": {
+    "title": "Chat about",
+    "suggestedQuestions": "Suggested questions:",
+    "inputPlaceholder": "Ask about the video...",
+    "sendButton": "Send",
+    "loadingChat": "Loading chat...",
+    "error": "Error:",
+    "generatingQuestions": "Generating suggested questions...",
+    "newChatAvailable": "New! Chat available"
   }
 }

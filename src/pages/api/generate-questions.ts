@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rateLimit";
+import { openai } from "@/lib/openai";
 
 interface ErrorResponse {
   error: string;
@@ -71,29 +72,12 @@ export default async function handler(req: NextRequest) {
     }
 
     const supabase = getSupabase();
-    const ip = req.ip ?? "::1";
 
-    // Get user
-    const { data: user, error: userError } = await supabase.rpc(
-      "get_or_create_anonymous_user",
-      {
-        user_ip: ip,
-        initial_quota: 5,
-        initial_plan: "F",
-      },
-    );
-
-    if (userError) {
-      console.error("Error getting/creating user:", userError);
-      return createErrorResponse("Error processing request");
-    }
-
-    // Get the summary for the video
+    // Get the summary for the video - removed user_id filter to match summary strategy
     const { data: summary, error: summaryError } = await supabase
       .from("summaries")
       .select("content, id")
       .eq("video_id", videoId)
-      .eq("user_id", user.id)
       .single();
 
     if (summaryError || !summary) {
@@ -105,34 +89,34 @@ export default async function handler(req: NextRequest) {
     }
 
     // Generate questions using OpenAI
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: getSystemPrompt(language),
-          },
-          {
-            role: "user",
-            content: getQuestionPrompt(language, summary.content),
-          },
-        ],
-        temperature: 0.7,
-      }),
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: getSystemPrompt(language),
+        },
+        {
+          role: "user",
+          content: getQuestionPrompt(language, summary.content),
+        },
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to generate questions");
+    const responseContent = completion.choices[0]?.message?.content;
+    if (!responseContent) {
+      throw new Error("Empty response from OpenAI");
     }
 
-    const aiResponse = await response.json();
-    const questions = JSON.parse(aiResponse.choices[0].message.content);
+    let questions;
+    try {
+      questions = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error("Error parsing OpenAI response:", parseError);
+      throw new Error("Invalid JSON in questions response");
+    }
 
     // Update the summary with the generated questions
     const { error: updateError } = await supabase
@@ -148,7 +132,7 @@ export default async function handler(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { questions: questions },
+      { questions },
       {
         headers: {
           "Access-Control-Allow-Origin": "*",
