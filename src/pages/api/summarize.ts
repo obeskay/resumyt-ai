@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { summarizeVideo, extractYouTubeId } from "@/lib/videoProcessing";
 import { createClient } from "@/lib/supabase-server";
 import { getVideoDetails } from "@/lib/videoProcessing";
+import { i18n } from "@/i18n-config";
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,10 +24,14 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid YouTube URL" });
     }
 
-    const language =
+    const requestedLang =
       lang && typeof lang === "string"
         ? lang.substring(0, 2).toLowerCase()
-        : "en";
+        : i18n.defaultLocale;
+
+    const language = i18n.locales.includes(requestedLang as any)
+      ? requestedLang
+      : i18n.defaultLocale;
 
     // Obtener detalles del video y generar resumen en paralelo
     const [videoDetails, summaryResult] = await Promise.all([
@@ -71,7 +76,7 @@ export default async function handler(
         transcript: summaryResult.transcript,
         language,
       },
-      redirectUrl: `/summary/${videoId}?lang=${language}`,
+      redirectUrl: `/${language}/summary/${videoId}`,
     });
   } catch (error) {
     console.error("API Error:", error);

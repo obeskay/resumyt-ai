@@ -198,7 +198,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
   return (
     <CardSpotlight
       className={cn(
-        "w-full max-w-4xl mx-auto bg-background/5 backdrop-blur-sm",
+        "w-full max-w-4xl mx-auto bg-popover backdrop-blur-sm",
         className,
       )}
     >
