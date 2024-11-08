@@ -256,13 +256,7 @@ export async function transcribeVideoWithFallback(
         .map((item: any) => item.text.trim())
         .filter((text: string) => text.length > 0)
         .join(" ");
-    } catch (ytError) {
-      console.log(
-        "Error con YoutubeTranscript, intentando con la API de YouTube:",
-        ytError,
-      );
-      transcript = await fetchYouTubeSubtitles(videoId);
-    }
+    } catch (ytError) {}
 
     // Preprocesar la transcripción antes de cachearla
     const processedTranscript = preprocessTranscript(transcript);
