@@ -158,7 +158,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
         initial={{ opacity: 1, height: "auto" }}
         animate={{ opacity: 1, height: "auto" }}
         transition={{ duration: 0.3 }}
-        className="overflow-hidden"
+        className="overflow-visible"
       >
         <ScrollArea
           ref={chatContainerRef}
