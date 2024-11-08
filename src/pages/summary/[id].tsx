@@ -153,8 +153,8 @@ export default function SummaryPage({
                       layoutId="video-thumbnail"
                     />
                   </div>
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-2">
+                  <div className="flex-1 space-y-4">
+                    <h2 className="text-2xl font-bold mb-4">
                       <GradientText>
                         {selectedSummary.title || dict.summary.defaultTitle}
                       </GradientText>

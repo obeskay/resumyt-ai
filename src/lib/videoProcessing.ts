@@ -1,4 +1,4 @@
-import { createClient, ensureVideoExists } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import {
   VideoFetchError,
   TranscriptNotFoundError,
@@ -6,12 +6,10 @@ import {
   DatabaseInsertError,
 } from "./errors";
 import { YoutubeTranscript } from "youtube-transcript";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
-import { logger } from "./logger";
 import OpenAI from "openai";
 import { VideoSummary, ProcessedVideo } from "./types";
-import { log } from "console";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -363,63 +361,50 @@ function validateTranscript(transcript: string): boolean {
 async function fetchVideoMetadata(
   videoId: string,
 ): Promise<{ title: string; thumbnailUrl: string; description: string }> {
-  // Check cache first
-  if (
-    transcriptCache[videoId] &&
-    Date.now() - transcriptCache[videoId].timestamp < CACHE_EXPIRATION
-  ) {
-    console.log("Metadata found in cache for video ID:", videoId);
-    return transcriptCache[videoId].data as any;
-  }
-
   try {
-    const apiKey = process.env.YOUTUBE_API_KEY;
-    if (!apiKey) {
-      console.error("YouTube API key is not set");
-      throw new Error("YouTube API key is not set");
-    }
-
-    console.log("Fetching video metadata for video ID:", videoId);
-    const response = await retryOperation(() =>
-      axios.get(`https://www.googleapis.com/youtube/v3/videos`, {
-        params: {
-          part: "snippet",
-          id: videoId,
-          key: apiKey,
-        },
-      }),
+    // Primero intentar con oEmbed
+    const oembedResponse = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
     );
 
-    if (!response.data.items || response.data.items.length === 0) {
-      throw new Error("No video data returned from YouTube API");
+    if (oembedResponse.ok) {
+      const oembedData = await oembedResponse.json();
+      return {
+        title: oembedData.title,
+        thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        description: oembedData.author_name
+          ? `Video by ${oembedData.author_name}`
+          : "",
+      };
     }
 
-    const videoData = response.data.items[0].snippet;
-    const metadata = {
-      title: videoData.title,
-      description: videoData.description,
-      thumbnailUrl: videoData.thumbnails.default.url,
+    // Si oEmbed falla, intentar scraping
+    const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+    const html = await response.text();
+
+    // Extraer título usando regex
+    const titleMatch = html.match(/<title>(.*?)<\/title>/);
+    const title = titleMatch
+      ? titleMatch[1].replace(" - YouTube", "")
+      : "Untitled Video";
+
+    // Extraer descripción (opcional)
+    const descriptionMatch = html.match(/"description":{"simpleText":"(.*?)"/);
+    const description = descriptionMatch ? descriptionMatch[1] : "";
+
+    return {
+      title,
+      thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+      description,
     };
-    console.log("Metadata fetched successfully:", {
-      title: metadata.title,
-      descriptionLength: metadata.description.length,
-      thumbnailUrl: metadata.thumbnailUrl,
-    });
-
-    // Cache the metadata
-    transcriptCache[videoId] = { data: metadata as any, timestamp: Date.now() };
-
-    return metadata;
   } catch (error) {
     console.error("Error fetching video metadata:", error);
-    if (error instanceof AxiosError) {
-      console.error("Axios error details:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
-    }
-    throw new TranscriptNotFoundError("Failed to fetch video metadata");
+    // Fallback con datos mínimos
+    return {
+      title: "Untitled Video",
+      thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+      description: "",
+    };
   }
 }
 
@@ -541,31 +526,43 @@ function getSystemPromptForLanguage(language: string): string {
   const prompts = {
     es: `Eres un asistente especializado en crear resúmenes concisos y estructurados de videos.
         Analiza el contenido y genera un resumen en formato JSON que incluya:
-        1. Una introducción breve pero informativa
-        2. 3-5 puntos principales que capturen las ideas más importantes
-        3. Una conclusión que resuma los aprendizajes clave
+        1. Una introducción breve pero informativa, con negrita en conceptos clave
+        2. 3-5 puntos principales que capturen las ideas más importantes, con subtítulos descriptivos
+        3. Una conclusión que resuma los aprendizajes clave, resaltando recomendaciones
+        
+        Usa las siguientes convenciones de formato:
+        - **texto** para negrita
+        - # para títulos principales
+        - ## para subtítulos
+        - • para viñetas
         
         El formato debe ser EXACTAMENTE:
         {
-          "introduction": "string",
+          "introduction": "string con **palabras clave** en negrita",
           "mainPoints": [
-            { "id": number, "point": "string" }
+            { "id": number, "title": "string", "point": "string con **énfasis** donde corresponda" }
           ],
-          "conclusions": "string"
+          "conclusions": "string con **recomendaciones** destacadas"
         }`,
     en: `You are an assistant specialized in creating concise, structured video summaries.
         Analyze the content and generate a JSON summary that includes:
-        1. A brief but informative introduction
-        2. 3-5 main points capturing the most important ideas
-        3. A conclusion summarizing key takeaways
+        1. A brief but informative introduction, with key concepts in bold
+        2. 3-5 main points capturing the most important ideas, with descriptive subtitles
+        3. A conclusion summarizing key takeaways, highlighting recommendations
+        
+        Use the following formatting conventions:
+        - **text** for bold
+        - # for main titles
+        - ## for subtitles
+        - • for bullet points
         
         The format must be EXACTLY:
         {
-          "introduction": "string",
+          "introduction": "string with **key words** in bold",
           "mainPoints": [
-            { "id": number, "point": "string" }
+            { "id": number, "title": "string", "point": "string with **emphasis** where appropriate" }
           ],
-          "conclusions": "string"
+          "conclusions": "string with **recommendations** highlighted"
         }`,
   };
   return prompts[language as keyof typeof prompts] || prompts.en;
@@ -610,32 +607,43 @@ async function saveSummary(
 ): Promise<void> {
   const supabase = createClient();
   try {
-    // Asegurarse de que estamos usando el título real del video
-    const { data: videoDetails } = await supabase
-      .from("videos")
-      .select("title")
-      .eq("id", videoId)
-      .single();
+    // Primero intentamos obtener el título del video
+    const title = videoTitle || "Untitled Video";
 
-    const title = videoDetails?.title || videoTitle || "Untitled Video";
+    // Primero insertamos o actualizamos el video
+    const { error: videoError } = await supabase.from("videos").upsert(
+      {
+        id: videoId,
+        url: videoUrl,
+        title: title,
+      },
+      { onConflict: "id" },
+    );
 
-    const { error } = await supabase.from("summaries").upsert(
+    if (videoError) {
+      console.error("Error saving video:", videoError);
+      throw videoError;
+    }
+
+    // Luego guardamos el resumen
+    const { error: summaryError } = await supabase.from("summaries").upsert(
       {
         video_id: videoId,
         transcript: transcriptOrMetadata,
         content: content,
         user_id: userId,
         format: format,
-        title: title, // Usar el título verificado
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       },
       {
         onConflict: "video_id,user_id",
       },
     );
 
-    if (error) {
-      console.error("Error saving summary:", error);
-      throw error;
+    if (summaryError) {
+      console.error("Error saving summary:", summaryError);
+      throw summaryError;
     }
   } catch (error) {
     console.error("Error in saveSummary:", error);

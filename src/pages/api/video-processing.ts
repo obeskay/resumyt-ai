@@ -27,34 +27,34 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid YouTube URL" });
     }
 
-    // Obtener detalles del video usando la API de YouTube
+    // Usar oEmbed en lugar de la API de YouTube
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${process.env.YOUTUBE_API_KEY}&part=snippet`,
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
     );
 
     if (!response.ok) {
-      throw new Error("Failed to fetch video details from YouTube API");
+      // Si oEmbed falla, usar datos mínimos
+      return res.status(200).json({
+        title: "Untitled Video",
+        thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        description: "",
+      });
     }
 
     const data = await response.json();
-    const videoDetails = data.items[0]?.snippet;
-
-    if (!videoDetails) {
-      return res.status(404).json({ error: "Video not found" });
-    }
-
-    // Asegurarse de que el título no esté vacío
-    const title = videoDetails.title || "Untitled Video";
 
     return res.status(200).json({
-      title,
+      title: data.title,
       thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-      description: videoDetails.description,
+      description: data.author_name ? `Video by ${data.author_name}` : "",
     });
   } catch (error) {
     console.error("Error processing video:", error);
-    return res
-      .status(500)
-      .json({ error: "Failed to process video", details: error });
+    // Proporcionar respuesta de fallback en caso de error
+    return res.status(200).json({
+      title: "Untitled Video",
+      thumbnail: "",
+      description: "",
+    });
   }
 }

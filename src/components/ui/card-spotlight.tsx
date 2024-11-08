@@ -104,7 +104,7 @@ export const CardSpotlight = ({
         {isLargeScreen && (
           <motion.div
             layoutId="spotlight"
-            className="pointer-events-none text-[hsl(var(--secondary)/0.085)] dark:text-[hsl(var(--primary)/0.15)] absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            className="pointer-events-none text-[hsl(var(--secondary-foreground)/0.075)] dark:text-[hsl(var(--secondary)/0.1)] absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{
               background: backgroundTemplate,
             }}

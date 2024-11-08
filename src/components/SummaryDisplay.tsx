@@ -26,6 +26,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { VideoSummary } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 interface Highlight {
   text: string;
@@ -128,6 +129,39 @@ const translations = {
   },
 } as const;
 
+const formatForWord = (summary: any) => {
+  const { introduction, mainPoints, conclusions } = summary;
+
+  // Convertir markdown a formato compatible con Word
+  const formatText = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, "$1") // Mantener el texto en negrita pero quitar los asteriscos
+      .replace(/^#\s+(.*)$/gm, "$1\n") // Convertir títulos
+      .replace(/^##\s+(.*)$/gm, "$1\n") // Convertir subtítulos
+      .replace(/^•\s+(.*)$/gm, "• $1\n"); // Mantener viñetas
+  };
+
+  // Construir el texto formateado
+  const formattedText = `
+${formatText(introduction)}
+
+PUNTOS PRINCIPALES:
+${mainPoints
+  .map(
+    (point: any) => `
+${point.title}
+${formatText(point.point)}
+`,
+  )
+  .join("\n")}
+
+CONCLUSIONES:
+${formatText(conclusions)}
+`;
+
+  return formattedText.trim();
+};
+
 const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
   title,
   content,
@@ -140,6 +174,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [parsedContent, setParsedContent] = useState<VideoSummary | null>(null);
+  const router = useRouter();
 
   // Obtener las traducciones según el idioma
   const t =
@@ -171,36 +206,44 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
   const timelineData = mainPoints.map((point, index) => ({
     title: `${index + 1}`,
     content: (
-      <CardSpotlight className="relative overflow-hidden border-none bg-background/50">
-        <motion.p
-          className="text-lg leading-relaxed"
-          whileHover={{ scale: 1.01 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          {point.point}
-        </motion.p>
-      </CardSpotlight>
+      <Card className="relative overflow-hidden border-none py-2 px-3 rounded-xl">
+        <motion.div className="md:text-lg leading-relaxed">
+          <ReactMarkdown>{point.point}</ReactMarkdown>
+        </motion.div>
+      </Card>
     ),
   }));
 
   const copyToClipboard = () => {
-    const textToCopy = extendedSummary;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setCopied(true);
-      toast({
-        title: "Copiado",
-        description: "El resumen ha sido copiado al portapapeles.",
+    try {
+      const parsedContent = JSON.parse(content);
+      const formattedText = formatForWord(parsedContent);
+
+      navigator.clipboard.writeText(formattedText).then(() => {
+        setCopied(true);
+        toast({
+          title: t.copied,
+          description: t.copyToast,
+        });
+        setTimeout(() => setCopied(false), 2000);
       });
-      setTimeout(() => setCopied(false), 2000);
-    });
+    } catch (error) {
+      console.error("Error formatting content for copying:", error);
+      // Fallback al comportamiento anterior si hay error
+      navigator.clipboard.writeText(extendedSummary).then(() => {
+        setCopied(true);
+        toast({
+          title: t.copied,
+          description: t.copyToast,
+        });
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
   };
 
   return (
     <CardSpotlight
-      className={cn(
-        "w-full max-w-4xl mx-auto bg-popover backdrop-blur-sm",
-        className,
-      )}
+      className={cn("w-full max-w-4xl mx-auto backdrop-blur-sm", className)}
     >
       <CardHeader>
         <div className="space-y-4">
@@ -243,23 +286,9 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
         </div>
 
         {/* Puntos Principales */}
-
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{t.mainPoints}</h2>
-        </div>
-
         <div className="space-y-4">
-          {mainPoints.map((point, index) => (
-            <div
-              key={index}
-              className="p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
-            >
-              <div className="flex gap-3">
-                <span className="text-primary font-medium">{index + 1}.</span>
-                <p className="text-muted-foreground">{point.point}</p>
-              </div>
-            </div>
-          ))}
+          <h2 className="text-xl font-semibold">{t.mainPoints}</h2>
+          <Timeline data={timelineData} />
         </div>
 
         {/* Conclusiones */}

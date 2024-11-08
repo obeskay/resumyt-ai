@@ -11,7 +11,8 @@ export default async function handler(
   }
 
   try {
-    const { videoId, language, count = 5 } = req.body;
+    const { videoId, language } = req.body;
+    const count = 3;
 
     if (!videoId || !language) {
       return res.status(400).json({
@@ -35,13 +36,13 @@ export default async function handler(
       });
     }
 
-    const prompt = `Based on the following video summary, generate ${count} relevant questions that could be asked about the content. The questions should be in ${
+    const prompt = `Based on the following video summary, generate exactly 3 concise and engaging questions that could be asked about the content. The questions should be in ${
       language === "es" ? "Spanish" : "English"
-    } and include emojis.
+    } and include relevant emojis.
 
 Summary: ${summaryData.content}
 
-Generate ${count} questions:`;
+Generate exactly 3 questions:`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
