@@ -168,58 +168,6 @@ async function getBasicVideoInfo(videoId: string): Promise<string> {
   return `Title: ${data.title}\nAuthor: ${data.author_name}`;
 }
 
-async function fetchYouTubeSubtitles(videoId: string): Promise<string> {
-  const apiKey = process.env.YOUTUBE_API_KEY;
-  if (!apiKey) {
-    throw new Error("YouTube API key is not set");
-  }
-
-  try {
-    // Obtener la lista de subtítulos disponibles
-    const captionsResponse = await axios.get(
-      `https://www.googleapis.com/youtube/v3/captions`,
-      {
-        params: {
-          part: "snippet",
-          videoId: videoId,
-          key: apiKey,
-        },
-      },
-    );
-
-    if (captionsResponse.data.items && captionsResponse.data.items.length > 0) {
-      const captionId = captionsResponse.data.items[0].id;
-
-      // Obtener el contenido de los subtítulos
-      const subtitlesResponse = await axios.get(
-        `https://www.googleapis.com/youtube/v3/captions/${captionId}`,
-        {
-          params: {
-            tfmt: "srt",
-            key: apiKey,
-          },
-          headers: {
-            Accept: "application/json",
-          },
-        },
-      );
-
-      // Procesar y limpiar los subtítulos
-      const subtitles = subtitlesResponse.data;
-      const cleanedSubtitles = subtitles.replace(
-        /\d+\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/g,
-        "",
-      );
-      return cleanedSubtitles.replace(/\n/g, " ").trim();
-    } else {
-      throw new Error("No se encontraron subtítulos para este video");
-    }
-  } catch (error) {
-    console.error("Error al obtener los subtítulos de YouTube:", error);
-    throw error;
-  }
-}
-
 export async function transcribeVideoWithFallback(
   videoId: string,
 ): Promise<string> {

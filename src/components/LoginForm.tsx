@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { getLocalizedPath } from "@/lib/navigation";
 
 interface LoginFormProps {
   dict: any;
+  locale?: string;
 }
 
-export default function LoginForm({ dict }: LoginFormProps) {
+export default function LoginForm({ dict, locale = "es" }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,8 +46,7 @@ export default function LoginForm({ dict }: LoginFormProps) {
       if (returnUrl) {
         router.push(decodeURIComponent(returnUrl));
       } else {
-        const locale = window.location.pathname.split("/")[1];
-        router.push(`/${locale}/profile`);
+        router.push(`/profile`);
       }
       router.refresh();
     } catch (error) {
@@ -57,6 +58,10 @@ export default function LoginForm({ dict }: LoginFormProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRedirect = () => {
+    router.push(getLocalizedPath("/login", locale));
   };
 
   return (

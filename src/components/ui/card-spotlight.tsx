@@ -45,47 +45,49 @@ export const CardSpotlight = ({
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !divRef.current) return;
+    const currentDiv = divRef.current;
 
-    const updateRect = () => {
-      if (!divRef.current) return;
-      const { width, height } = divRef.current.getBoundingClientRect();
-      setRect({ width, height });
-      mouseX.set(width / 2);
-      mouseY.set(height / 2);
-    };
+    if (currentDiv) {
+      const updateRect = () => {
+        if (!currentDiv) return;
+        const { width, height } = currentDiv.getBoundingClientRect();
+        setRect({ width, height });
+        mouseX.set(width / 2);
+        mouseY.set(height / 2);
+      };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!divRef.current) return;
-      const { left, top } = divRef.current.getBoundingClientRect();
-      mouseX.set(e.clientX - left);
-      mouseY.set(e.clientY - top);
-    };
+      const handleMouseMove = (e: MouseEvent) => {
+        if (!currentDiv) return;
+        const { left, top } = currentDiv.getBoundingClientRect();
+        mouseX.set(e.clientX - left);
+        mouseY.set(e.clientY - top);
+      };
 
-    const handleMouseLeave = () => {
-      mouseX.set(rect.width / 2);
-      mouseY.set(rect.height / 2);
-    };
+      const handleMouseLeave = () => {
+        mouseX.set(rect.width / 2);
+        mouseY.set(rect.height / 2);
+      };
 
-    updateRect();
-    window.addEventListener("resize", updateRect);
+      updateRect();
+      window.addEventListener("resize", updateRect);
 
-    if (isLargeScreen) {
-      divRef.current.addEventListener("mousemove", handleMouseMove);
-      divRef.current.addEventListener("mouseleave", handleMouseLeave);
+      if (isLargeScreen) {
+        currentDiv.addEventListener("mousemove", handleMouseMove);
+        currentDiv.addEventListener("mouseleave", handleMouseLeave);
+
+        return () => {
+          window.removeEventListener("resize", updateRect);
+          if (!currentDiv) return;
+          currentDiv.removeEventListener("mousemove", handleMouseMove);
+          currentDiv.removeEventListener("mouseleave", handleMouseLeave);
+        };
+      }
 
       return () => {
         window.removeEventListener("resize", updateRect);
-        if (!divRef.current) return;
-        divRef.current.removeEventListener("mousemove", handleMouseMove);
-        divRef.current.removeEventListener("mouseleave", handleMouseLeave);
       };
     }
-
-    return () => {
-      window.removeEventListener("resize", updateRect);
-    };
-  }, [mouseX, mouseY, rect.width, rect.height, isLargeScreen]);
+  }, [divRef, mouseX, mouseY, rect.width, rect.height, isLargeScreen]);
 
   return (
     <motion.div

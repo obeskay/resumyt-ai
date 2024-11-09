@@ -20,11 +20,11 @@ export function middleware(request: NextRequest) {
   );
 
   // Redirect if there is no locale
-  if (pathnameIsMissingLocale && false) {
+  if (pathnameIsMissingLocale) {
     const locale = i18n.defaultLocale;
 
-    // Evitar redirección si ya estamos en la ruta raíz
-    if (pathname === "/") {
+    // Para la ruta raíz o cualquier otra ruta sin locale
+    if (pathname === "/" || pathname === "") {
       return NextResponse.redirect(new URL(`/${locale}`, request.url));
     }
 
