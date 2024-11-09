@@ -15,3 +15,9 @@ export interface ProcessedVideo {
   transcript: string;
   thumbnailUrl?: string;
 }
+
+export interface VideoDetails {
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+}

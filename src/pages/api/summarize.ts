@@ -76,7 +76,7 @@ export default async function handler(
         transcript: summaryResult.transcript,
         language,
       },
-      redirectUrl: `/${language}/summary/${videoId}`,
+      redirectUrl: `/summary/${videoId}`,
     });
   } catch (error) {
     console.error("API Error:", error);

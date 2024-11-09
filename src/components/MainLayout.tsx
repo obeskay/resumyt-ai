@@ -4,28 +4,29 @@ import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { Moon, Sun, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Toaster } from "./ui/toaster";
 import YouTubeLogo from "./YouTubeLogo";
 import { BackgroundBeams } from "./ui/background-beams";
 import { Button } from "./ui/button";
-import { usePathname } from "next/navigation";
 import { i18n } from "@/i18n-config";
+import { getLocalizedPath } from "@/lib/navigation";
 
 interface MainLayoutProps {
   children: ReactNode;
   dict?: any;
+  locale?: string;
 }
 
-export default function MainLayout({ children, dict }: MainLayoutProps) {
+export default function MainLayout({
+  children,
+  dict,
+  locale,
+}: MainLayoutProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
-
-  const locale = pathname?.split("/")[1] || i18n.defaultLocale;
-
-  const validLocale = i18n.locales.includes(locale as any)
-    ? locale
-    : i18n.defaultLocale;
+  const router = useRouter();
+  const currentLocale = locale || i18n.defaultLocale;
 
   useEffect(() => {
     setMounted(true);
@@ -33,6 +34,11 @@ export default function MainLayout({ children, dict }: MainLayoutProps) {
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  const handleLoginRedirect = () => {
+    const loginPath = getLocalizedPath("/login", currentLocale);
+    router.push(loginPath);
   };
 
   if (!mounted) {
@@ -45,7 +51,7 @@ export default function MainLayout({ children, dict }: MainLayoutProps) {
         <header className="py-2 w-screen z-[10] sticky top-0 bg-background/40 backdrop-blur-md border-b border-px border-border/50">
           <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
             <Link
-              href={`/${validLocale}`}
+              href={`/${currentLocale}`}
               className="flex items-center gap-2 mb-2 sm:mb-0"
             >
               <YouTubeLogo />
@@ -56,13 +62,20 @@ export default function MainLayout({ children, dict }: MainLayoutProps) {
               </div>
             </Link>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" asChild>
-                <Link href={`/${validLocale}/profile`}>
+              <Button
+                onClick={handleLoginRedirect}
+                className="cursor-pointer"
+                type="button"
+                variant="ghost"
+                size="icon"
+                asChild
+              >
+                <div>
                   <User className="h-5 w-5" />
                   <span className="sr-only">
                     {dict?.profile?.title ?? "Profile"}
                   </span>
-                </Link>
+                </div>
               </Button>
               <motion.button
                 whileHover={{ scale: 1.05 }}

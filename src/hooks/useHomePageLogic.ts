@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/router";
 import { useLoadingStore } from "@/store/loadingStore";
@@ -8,6 +8,7 @@ import { getSupabase } from "@/lib/supabase";
 import { AnonymousUser } from "@/types/supabase";
 import { Locale } from "@/i18n-config";
 import { initSmoothScroll } from "@/lib/smoothScroll";
+import { getLocalizedPath } from "@/lib/navigation";
 
 export const useHomePageLogic = (dict: any, lang: Locale) => {
   const [user, setUser] = useState<AnonymousUser | null>(null);
@@ -21,50 +22,53 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
   const { addNotification } = useNotificationStore();
   const { handleAchievementProgress } = useAchievements(dict);
 
-  const initializeUser = async (retries = 3) => {
-    try {
-      setIsInitializing(true);
-      const response = await fetch("/api/getIp");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const { ip } = await response.json();
-      const supabase = getSupabase();
+  const initializeUser = useCallback(
+    async (retries = 3) => {
+      try {
+        setIsInitializing(true);
+        const response = await fetch("/api/getIp");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const { ip } = await response.json();
+        const supabase = getSupabase();
 
-      const { data: user, error: rpcError } = await supabase.rpc(
-        "get_or_create_anonymous_user",
-        {
-          user_ip: ip,
-          initial_quota: 3,
-          initial_plan: "F",
-        },
-      );
+        const { data: user, error: rpcError } = await supabase.rpc(
+          "get_or_create_anonymous_user",
+          {
+            user_ip: ip,
+            initial_quota: 3,
+            initial_plan: "F",
+          },
+        );
 
-      if (rpcError) {
-        throw new Error(`Failed to initialize user: ${rpcError.message}`);
-      }
+        if (rpcError) {
+          throw new Error(`Failed to initialize user: ${rpcError.message}`);
+        }
 
-      if (user) {
-        setUser(user);
-      } else {
-        throw new Error("Failed to create or retrieve user");
+        if (user) {
+          setUser(user);
+        } else {
+          throw new Error("Failed to create or retrieve user");
+        }
+      } catch (error) {
+        console.error("Error initializing user:", error);
+        if (retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await initializeUser(retries - 1);
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to initialize user. Please refresh the page.",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        setIsInitializing(false);
       }
-    } catch (error) {
-      console.error("Error initializing user:", error);
-      if (retries > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        await initializeUser(retries - 1);
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to initialize user. Please refresh the page.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsInitializing(false);
-    }
-  };
+    },
+    [toast],
+  );
 
   const fetchRecentVideos = async () => {
     const supabase = getSupabase();
@@ -84,7 +88,7 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
   useEffect(() => {
     initializeUser();
     fetchRecentVideos();
-  }, []);
+  }, [initializeUser]);
 
   const handleSubmit = async (url: string, lang: string) => {
     try {
@@ -93,7 +97,7 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
       );
       const data = await response.json();
       if (data.redirectUrl) {
-        router.push(data.redirectUrl);
+        router.push(getLocalizedPath(data.redirectUrl, lang));
       }
     } catch (error) {
       // Error handling

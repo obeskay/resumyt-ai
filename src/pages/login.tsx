@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Script from "next/script";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,43 +9,45 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Función para manejar el inicio de sesión con Google
-  async function handleSignInWithGoogle(response: any) {
-    try {
-      // Intentar primero con Supabase
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: "google",
-        token: response.credential,
-      });
-
-      if (error) {
-        // Si falla Supabase, intentar con NextAuth
-        await signIn("google", {
-          callbackUrl: getCallbackUrl(),
-        });
-        return;
-      }
-
-      // Si el inicio de sesión con Supabase es exitoso, redirigir
-      router.push(getCallbackUrl());
-    } catch (error) {
-      console.error("Error al iniciar sesión con Google:", error);
-    }
-  }
-
-  const getCallbackUrl = () => {
+  const getCallbackUrl = useCallback(() => {
     const returnUrl = searchParams?.get("returnUrl");
     if (returnUrl) {
       return decodeURIComponent(returnUrl);
     }
-    const locale = window.location.pathname.split("/")[1];
-    return `/${locale}/profile`;
-  };
+    return `/profile`;
+  }, [searchParams]);
+
+  // Función para manejar el inicio de sesión con Google
+  const handleSignInWithGoogle = useCallback(
+    async (response: any) => {
+      try {
+        // Intentar primero con Supabase
+        const { data, error } = await supabase.auth.signInWithIdToken({
+          provider: "google",
+          token: response.credential,
+        });
+
+        if (error) {
+          // Si falla Supabase, intentar con NextAuth
+          await signIn("google", {
+            callbackUrl: getCallbackUrl(),
+          });
+          return;
+        }
+
+        // Si el inicio de sesión con Supabase es exitoso, redirigir
+        router.push(getCallbackUrl());
+      } catch (error) {
+        console.error("Error al iniciar sesión con Google:", error);
+      }
+    },
+    [supabase, router, getCallbackUrl],
+  );
 
   useEffect(() => {
     // Exponer la función al scope global para que Google pueda llamarla
     (window as any).handleSignInWithGoogle = handleSignInWithGoogle;
-  }, []);
+  }, [handleSignInWithGoogle]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

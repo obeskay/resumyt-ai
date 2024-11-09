@@ -16,8 +16,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   locale,
   res,
 }) => {
-  // Si no hay locale, redirigir a la página con el locale por defecto
-  if (!locale) {
+  // Si no hay locale o estamos en la ruta raíz sin locale, redirigir
+  if (!locale || locale === "/") {
     return {
       redirect: {
         destination: "/es",

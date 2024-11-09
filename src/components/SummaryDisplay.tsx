@@ -191,7 +191,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
         description: "Could not parse summary content",
       });
     }
-  }, [content]);
+  }, [content, toast]);
 
   if (!parsedContent) {
     return (

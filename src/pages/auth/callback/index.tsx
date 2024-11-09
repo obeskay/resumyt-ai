@@ -49,12 +49,12 @@ export default function CallbackPage({ lang }: CallbackPageProps) {
           console.error("Error updating profile:", profileError);
         }
 
-        await router.push(`/${lang || "es"}/profile`);
+        await router.push(`/profile`);
       }
     };
 
     handleAuthCallback();
-  }, [router, lang]);
+  }, [router, lang, supabase]);
 
   const dict = getDictionary(lang);
   return <LoadingContainer dict={dict} />;
