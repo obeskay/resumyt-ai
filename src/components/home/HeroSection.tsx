@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import VideoInput from "@/components/summary/VideoInput";
@@ -10,12 +10,14 @@ interface HeroSectionProps {
   user: AnonymousUser | null;
   isSubmitting: boolean;
   onSubmit: (url: string, videoTitle: string) => Promise<void>;
+  isLoadingQuota: boolean;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   dict,
   user,
   isSubmitting,
+  isLoadingQuota,
   onSubmit,
 }) => (
   <motion.div
@@ -64,15 +66,29 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
       )}
       <VideoInput
+        isLoadingQuota={isSubmitting}
         quotaRemaining={user?.quota_remaining || 0}
         onSubmit={onSubmit}
         dict={dict}
       />
-      <p className="text-sm text-muted-foreground text-center">
-        <TextGenerateEffect
-          words={`${dict.home?.remainingQuota ?? "Remaining quota"}: ${user?.quota_remaining || 0}`}
-        />
-      </p>
+      <AnimatePresence mode="wait">
+        {user?.quota_remaining && !isSubmitting && !isLoadingQuota && (
+          <motion.div
+            layoutId="quota"
+            layout="position"
+            className="text-sm text-muted-foreground text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+          >
+            <p>
+              <TextGenerateEffect
+                words={`${dict.home?.remainingQuota ?? "Remaining quota"}: ${user?.quota_remaining || 0}`}
+              />
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   </motion.div>
 );

@@ -12,25 +12,6 @@ export function middleware(request: NextRequest) {
   ) {
     return;
   }
-
-  // Check if there is any supported locale in the pathname
-  const pathnameIsMissingLocale = i18n.locales.every(
-    (locale) =>
-      !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`,
-  );
-
-  // Redirect if there is no locale
-  if (pathnameIsMissingLocale) {
-    const locale = i18n.defaultLocale;
-
-    // Para la ruta raíz o cualquier otra ruta sin locale
-    if (pathname === "/" || pathname === "") {
-      return NextResponse.redirect(new URL(`/${locale}`, request.url));
-    }
-
-    // Para otras rutas, agregar el locale
-    return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
-  }
 }
 
 export const config = {

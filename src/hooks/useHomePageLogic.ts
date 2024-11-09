@@ -18,6 +18,7 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const videoInputRef = useRef<HTMLDivElement>(null);
+  const [isLoadingQuota, setIsLoadingQuota] = useState(false);
   const { setLoading } = useLoadingStore();
   const { addNotification } = useNotificationStore();
   const { handleAchievementProgress } = useAchievements(dict);
@@ -76,7 +77,7 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
       .from("summaries")
       .select("video_id")
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(15);
 
     if (error) {
       console.error("Error fetching recent videos:", error);
@@ -86,21 +87,41 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
   };
 
   useEffect(() => {
+    setIsLoadingQuota(true);
     initializeUser();
     fetchRecentVideos();
+    setIsLoadingQuota(false);
   }, [initializeUser]);
 
   const handleSubmit = async (url: string, lang: string) => {
     try {
+      setIsSubmitting(true);
       const response = await fetch(
         `/api/summarize?url=${encodeURIComponent(url)}&lang=${lang}`,
       );
+
+      if (!response.ok) {
+        throw new Error("Failed to summarize video");
+      }
+
       const data = await response.json();
-      if (data.redirectUrl) {
-        router.push(getLocalizedPath(data.redirectUrl, lang));
+
+      console.log("data", data);
+
+      if (data.success && data.data?.videoId) {
+        router.push(`/summary/${data.data.videoId}`);
+      } else {
+        throw new Error("Invalid response format");
       }
     } catch (error) {
-      // Error handling
+      console.error("Error submitting video:", error);
+      toast({
+        title: "Error",
+        description: dict.error?.summaryFailed ?? "Failed to generate summary",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -119,5 +140,6 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
     handleSubmit,
     videoInputRef,
     scrollToVideoInput,
+    isLoadingQuota,
   };
 };
