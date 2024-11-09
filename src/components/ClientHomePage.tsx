@@ -21,7 +21,7 @@ import { getTestimonials } from "@/lib/testimonials";
 
 interface ClientHomePageProps {
   dict: any;
-  lang: "en" | "es";
+  lang: string;
 }
 
 const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
@@ -32,6 +32,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
     handleSubmit,
     videoInputRef,
     scrollToVideoInput,
+    isLoadingQuota,
   } = useHomePageLogic(dict, lang);
 
   const features = getFeatures(dict);
@@ -62,6 +63,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
 
             <div ref={videoInputRef} className="container mx-auto">
               <HeroSection
+                isLoadingQuota={isLoadingQuota}
                 dict={dict}
                 user={user}
                 isSubmitting={isSubmitting}

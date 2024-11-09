@@ -8,16 +8,19 @@ import { Loader2 } from "lucide-react";
 import { useLoadingAnimation } from "@/hooks/useLoadingAnimation";
 import { VideoFetchError, VideoTitleError } from "@/lib/errors";
 import YouTubeThumbnail from "../YouTubeThumbnail";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface VideoInputProps {
   quotaRemaining: number;
   onSubmit: (url: string, videoTitle: string) => Promise<void>;
   dict: any;
+  isLoadingQuota: boolean;
 }
 
 const VideoInput: React.FC<VideoInputProps> = ({
   quotaRemaining,
   onSubmit,
+  isLoadingQuota,
   dict,
 }) => {
   const [videoDetails, setVideoDetails] = useState<{
@@ -26,7 +29,6 @@ const VideoInput: React.FC<VideoInputProps> = ({
   } | null>(null);
   const [url, setUrl] = useState("");
   const [isValidating, setIsValidating] = useState(false);
-  const { currentAnimation } = useLoadingAnimation();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,17 +124,26 @@ const VideoInput: React.FC<VideoInputProps> = ({
         </div>
       )}
 
-      {quotaRemaining <= 1 && (
-        <Alert variant="destructive" className="mt-4">
-          <AlertTitle>
-            {dict.home.alerts?.lowQuota?.title ?? "Low Quota Alert"}
-          </AlertTitle>
-          <AlertDescription>
-            {dict.home.alerts?.lowQuota?.message ??
-              "You're running low on summaries. Consider upgrading your plan!"}
-          </AlertDescription>
-        </Alert>
-      )}
+      <AnimatePresence mode="wait">
+        {quotaRemaining <= 1 && !isLoadingQuota && (
+          <motion.div
+            layoutId="quota"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { delay: 2.5 } }}
+            exit={{ opacity: 0 }}
+          >
+            <Alert variant="destructive" className="mt-4">
+              <AlertTitle>
+                {dict.home.alerts?.lowQuota?.title ?? "Low Quota Alert"}
+              </AlertTitle>
+              <AlertDescription>
+                {dict.home.alerts?.lowQuota?.message ??
+                  "You're running low on summaries. Consider upgrading your plan!"}
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

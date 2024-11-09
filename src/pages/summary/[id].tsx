@@ -247,12 +247,19 @@ export const getServerSideProps: GetServerSideProps = async ({
   try {
     const { data: summariesData, error } = await supabase
       .from("summaries")
-      .select("*")
-      .eq("video_id", params?.id)
-      .single();
+      .select(
+        `
+        *,
+        videos (
+          title,
+          thumbnail_url
+        )
+      `,
+      )
+      .eq("video_id", params?.id);
 
     if (error) {
-      console.error("Error fetching summary:", error);
+      console.error("Error fetching summaries:", error);
       return {
         props: {
           dict,
@@ -261,20 +268,30 @@ export const getServerSideProps: GetServerSideProps = async ({
       };
     }
 
-    const formattedSummary = {
-      content: summariesData.content,
-      transcript: summariesData.transcript,
-      videoId: summariesData.video_id,
-      title: summariesData.title,
-      format: summariesData.format,
-      highlights: summariesData.highlights || [],
-      extended_summary: summariesData.extended_summary || summariesData.content,
-    };
+    if (!summariesData || summariesData.length === 0) {
+      return {
+        props: {
+          dict,
+          initialSummaries: null,
+        },
+      };
+    }
+
+    const formattedSummaries = summariesData.map((summary) => ({
+      content: summary.content,
+      transcript: summary.transcript,
+      videoId: summary.video_id,
+      title: summary.videos?.title || summary.title,
+      thumbnailUrl: summary.videos?.thumbnail_url,
+      format: summary.format,
+      highlights: summary.highlights || [],
+      extended_summary: summary.extended_summary || summary.content,
+    }));
 
     return {
       props: {
         dict,
-        initialSummaries: [formattedSummary],
+        initialSummaries: formattedSummaries,
       },
     };
   } catch (error) {
