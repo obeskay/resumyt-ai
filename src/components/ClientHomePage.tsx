@@ -18,10 +18,11 @@ import { RecentVideoThumbnails } from "@/components/RecentVideoThumbnails";
 import { getFeatures } from "@/lib/features";
 import { getFAQs } from "@/lib/faq";
 import { getTestimonials } from "@/lib/testimonials";
+import { Locale } from "@/i18n-config";
 
 interface ClientHomePageProps {
   dict: any;
-  lang: string;
+  lang: Locale;
 }
 
 const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
@@ -33,7 +34,7 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
     videoInputRef,
     scrollToVideoInput,
     isLoadingQuota,
-  } = useHomePageLogic(dict, lang);
+  } = useHomePageLogic(dict, lang as Locale);
 
   const features = getFeatures(dict);
   const faqs = getFAQs(dict);
