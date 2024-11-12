@@ -125,12 +125,18 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
     }
   };
 
-  const scrollToVideoInput = () => {
+  const scrollToVideoInput = useCallback(() => {
     if (videoInputRef.current) {
-      const lenis = initSmoothScroll();
-      lenis.scrollTo(videoInputRef.current);
+      const offset = 100; // Ajuste para el header y espacio superior
+      const elementPosition = videoInputRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
     }
-  };
+  }, []);
 
   return {
     user,

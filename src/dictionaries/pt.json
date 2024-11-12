@@ -1,74 +1,76 @@
 {
   "home": {
     "title": "Resumos de Vídeos do YouTube em Segundos",
-    "subtitle": "Economize tempo e aprenda mais rápido com resumos inteligentes",
+    "subtitle": "Economize tempo e aprenda com resumos rápidos e eficazes",
     "metaDescription": "Economize tempo e aprenda mais rápido com resumos inteligentes de vídeos",
     "keywords": "YouTube, resumos, vídeo, resumo, aprendizagem, educação, economia de tempo",
-    "remainingQuota": "Cota restante",
+    "remainingQuota": "Cota disponível",
     "error": {
       "somethingWentWrong": "Algo deu errado"
     },
     "features": {
-      "title": "Recursos",
+      "title": "Recursos Principais",
       "quickSummaries": "Resumos Rápidos",
-      "quickSummariesDesc": "Obtenha os pontos principais de qualquer vídeo em segundos.",
+      "quickSummariesDesc": "Converta vídeos do YouTube em resumos concisos.",
       "timeSaving": "Economia de Tempo",
-      "timeSavingDesc": "Economize horas de visualização com nossos resumos eficientes.",
+      "timeSavingDesc": "Reduza horas de visualização com resumos rápidos.",
       "acceleratedLearning": "Aprendizado Acelerado",
-      "acceleratedLearningDesc": "Aprenda mais rápido e eficientemente com nossos resumos potencializados por IA.",
+      "acceleratedLearningDesc": "Obtenha informações essenciais instantaneamente.",
       "forEveryone": "Para Todos",
-      "forEveryoneDesc": "Ideal para estudantes, profissionais e entusiastas do aprendizado.",
+      "forEveryoneDesc": "Ideal para estudantes, profissionais e mentes curiosas.",
       "diverseContent": "Conteúdo Diversificado",
-      "diverseContentDesc": "Resuma vídeos em vários idiomas e formatos.",
+      "diverseContentDesc": "Resuma uma ampla gama de conteúdo do YouTube, de aulas a documentários.",
       "valuableInsights": "Insights Valiosos",
-      "valuableInsightsDesc": "Obtenha insights valiosos de qualquer vídeo.",
-      "smartAnalysis": "Análise Inteligente",
-      "smartAnalysisDesc": "Nossa IA identifica e extrai os pontos mais importantes.",
-      "easySharing": "Compartilhamento Fácil",
-      "easySharingDesc": "Compartilhe resumos com colegas e amigos facilmente.",
-      "customFormats": "Formatos Personalizados",
-      "customFormatsDesc": "Escolha o formato que melhor atende às suas necessidades."
+      "valuableInsightsDesc": "Extraia pontos-chave e insights de qualquer vídeo."
     },
     "howItWorks": {
       "title": "Como Funciona",
       "step1": "Cole a URL",
-      "step1Desc": "Simplesmente copie e cole a URL do vídeo do YouTube que você quer resumir.",
+      "step1Desc": "Simplesmente copie e cole a URL do vídeo do YouTube que deseja resumir.",
       "step2": "Escolha o formato",
       "step2Desc": "Selecione entre pontos-chave, parágrafo ou página completa.",
-      "step3": "Obtenha seu resumo",
-      "step3Desc": "Em segundos, receba um resumo conciso e preciso do conteúdo do vídeo."
+      "step3": "Obtenha o resumo",
+      "step3Desc": "Em segundos, receba um resumo conciso e preciso."
     },
     "testimonials": {
-      "title": "O que nossos usuários dizem",
-      "quote1": "Resumyt me economizou horas assistindo vídeos longos. Agora posso obter as informações principais em minutos.",
+      "title": "Depoimentos",
+      "quote1": "Resumyt me economizou horas. Agora posso obter informações-chave em minutos.",
       "name1": "Maria G.",
       "title1": "Estudante universitária",
-      "quote2": "Incrível para preparar apresentações. O Resumyt extrai os pontos-chave que preciso.",
+      "quote2": "Perfeito para preparar apresentações. Resumyt extrai os pontos-chave que preciso.",
       "name2": "João M.",
       "title2": "Gerente de marketing",
-      "quote3": "Graças ao Resumyt, posso acompanhar os últimos tutoriais de programação sem passar horas assistindo vídeos.",
+      "quote3": "Graças ao Resumyt, posso acompanhar tutoriais de programação sem passar horas assistindo vídeos.",
       "name3": "Ana L.",
       "title3": "Desenvolvedora de software",
-      "quote4": "Resumyt é uma ferramenta essencial para quem quer aprender rapidamente.",
+      "quote4": "Uma ferramenta essencial para quem quer aprender rapidamente.",
       "name4": "Carlos V.",
-      "title4": "Estudante universitário",
-      "quote5": "Uso o Resumyt diariamente para me manter atualizado com as últimas tendências do mercado.",
-      "name5": "Pedro S.",
-      "title5": "Consultor empresarial",
-      "quote6": "Perfeito para pesquisa acadêmica. Economizo muito tempo revisando conteúdo em vídeo.",
-      "name6": "Beatriz R.",
-      "title6": "Pesquisadora",
-      "quote7": "A qualidade dos resumos é impressionante. A IA realmente entende o contexto.",
-      "name7": "Lucas T.",
-      "title7": "Professor universitário",
-      "quote8": "Indispensável para minha produtividade diária.",
-      "name8": "Sofia M.",
-      "title8": "Empreendedora"
+      "title4": "Estudante"
     },
     "cta": {
       "title": "Pronto para Começar?",
-      "description": "Junte-se a milhares de usuários satisfeitos e comece a resumir seus vídeos hoje.",
-      "button": "Começar"
+      "description": "Junte-se a milhares de usuários satisfeitos e comece hoje mesmo.",
+      "button": "Começar Agora",
+      "learnMore": "Saiba Mais"
+    },
+    "videoInput": {
+      "title": "Pronto para resumir?",
+      "placeholder": "Cole aqui a URL do vídeo do YouTube",
+      "button": "Resumir",
+      "processing": "Processando vídeo...",
+      "quotaExceeded": "Cota atingida",
+      "upgrade": "Atualizar",
+      "or": "ou",
+      "waitTomorrow": "espere até amanhã",
+      "errorProcessing": "Erro no processamento",
+      "tryAgain": "Tente novamente"
+    },
+    "heroTitle": "Transforme Vídeos do YouTube em Resumos Rápidos",
+    "heroSubtitle": "Experimente o futuro do aprendizado com resumos potencializados por IA",
+    "stats": {
+      "videos": "Vídeos Processados",
+      "users": "Usuários Ativos",
+      "languages": "Idiomas Disponíveis"
     },
     "faq": {
       "title": "Perguntas Frequentes",
@@ -80,65 +82,6 @@
       "a3": "Sim, o Resumyt oferece um plano gratuito com uso limitado.",
       "q4": "Posso usar o Resumyt para fins educacionais?",
       "a4": "Absolutamente! O Resumyt é uma excelente ferramenta para estudantes, pesquisadores e educadores."
-    },
-    "alerts": {
-      "lowQuota": {
-        "title": "Alerta de Cota Baixa",
-        "message": "Você está ficando sem resumos. Considere fazer um upgrade do seu plano!"
-      }
-    },
-    "notifications": {
-      "success": "Sucesso",
-      "error": "Erro",
-      "info": "Informação",
-      "warning": "Aviso"
-    },
-    "videoChat": {
-      "title": "Chat sobre",
-      "suggestedQuestions": "Perguntas sugeridas:",
-      "inputPlaceholder": "Faça uma pergunta sobre o vídeo...",
-      "sendButton": "Enviar",
-      "loadingChat": "Carregando chat...",
-      "error": "Erro:"
     }
-  },
-  "loading": {
-    "title": "Processando",
-    "description": "Por favor, aguarde..."
-  },
-  "summary": {
-    "title": "Sucesso",
-    "successMessage": "Resumo gerado com sucesso!"
-  },
-  "error": {
-    "title": "Erro",
-    "message": "Falha ao gerar resumo"
-  },
-  "videoInput": {
-    "placeholder": "Cole aqui a URL do vídeo do YouTube",
-    "invalidUrl": "Por favor, insira uma URL válida do YouTube",
-    "submit": "Gerar Resumo",
-    "button": "Resumir",
-    "quotaExceeded": "Você atingiu seu limite de cota",
-    "upgrade": "Atualizar",
-    "or": "ou",
-    "waitTomorrow": "espere até amanhã",
-    "processing": "Processando vídeo...",
-    "errorProcessing": "Erro ao processar vídeo",
-    "tryAgain": "Por favor, tente novamente"
-  },
-  "formats": {
-    "title": "Selecionar Formato",
-    "keyPoints": "Pontos-Chave",
-    "keyPointsDesc": "Tópicos com as principais ideias",
-    "paragraph": "Parágrafo",
-    "paragraphDesc": "Resumo conciso em parágrafo",
-    "fullPage": "Página Completa",
-    "fullPageDesc": "Resumo detalhado completo"
-  },
-  "achievements": {
-    "unlocked": "Conquista Desbloqueada!",
-    "summaryGenerated": "Primeiro Resumo Gerado",
-    "progress": "Progresso"
   }
 }

@@ -1,20 +1,21 @@
 {
   "home": {
     "title": "Resúmenes de Videos de YouTube en Segundos",
-    "subtitle": "Ahorra tiempo y aprende más rápido con resúmenes inteligentes",
+    "subtitle": "Ahorra tiempo y aprende con resúmenes rápidos y efectivos",
     "metaDescription": "Ahorra tiempo y aprende más rápido con resúmenes inteligentes de videos",
     "keywords": "YouTube, resúmenes, video, resumen, aprendizaje, educación, ahorro de tiempo",
-    "remainingQuota": "Cuota restante",
+    "remainingQuota": "Cuota disponible",
     "error": {
       "somethingWentWrong": "Algo salió mal"
     },
     "features": {
+      "title": "Funciones Principales",
       "quickSummaries": "Resúmenes Rápidos",
-      "quickSummariesDesc": "Obtén resúmenes concisos de videos de YouTube en segundos.",
+      "quickSummariesDesc": "Convierte videos de YouTube en resúmenes concisos.",
       "timeSaving": "Ahorro de Tiempo",
-      "timeSavingDesc": "Ahorra horas de tiempo de visualización con nuestros resúmenes eficientes.",
+      "timeSavingDesc": "Reduce horas de visualización con resúmenes rápidos.",
       "acceleratedLearning": "Aprendizaje Acelerado",
-      "acceleratedLearningDesc": "Absorbe información más rápido con nuestro contenido resumido.",
+      "acceleratedLearningDesc": "Obtén la información esencial al instante.",
       "forEveryone": "Para Todos",
       "forEveryoneDesc": "Ideal para estudiantes, profesionales y mentes curiosas.",
       "diverseContent": "Contenido Diverso",
@@ -49,7 +50,8 @@
     "cta": {
       "title": "¿Listo para Empezar?",
       "description": "Únete a miles de usuarios satisfechos y comienza a resumir tus videos hoy.",
-      "button": "Comenzar"
+      "button": "Comenzar",
+      "learnMore": "Más Información"
     },
     "faq": {
       "title": "Preguntas Frecuentes",
@@ -63,7 +65,7 @@
       "a4": "¡Absolutamente! Resumyt es una excelente herramienta para estudiantes, investigadores y educadores para ahorrar tiempo y aprender más rápido de videos de YouTube."
     },
     "videoInput": {
-      "placeholder": "Pega aquí la URL del video de YouTube",
+      "placeholder": "Pega la URL del video de YouTube",
       "invalidUrl": "Por favor ingrese una URL válida de YouTube",
       "submit": "Generar Resumen",
       "button": "Resumir",
@@ -73,7 +75,8 @@
       "or": "o",
       "waitTomorrow": "espere hasta mañana",
       "errorProcessing": "Error al procesar el video",
-      "tryAgain": "Por favor intente de nuevo"
+      "tryAgain": "Por favor intente de nuevo",
+      "title": "¿Listo para resumir?"
     },
     "formats": {
       "title": "Seleccionar Formato",
@@ -107,6 +110,14 @@
       "error": "Error:",
       "generatingQuestions": "Generando preguntas sugeridas...",
       "newChatAvailable": "¡Nuevo! Chat disponible"
+    },
+    "heroTitle": "Transforma Videos de YouTube en Resúmenes Rápidos",
+    "heroSubtitle": "Experimenta el futuro del aprendizaje con resúmenes potenciados por IA",
+    "learnMore": "Saber Más",
+    "stats": {
+      "videos": "Videos Procesados",
+      "users": "Usuarios Activos",
+      "languages": "Idiomas Disponibles"
     }
   },
   "loading": {

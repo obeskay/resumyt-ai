@@ -1,147 +1,76 @@
 {
   "home": {
     "title": "YouTube Video Summaries in Seconds",
-    "subtitle": "Save time and learn faster with intelligent video summaries",
+    "subtitle": "Save time and learn with quick and effective summaries",
     "metaDescription": "Save time and learn faster with intelligent video summaries",
     "keywords": "YouTube, summaries, video, summarization, learning, education, time-saving",
-    "remainingQuota": "Remaining quota",
+    "remainingQuota": "Available quota",
     "error": {
       "somethingWentWrong": "Something went wrong"
     },
     "features": {
-      "title": "Features",
+      "title": "Main Features",
       "quickSummaries": "Quick Summaries",
-      "quickSummariesDesc": "Get the key points of any video in seconds.",
+      "quickSummariesDesc": "Convert YouTube videos into concise summaries.",
       "timeSaving": "Time Saving",
-      "timeSavingDesc": "Save up to 90% of your time with instant video summaries.",
+      "timeSavingDesc": "Reduce viewing hours with quick summaries.",
       "acceleratedLearning": "Accelerated Learning",
-      "acceleratedLearningDesc": "Learn faster and more efficiently with our AI-powered summaries.",
+      "acceleratedLearningDesc": "Get essential information instantly.",
       "forEveryone": "For Everyone",
-      "forEveryoneDesc": "Perfect for students, professionals, and lifelong learners.",
+      "forEveryoneDesc": "Perfect for students, professionals, and curious minds.",
       "diverseContent": "Diverse Content",
-      "diverseContentDesc": "Support for multiple languages and video formats.",
+      "diverseContentDesc": "Summarize a wide range of YouTube content, from lectures to documentaries.",
       "valuableInsights": "Valuable Insights",
-      "valuableInsightsDesc": "Extract key insights and main takeaways instantly.",
-      "customization": "Customization",
-      "customizationDesc": "Choose between different summary formats to suit your needs.",
-      "accessibility": "Accessibility",
-      "accessibilityDesc": "Make video content more accessible with text summaries."
+      "valuableInsightsDesc": "Extract key points and insights from any video."
     },
     "howItWorks": {
       "title": "How It Works",
-      "step1": "Paste the URL",
-      "step1Desc": "Simply copy and paste the URL of the YouTube video you want to summarize.",
-      "step2": "Choose the format",
+      "step1": "Paste URL",
+      "step1Desc": "Simply copy and paste the YouTube video URL you want to summarize.",
+      "step2": "Choose Format",
       "step2Desc": "Select between key points, paragraph, or full page.",
-      "step3": "Get your summary",
-      "step3Desc": "In seconds, receive a concise and accurate summary of the video content."
+      "step3": "Get Summary",
+      "step3Desc": "In seconds, receive a concise and accurate summary."
     },
     "testimonials": {
-      "title": "What our users say",
-      "quote1": "Resumyt has saved me hours of time watching long videos. Now I can get the key information in minutes.",
+      "title": "Testimonials",
+      "quote1": "Resumyt has saved me hours. Now I can get key information in minutes.",
       "name1": "Mary G.",
-      "title1": "University student",
-      "quote2": "As a researcher, this tool is invaluable. It helps me quickly scan through hours of lecture content.",
-      "name2": "Dr. James Wilson",
-      "title2": "Research Scientist",
-      "quote3": "The AI summaries are surprisingly accurate and help me stay productive.",
-      "name3": "Sarah Chen",
-      "title3": "Content Creator",
-      "quote4": "I use Resumyt daily for my online courses. It's a game-changer!",
-      "name4": "Michael R.",
-      "title4": "University student",
-      "quote5": "Perfect for reviewing technical tutorials. Saves me so much time!",
-      "name5": "David Kumar",
-      "title5": "Software Developer",
-      "quote6": "The multiple summary formats are great. I use bullet points for quick reviews and full pages for detailed study.",
-      "name6": "Emma Thompson",
-      "title6": "Graduate Student"
+      "title1": "University Student",
+      "quote2": "Perfect for preparing presentations. Resumyt extracts the key points I need.",
+      "name2": "James M.",
+      "title2": "Marketing Manager",
+      "quote3": "Thanks to Resumyt, I can keep up with programming tutorials without spending hours watching videos.",
+      "name3": "Anna L.",
+      "title3": "Software Developer",
+      "quote4": "An essential tool for anyone wanting to learn quickly.",
+      "name4": "Charles V.",
+      "title4": "Student"
     },
     "cta": {
-      "title": "Ready to Get Started?",
+      "title": "Ready to Start?",
       "description": "Join thousands of satisfied users and start summarizing your videos today.",
-      "button": "Get Started"
+      "button": "Get Started",
+      "learnMore": "Learn More"
     },
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "q1": "What is Resumyt?",
-      "a1": "Resumyt is a platform that provides concise and accurate summaries of YouTube videos in seconds.",
-      "q2": "How does Resumyt work?",
-      "a2": "Resumyt uses advanced AI technology to analyze and summarize YouTube videos. It extracts key points, paragraphs, or full summaries based on your preferences.",
-      "q3": "Is Resumyt free to use?",
-      "a3": "Yes, Resumyt offers a free tier with limited usage. For unlimited access and additional features, you can upgrade to a premium plan.",
-      "q4": "Can I use Resumyt for educational purposes?",
-      "a4": "Absolutely! Resumyt is an excellent tool for students, researchers, and educators to save time and learn faster from YouTube videos."
+    "videoInput": {
+      "title": "Ready to summarize?",
+      "placeholder": "Paste YouTube video URL here",
+      "button": "Summarize",
+      "processing": "Processing video...",
+      "quotaExceeded": "Quota reached",
+      "upgrade": "Upgrade",
+      "or": "or",
+      "waitTomorrow": "wait until tomorrow",
+      "errorProcessing": "Error processing",
+      "tryAgain": "Please try again"
+    },
+    "heroTitle": "Transform YouTube Videos into Quick Insights",
+    "heroSubtitle": "Experience the future of learning with AI-powered summaries",
+    "stats": {
+      "videos": "Videos Processed",
+      "users": "Active Users",
+      "languages": "Languages Available"
     }
-  },
-  "loading": {
-    "title": "Processing",
-    "description": "Please wait..."
-  },
-  "summary": {
-    "title": "Success",
-    "successMessage": "Summary generated successfully!"
-  },
-  "error": {
-    "title": "Error",
-    "message": "Failed to generate summary",
-    "generic": "Something went wrong",
-    "invalidInput": "Invalid input",
-    "networkError": "Network error",
-    "serverError": "Server error",
-    "tryAgain": "Please try again later"
-  },
-  "videoInput": {
-    "placeholder": "Paste your YouTube video URL here",
-    "invalidUrl": "Please enter a valid YouTube URL",
-    "submit": "Generate Summary",
-    "button": "Summarize",
-    "quotaExceeded": "You have reached your quota limit",
-    "upgrade": "Upgrade",
-    "or": "or",
-    "waitTomorrow": "wait until tomorrow",
-    "processing": "Processing video...",
-    "errorProcessing": "Error processing video",
-    "tryAgain": "Please try again"
-  },
-  "formats": {
-    "title": "Select Format",
-    "keyPoints": "Key Points",
-    "keyPointsDesc": "Bullet points with main ideas",
-    "paragraph": "Paragraph",
-    "paragraphDesc": "Concise paragraph summary",
-    "fullPage": "Full Page",
-    "fullPageDesc": "Detailed comprehensive summary"
-  },
-  "achievements": {
-    "unlocked": "Achievement Unlocked!",
-    "summaryGenerated": "First Summary Generated",
-    "progress": "Progress"
-  },
-  "alerts": {
-    "lowQuota": {
-      "title": "Low Quota Alert",
-      "message": "You're running low on summaries. Consider upgrading your plan!"
-    }
-  },
-  "notifications": {
-    "success": "Success",
-    "error": "Error",
-    "info": "Information",
-    "warning": "Warning",
-    "copied": "Copied to clipboard",
-    "saved": "Changes saved",
-    "updated": "Successfully updated",
-    "deleted": "Successfully deleted"
-  },
-  "videoChat": {
-    "title": "Chat about",
-    "suggestedQuestions": "Suggested questions:",
-    "inputPlaceholder": "Ask about the video...",
-    "sendButton": "Send",
-    "loadingChat": "Loading chat...",
-    "error": "Error:",
-    "generatingQuestions": "Generating suggested questions...",
-    "newChatAvailable": "New! Chat available"
   }
 }

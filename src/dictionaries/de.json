@@ -1,173 +1,76 @@
 {
   "home": {
     "title": "YouTube-Video-Zusammenfassungen in Sekunden",
-    "subtitle": "Sparen Sie Zeit und lernen Sie schneller mit intelligenten Zusammenfassungen",
+    "subtitle": "Sparen Sie Zeit und lernen Sie mit schnellen und effektiven Zusammenfassungen",
     "metaDescription": "Sparen Sie Zeit und lernen Sie schneller mit intelligenten Video-Zusammenfassungen",
     "keywords": "YouTube, Zusammenfassungen, Video, Lernen, Bildung, Zeiteinsparung",
-    "remainingQuota": "Verbleibendes Kontingent",
+    "remainingQuota": "Verfügbares Kontingent",
     "error": {
       "somethingWentWrong": "Etwas ist schief gelaufen"
     },
     "features": {
+      "title": "Hauptfunktionen",
       "quickSummaries": "Schnelle Zusammenfassungen",
-      "quickSummariesDesc": "Erhalten Sie prägnante Zusammenfassungen von YouTube-Videos in Sekunden.",
+      "quickSummariesDesc": "Wandeln Sie YouTube-Videos in prägnante Zusammenfassungen um.",
       "timeSaving": "Zeitersparnis",
-      "timeSavingDesc": "Sparen Sie Stunden an Betrachtungszeit mit unseren effizienten Zusammenfassungen.",
+      "timeSavingDesc": "Reduzieren Sie Betrachtungszeit mit schnellen Zusammenfassungen.",
       "acceleratedLearning": "Beschleunigtes Lernen",
-      "acceleratedLearningDesc": "Nehmen Sie Informationen schneller auf mit unseren zusammengefassten Inhalten.",
+      "acceleratedLearningDesc": "Erhalten Sie sofort die wichtigsten Informationen.",
       "forEveryone": "Für Jeden",
-      "forEveryoneDesc": "Geeignet für Studenten, Berufstätige und wissbegierige Köpfe.",
+      "forEveryoneDesc": "Ideal für Studenten, Berufstätige und wissbegierige Köpfe.",
       "diverseContent": "Vielfältige Inhalte",
-      "diverseContentDesc": "Fassen Sie eine breite Palette von YouTube-Inhalten zusammen, von Vorlesungen bis zu Dokumentationen.",
+      "diverseContentDesc": "Fassen Sie verschiedene YouTube-Inhalte zusammen, von Vorlesungen bis zu Dokumentationen.",
       "valuableInsights": "Wertvolle Einblicke",
-      "valuableInsightsDesc": "Extrahieren Sie Kernpunkte und Erkenntnisse aus jedem Video."
+      "valuableInsightsDesc": "Extrahieren Sie Kernpunkte aus jedem Video."
     },
     "howItWorks": {
       "title": "So funktioniert's",
       "step1": "URL einfügen",
-      "step1Desc": "Kopieren und fügen Sie einfach die URL des YouTube-Videos ein, das Sie zusammenfassen möchten.",
+      "step1Desc": "Kopieren und fügen Sie einfach die URL des YouTube-Videos ein.",
       "step2": "Format wählen",
       "step2Desc": "Wählen Sie zwischen Kernpunkten, Absatz oder vollständiger Seite.",
       "step3": "Zusammenfassung erhalten",
-      "step3Desc": "Erhalten Sie in Sekunden eine prägnante und genaue Zusammenfassung des Videoinhalts."
+      "step3Desc": "Erhalten Sie in Sekunden eine präzise Zusammenfassung."
     },
     "testimonials": {
       "title": "Erfahrungsberichte",
-      "quote1": "Resumyt hat mir Stunden des Videoschauens erspart. Jetzt kann ich die wichtigsten Informationen in Minuten erhalten.",
+      "quote1": "Resumyt hat mir Stunden erspart. Jetzt bekomme ich die wichtigsten Informationen in Minuten.",
       "name1": "Maria G.",
-      "title1": "Universitätsstudentin",
-      "quote2": "Fantastisch für die Vorbereitung von Präsentationen. Resumyt extrahiert die Kernpunkte, die ich brauche.",
+      "title1": "Studentin",
+      "quote2": "Perfekt für Präsentationen. Resumyt extrahiert die wichtigsten Punkte.",
       "name2": "Jakob M.",
       "title2": "Marketing Manager",
-      "quote3": "Dank Resumyt kann ich die neuesten Programmiertutorials verfolgen, ohne stundenlang Videos anzusehen.",
+      "quote3": "Dank Resumyt kann ich Programmiertutorials folgen, ohne stundenlang Videos zu schauen.",
       "name3": "Anna L.",
       "title3": "Softwareentwicklerin",
-      "quote4": "Resumyt ist ein unverzichtbares Werkzeug für jeden, der schnell lernen möchte.",
+      "quote4": "Ein unverzichtbares Werkzeug zum schnellen Lernen.",
       "name4": "Karl V.",
-      "title4": "Universitätsstudent"
+      "title4": "Student"
     },
     "cta": {
       "title": "Bereit loszulegen?",
-      "description": "Schließen Sie sich Tausenden zufriedener Nutzer an und beginnen Sie noch heute mit der Zusammenfassung Ihrer Videos.",
-      "button": "Jetzt starten"
+      "description": "Schließen Sie sich Tausenden zufriedener Nutzer an und starten Sie noch heute.",
+      "button": "Jetzt starten",
+      "learnMore": "Mehr erfahren"
     },
-    "faq": {
-      "title": "Häufig gestellte Fragen",
-      "q1": "Was ist Resumyt?",
-      "a1": "Resumyt ist eine Plattform, die prägnante und genaue Zusammenfassungen von YouTube-Videos in Sekunden liefert.",
-      "q2": "Wie funktioniert Resumyt?",
-      "a2": "Resumyt verwendet fortschrittliche KI-Technologie zur Analyse und Zusammenfassung von YouTube-Videos.",
-      "q3": "Ist Resumyt kostenlos?",
-      "a3": "Ja, Resumyt bietet einen kostenlosen Plan mit begrenzter Nutzung.",
-      "q4": "Kann ich Resumyt für Bildungszwecke nutzen?",
-      "a4": "Absolut! Resumyt ist ein ausgezeichnetes Werkzeug für Studenten, Forscher und Pädagogen."
+    "videoInput": {
+      "title": "Bereit zum Zusammenfassen?",
+      "placeholder": "YouTube-Video-URL hier einfügen",
+      "button": "Zusammenfassen",
+      "processing": "Video wird verarbeitet...",
+      "quotaExceeded": "Kontingent erreicht",
+      "upgrade": "Upgraden",
+      "or": "oder",
+      "waitTomorrow": "warten Sie bis morgen",
+      "errorProcessing": "Fehler bei der Verarbeitung",
+      "tryAgain": "Bitte erneut versuchen"
     },
-    "description": "Resumyt ermöglicht es Ihnen, prägnante und genaue Zusammenfassungen von YouTube-Videos zu erhalten. Ideal für Studenten, Berufstätige und Lernbegeisterte.",
-    "inputPlaceholder": "Fügen Sie hier den YouTube-Video-Link ein",
-    "summarizeButton": "Zusammenfassen",
-    "dialog": {
-      "title": "Willkommen bei Resumyt!",
-      "description": "Resumyt ermöglicht es Ihnen, schnelle Zusammenfassungen von YouTube-Videos zu erhalten. Fügen Sie einfach den Video-Link ein und wir erledigen den Rest.",
-      "button": "Verstanden"
-    },
-    "continueButton": "Weiter",
-    "formatQuestion": "Wie möchten Sie die Zusammenfassung?"
-  },
-  "loading": {
-    "title": "Verarbeitung",
-    "description": "Bitte warten..."
-  },
-  "summary": {
-    "title": "Erfolg",
-    "successMessage": "Zusammenfassung erfolgreich erstellt!"
-  },
-  "error": {
-    "title": "Fehler",
-    "message": "Zusammenfassung konnte nicht erstellt werden"
-  },
-  "videoInput": {
-    "placeholder": "Fügen Sie hier die YouTube-Video-URL ein",
-    "invalidUrl": "Bitte geben Sie eine gültige YouTube-URL ein",
-    "submit": "Zusammenfassung erstellen",
-    "button": "Zusammenfassen",
-    "quotaExceeded": "Sie haben Ihr Kontingentlimit erreicht",
-    "upgrade": "Upgraden",
-    "or": "oder",
-    "waitTomorrow": "warten Sie bis morgen",
-    "processing": "Video wird verarbeitet...",
-    "errorProcessing": "Fehler bei der Videoverarbeitung",
-    "tryAgain": "Bitte versuchen Sie es erneut"
-  },
-  "formats": {
-    "title": "Format auswählen",
-    "keyPoints": "Kernpunkte",
-    "keyPointsDesc": "Aufzählungspunkte mit Hauptideen",
-    "paragraph": "Absatz",
-    "paragraphDesc": "Prägnante Absatzzusammenfassung",
-    "fullPage": "Vollständige Seite",
-    "fullPageDesc": "Detaillierte umfassende Zusammenfassung",
-    "bulletPoints": "Kernpunkte",
-    "page": "Seite"
-  },
-  "achievements": {
-    "unlocked": "Erfolg freigeschaltet!",
-    "summaryGenerated": "Erste Zusammenfassung erstellt",
-    "progress": "Fortschritt"
-  },
-  "recentVideos": {
-    "title": "Kürzlich angesehene Videos",
-    "thumbnailAlt": "Video-Vorschaubild"
-  },
-  "videoChat": {
-    "title": "Chat über",
-    "suggestedQuestions": "Vorgeschlagene Fragen:",
-    "inputPlaceholder": "Frage zum Video...",
-    "sendButton": "Senden",
-    "loadingChat": "Chat wird geladen...",
-    "error": "Fehler:"
-  },
-  "quota": {
-    "title": "Ihr Kontingent",
-    "resetIn": "Zurückgesetzt in",
-    "hours": "Stunden",
-    "plan": "Plan"
-  },
-  "pricing": {
-    "title": "Pläne & Preise",
-    "currentPlan": "Aktueller Plan",
-    "month": "Monat",
-    "selectPlanButton": "Plan auswählen",
-    "currentPlanButton": "Aktueller Plan",
-    "upgradeButton": "Plan upgraden",
-    "features": {
-      "summariesPerDay": "Zusammenfassungen pro Tag",
-      "support": "Support",
-      "formats": "Zusammenfassungsformate",
-      "noAds": "keine Werbung",
-      "apiAccess": "API-Zugriff"
+    "heroTitle": "Verwandeln Sie YouTube-Videos in schnelle Zusammenfassungen",
+    "heroSubtitle": "Erleben Sie die Zukunft des Lernens mit KI-gestützten Zusammenfassungen",
+    "stats": {
+      "videos": "Verarbeitete Videos",
+      "users": "Aktive Nutzer",
+      "languages": "Verfügbare Sprachen"
     }
-  },
-  "profile": {
-    "title": "Ihr Profil",
-    "userInfo": "Benutzerinformationen",
-    "email": "E-Mail",
-    "quota": "Nutzungskontingent",
-    "summaryHistory": "Zusammenfassungsverlauf",
-    "recent": "Kürzlich",
-    "favorites": "Favoriten",
-    "statistics": "Statistiken",
-    "totalSummaries": "Gesamtzahl Zusammenfassungen",
-    "memberSince": "Mitglied seit",
-    "settings": "Einstellungen",
-    "preferences": "Präferenzen",
-    "language": "Sprache",
-    "theme": "Theme",
-    "notifications": {
-      "success": "Erfolg",
-      "error": "Fehler",
-      "info": "Information",
-      "warning": "Warnung"
-    },
-    "comingSoon": "Demnächst verfügbar"
   }
 }

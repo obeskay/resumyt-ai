@@ -62,15 +62,20 @@ const ClientHomePage: React.FC<ClientHomePageProps> = ({ dict, lang }) => {
               <RecentVideoThumbnails videoIds={recentVideos} dict={dict} />
             </div>
 
-            <div ref={videoInputRef} className="container mx-auto">
-              <HeroSection
-                isLoadingQuota={isLoadingQuota}
-                dict={dict}
-                user={user}
-                isSubmitting={isSubmitting}
-                onSubmit={handleSubmit}
-              />
-              <FeaturesSection dict={dict} features={features} />
+            <HeroSection
+              isLoadingQuota={isLoadingQuota}
+              dict={dict}
+              user={user}
+              isSubmitting={isSubmitting}
+              onSubmit={handleSubmit}
+              videoInputRef={videoInputRef}
+              onGetStarted={scrollToVideoInput}
+            />
+
+            <div className="container">
+              <div id="features">
+                <FeaturesSection dict={dict} features={features} />
+              </div>
               <HowItWorksSection dict={dict} />
               <TestimonialsSection dict={dict} testimonials={testimonials} />
               <CTASection dict={dict} onGetStarted={scrollToVideoInput} />
