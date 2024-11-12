@@ -61,16 +61,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     <div className="relative w-screen overflow-y-visible bg-transparent lg:-mb-12 lg:pb-12">
       {/* Container principal con max-width */}
       <div className="container mx-auto h-full">
-        <div className="relative flex flex-col lg:flex-row h-full gap-x-24">
+        <div className="relative flex flex-col lg:flex-row h-full gap-x-12">
           {/* Sección izquierda */}
-          <div className="w-full lg:w-[45%] py-12 lg:py-24 flex flex-col justify-center z-10">
-            <div className="max-w-xl space-y-8">
+          <div className="w-full lg:w-[55%] py-12 lg:py-24 flex flex-col justify-center z-10">
+            <div className="max-w-xl space-y-8 lg:-mr-12">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight">
                   <GradientText>{dict.home?.heroTitle}</GradientText>
                 </h1>
               </motion.div>
