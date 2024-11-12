@@ -1,135 +1,76 @@
 {
   "home": {
     "title": "Résumés de Vidéos YouTube en Quelques Secondes",
-    "subtitle": "Gagnez du temps et apprenez plus rapidement avec des résumés intelligents",
+    "subtitle": "Gagnez du temps et apprenez avec des résumés rapides et efficaces",
     "metaDescription": "Gagnez du temps et apprenez plus rapidement avec des résumés intelligents de vidéos",
     "keywords": "YouTube, résumés, vidéo, résumé, apprentissage, éducation, gain de temps",
-    "remainingQuota": "Quota restant",
+    "remainingQuota": "Quota disponible",
     "error": {
       "somethingWentWrong": "Quelque chose s'est mal passé"
     },
     "features": {
+      "title": "Fonctionnalités Principales",
       "quickSummaries": "Résumés Rapides",
-      "quickSummariesDesc": "Obtenez des résumés concis de vidéos YouTube en quelques secondes.",
+      "quickSummariesDesc": "Convertissez les vidéos YouTube en résumés concis.",
       "timeSaving": "Gain de Temps",
-      "timeSavingDesc": "Économisez des heures de visionnage avec nos résumés efficaces.",
+      "timeSavingDesc": "Réduisez les heures de visionnage avec des résumés rapides.",
       "acceleratedLearning": "Apprentissage Accéléré",
-      "acceleratedLearningDesc": "Absorbez l'information plus rapidement avec notre contenu résumé.",
+      "acceleratedLearningDesc": "Obtenez l'information essentielle instantanément.",
       "forEveryone": "Pour Tous",
-      "forEveryoneDesc": "Adapté aux étudiants, professionnels et esprits curieux.",
+      "forEveryoneDesc": "Idéal pour les étudiants, professionnels et esprits curieux.",
       "diverseContent": "Contenu Varié",
       "diverseContentDesc": "Résumez une large gamme de contenus YouTube, des cours aux documentaires.",
       "valuableInsights": "Insights Précieux",
-      "valuableInsightsDesc": "Extrayez les points clés et les insights de n'importe quelle vidéo."
+      "valuableInsightsDesc": "Extrayez les points clés de n'importe quelle vidéo."
     },
     "howItWorks": {
       "title": "Comment ça Marche",
       "step1": "Collez l'URL",
-      "step1Desc": "Copiez et collez simplement l'URL de la vidéo YouTube que vous souhaitez résumer.",
+      "step1Desc": "Copiez et collez simplement l'URL de la vidéo YouTube à résumer.",
       "step2": "Choisissez le format",
       "step2Desc": "Sélectionnez entre points clés, paragraphe ou page complète.",
       "step3": "Obtenez votre résumé",
-      "step3Desc": "En quelques secondes, recevez un résumé concis et précis du contenu de la vidéo."
+      "step3Desc": "En quelques secondes, recevez un résumé concis et précis."
     },
     "testimonials": {
       "title": "Témoignages",
-      "quote1": "Resumyt m'a fait gagner des heures de visionnage. Je peux maintenant obtenir les informations clés en quelques minutes.",
+      "quote1": "Resumyt m'a fait gagner des heures. Je peux maintenant obtenir l'information clé en minutes.",
       "name1": "Marie G.",
       "title1": "Étudiante universitaire",
-      "quote2": "Incroyable pour préparer des présentations. Resumyt extrait les points clés dont j'ai besoin.",
+      "quote2": "Parfait pour préparer des présentations. Resumyt extrait les points essentiels dont j'ai besoin.",
       "name2": "Jacques M.",
       "title2": "Responsable marketing",
-      "quote3": "Grâce à Resumyt, je peux suivre les derniers tutoriels de programmation sans passer des heures à regarder des vidéos.",
+      "quote3": "Grâce à Resumyt, je peux suivre les derniers tutoriels sans passer des heures devant les vidéos.",
       "name3": "Anne L.",
-      "title3": "Développeuse logiciel",
-      "quote4": "Resumyt est un outil essentiel pour quiconque veut apprendre rapidement.",
+      "title3": "Développeuse",
+      "quote4": "Un outil essentiel pour apprendre rapidement.",
       "name4": "Charles V.",
-      "title4": "Étudiant universitaire"
+      "title4": "Étudiant"
     },
     "cta": {
       "title": "Prêt à Commencer ?",
-      "description": "Rejoignez des milliers d'utilisateurs satisfaits et commencez à résumer vos vidéos dès aujourd'hui.",
-      "button": "Commencer"
+      "description": "Rejoignez des milliers d'utilisateurs satisfaits et commencez dès aujourd'hui.",
+      "button": "Commencer",
+      "learnMore": "En Savoir Plus"
     },
-    "faq": {
-      "title": "Questions Fréquentes",
-      "q1": "Qu'est-ce que Resumyt ?",
-      "a1": "Resumyt est une plateforme qui fournit des résumés concis et précis de vidéos YouTube en quelques secondes.",
-      "q2": "Comment fonctionne Resumyt ?",
-      "a2": "Resumyt utilise une technologie d'IA avancée pour analyser et résumer les vidéos YouTube.",
-      "q3": "Est-ce que Resumyt est gratuit ?",
-      "a3": "Oui, Resumyt offre un plan gratuit avec une utilisation limitée.",
-      "q4": "Puis-je utiliser Resumyt à des fins éducatives ?",
-      "a4": "Absolument ! Resumyt est un excellent outil pour les étudiants, chercheurs et éducateurs."
+    "videoInput": {
+      "title": "Prêt à résumer ?",
+      "placeholder": "Collez l'URL de la vidéo YouTube",
+      "button": "Résumer",
+      "processing": "Traitement en cours...",
+      "quotaExceeded": "Quota atteint",
+      "upgrade": "Améliorer",
+      "or": "ou",
+      "waitTomorrow": "attendez demain",
+      "errorProcessing": "Erreur de traitement",
+      "tryAgain": "Veuillez réessayer"
     },
-    "description": "Resumyt vous permet d'obtenir des résumés concis et précis de n'importe quelle vidéo YouTube. Idéal pour les étudiants, les professionnels et les passionnés d'apprentissage.",
-    "inputPlaceholder": "Collez ici le lien de la vidéo YouTube",
-    "summarizeButton": "Résumer",
-    "dialog": {
-      "title": "Bienvenue sur Resumyt !",
-      "description": "Resumyt vous permet d'obtenir des résumés rapides de vidéos YouTube. Collez simplement le lien de la vidéo et nous nous occupons du reste.",
-      "button": "Compris"
-    },
-    "continueButton": "Continuer",
-    "formatQuestion": "Comment voulez-vous le résumé ?"
-  },
-  "loading": {
-    "title": "Traitement en cours",
-    "description": "Veuillez patienter..."
-  },
-  "summary": {
-    "title": "Succès",
-    "successMessage": "Résumé généré avec succès !"
-  },
-  "error": {
-    "title": "Erreur",
-    "message": "Échec de la génération du résumé"
-  },
-  "videoInput": {
-    "placeholder": "Collez ici l'URL de votre vidéo YouTube",
-    "invalidUrl": "Veuillez entrer une URL YouTube valide",
-    "submit": "Générer le Résumé",
-    "button": "Résumer",
-    "quotaExceeded": "Vous avez atteint votre limite de quota",
-    "upgrade": "Mettre à niveau",
-    "or": "ou",
-    "waitTomorrow": "attendez jusqu'à demain",
-    "processing": "Traitement de la vidéo...",
-    "errorProcessing": "Erreur lors du traitement de la vidéo",
-    "tryAgain": "Veuillez réessayer"
-  },
-  "formats": {
-    "title": "Sélectionner le Format",
-    "keyPoints": "Points Clés",
-    "keyPointsDesc": "Points principaux en puces",
-    "paragraph": "Paragraphe",
-    "paragraphDesc": "Résumé concis en paragraphe",
-    "fullPage": "Page Complète",
-    "fullPageDesc": "Résumé détaillé et complet"
-  },
-  "achievements": {
-    "unlocked": "Succès Débloqué !",
-    "summaryGenerated": "Premier Résumé Généré",
-    "progress": "Progression"
-  },
-  "alerts": {
-    "lowQuota": {
-      "title": "Alerte de Quota Faible",
-      "message": "Vous êtes à court de résumés. Pensez à mettre à niveau votre forfait !"
+    "heroTitle": "Transformez les Vidéos YouTube en Résumés Rapides",
+    "heroSubtitle": "Découvrez l'avenir de l'apprentissage avec des résumés alimentés par l'IA",
+    "stats": {
+      "videos": "Vidéos Traitées",
+      "users": "Utilisateurs Actifs",
+      "languages": "Langues Disponibles"
     }
-  },
-  "notifications": {
-    "success": "Succès",
-    "error": "Erreur",
-    "info": "Information",
-    "warning": "Avertissement"
-  },
-  "videoChat": {
-    "title": "Chat sur",
-    "suggestedQuestions": "Questions suggérées :",
-    "inputPlaceholder": "Posez une question sur la vidéo...",
-    "sendButton": "Envoyer",
-    "loadingChat": "Chargement du chat...",
-    "error": "Erreur :"
   }
 }

@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "几秒钟内生成YouTube视频摘要",
-    "subtitle": "通过智能视频摘要节省时间，加快学习速度",
+    "subtitle": "通过快速有效的摘要节省时间并学习",
     "metaDescription": "通过智能视频摘要节省时间，加快学习速度",
     "keywords": "YouTube, 摘要, 视频, 总结, 学习, 教育, 省时",
     "remainingQuota": "剩余配额",
@@ -9,12 +9,13 @@
       "somethingWentWrong": "出现错误"
     },
     "features": {
+      "title": "主要功能",
       "quickSummaries": "快速摘要",
-      "quickSummariesDesc": "几秒钟内获取YouTube视频的简明摘要。",
+      "quickSummariesDesc": "将YouTube视频转换为简明摘要。",
       "timeSaving": "节省时间",
-      "timeSavingDesc": "通过我们的高效摘要节省观看时间。",
+      "timeSavingDesc": "通过快速摘要减少观看时间。",
       "acceleratedLearning": "加速学习",
-      "acceleratedLearningDesc": "通过我们的摘要内容更快地吸收信息。",
+      "acceleratedLearningDesc": "立即获取重要信息。",
       "forEveryone": "适合所有人",
       "forEveryoneDesc": "适合学生、专业人士和求知欲强的人。",
       "diverseContent": "多样化内容",
@@ -29,27 +30,47 @@
       "step2": "选择格式",
       "step2Desc": "在关键点、段落或完整页面之间选择。",
       "step3": "获取摘要",
-      "step3Desc": "几秒钟内，收到视频内容的简明准确摘要。"
+      "step3Desc": "几秒钟内获得简明准确的摘要。"
     },
     "testimonials": {
       "title": "用户评价",
-      "quote1": "Resumyt为我节省了观看长视频的时间。现在我可以在几分钟内获取关键信息。",
+      "quote1": "Resumyt为我节省了很多时间。现在我可以在几分钟内获取关键信息。",
       "name1": "玛丽",
       "title1": "大学生",
-      "quote2": "非常适合准备演示。Resumyt提取我需要的关键点来创建有影响力的内容。",
+      "quote2": "非常适合准备演示。Resumyt提取我需要的关键点。",
       "name2": "詹姆斯",
       "title2": "市场经理",
-      "quote3": "感谢Resumyt，我可以跟上最新的编程教程而不用花费数小时观看视频。",
+      "quote3": "感谢Resumyt，我可以跟上编程教程而不用花费数小时观看视频。",
       "name3": "安娜",
       "title3": "软件开发者",
-      "quote4": "Resumyt是想要快速学习的人的必备工具。",
+      "quote4": "想要快速学习的人的必备工具。",
       "name4": "查尔斯",
-      "title4": "大学生"
+      "title4": "学生"
     },
     "cta": {
       "title": "准备开始了吗？",
-      "description": "加入成千上万的满意用户，今天就开始总结您的视频。",
-      "button": "开始使用"
+      "description": "加入成千上万的满意用户，立即开始。",
+      "button": "立即开始",
+      "learnMore": "了解更多"
+    },
+    "videoInput": {
+      "title": "准备生成摘要？",
+      "placeholder": "在此粘贴YouTube视频URL",
+      "button": "生成摘要",
+      "processing": "正在处理视频...",
+      "quotaExceeded": "已达到配额限制",
+      "upgrade": "升级",
+      "or": "或",
+      "waitTomorrow": "等到明天",
+      "errorProcessing": "处理错误",
+      "tryAgain": "请重试"
+    },
+    "heroTitle": "将YouTube视频转化为快速见解",
+    "heroSubtitle": "体验由AI驱动的摘要学习未来",
+    "stats": {
+      "videos": "已处理视频",
+      "users": "活跃用户",
+      "languages": "可用语言"
     },
     "faq": {
       "title": "常见问题",
@@ -61,109 +82,6 @@
       "a3": "是的，Resumyt提供有限使用的免费计划。",
       "q4": "我可以将Resumyt用于教育目的吗？",
       "a4": "当然可以！Resumyt是学生、研究人员和教育工作者的优秀工具。"
-    },
-    "alerts": {
-      "lowQuota": {
-        "title": "配额不足提醒",
-        "message": "您的摘要次数即将用完。考虑升级您的计划！"
-      }
-    }
-  },
-  "loading": {
-    "title": "处理中",
-    "description": "请稍候..."
-  },
-  "summary": {
-    "title": "成功",
-    "successMessage": "摘要生成成功！"
-  },
-  "error": {
-    "title": "错误",
-    "message": "生成摘要失败"
-  },
-  "videoInput": {
-    "placeholder": "在此粘贴YouTube视频URL",
-    "invalidUrl": "请输入有效的YouTube URL",
-    "submit": "生成摘要",
-    "button": "生成摘要",
-    "quotaExceeded": "您已达到配额限制",
-    "upgrade": "升级",
-    "or": "或",
-    "waitTomorrow": "等到明天",
-    "processing": "正在处理视频...",
-    "errorProcessing": "处理视频时出错",
-    "tryAgain": "请重试"
-  },
-  "formats": {
-    "title": "选择格式",
-    "keyPoints": "关键点",
-    "keyPointsDesc": "主要观点要点",
-    "paragraph": "段落",
-    "paragraphDesc": "简明段落摘要",
-    "fullPage": "完整页面",
-    "fullPageDesc": "详细完整的摘要"
-  },
-  "achievements": {
-    "unlocked": "成就解锁！",
-    "summaryGenerated": "生成第一个摘要",
-    "progress": "进度"
-  },
-  "quota": {
-    "lowTitle": "配额不足提醒",
-    "lowMessage": "您的摘要次数即将用完。考虑升级您的计划！"
-  },
-  "notifications": {
-    "success": "成功",
-    "error": "错误",
-    "info": "信息",
-    "warning": "警告"
-  },
-  "videoChat": {
-    "title": "视频聊天",
-    "suggestedQuestions": "建议的问题：",
-    "inputPlaceholder": "询问关于视频的问题...",
-    "sendButton": "发送",
-    "loadingChat": "加载聊天中...",
-    "error": "错误：",
-    "generatingQuestions": "正在生成建议问题...",
-    "newChatAvailable": "新功能！聊天功能已开放"
-  },
-  "profile": {
-    "title": "个人资料",
-    "userInfo": "用户信息",
-    "email": "电子邮件",
-    "quota": "使用配额",
-    "summaryHistory": "摘要历史",
-    "recent": "最近",
-    "favorites": "收藏",
-    "statistics": "统计",
-    "totalSummaries": "摘要总数",
-    "memberSince": "注册时间",
-    "settings": "设置",
-    "preferences": "偏好设置",
-    "language": "语言",
-    "theme": "主题",
-    "notifications": {
-      "success": "成功",
-      "error": "错误",
-      "info": "信息",
-      "warning": "警告"
-    },
-    "comingSoon": "即将推出"
-  },
-  "pricing": {
-    "title": "价格方案",
-    "currentPlan": "当前方案",
-    "month": "月",
-    "selectPlanButton": "选择方案",
-    "currentPlanButton": "当前方案",
-    "upgradeButton": "升级方案",
-    "features": {
-      "summariesPerDay": "每日摘要数",
-      "support": "支持",
-      "formats": "摘要格式",
-      "noAds": "无广告",
-      "apiAccess": "API访问"
     }
   }
 }

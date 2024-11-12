@@ -47,7 +47,7 @@ export default function MainLayout({
 
   return (
     <>
-      <div className="min-h-screen text-foreground flex flex-col selection:bg-primary selection:text-primary-foreground">
+      <div className="min-h-screen text-foreground flex flex-col selection:bg-primary selection:text-primary-foreground overflow-x-clip w-screen">
         <header className="py-2 w-screen z-[10] sticky top-0 bg-background/40 backdrop-blur-md border-b border-px border-border/50">
           <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
             <Link
@@ -89,7 +89,7 @@ export default function MainLayout({
           </div>
         </header>
         <BackgroundBeams />
-        <main className="relative flex-grow mx-auto flex flex-col h-full">
+        <main className="relative flex-grow mx-auto flex flex-col h-full w-screen">
           {children}
         </main>
         <Toaster />

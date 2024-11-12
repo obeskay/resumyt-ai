@@ -1,22 +1,23 @@
 {
   "home": {
     "title": "Riassunti di Video YouTube in Secondi",
-    "subtitle": "Risparmia tempo e impara più velocemente con riassunti video intelligenti",
+    "subtitle": "Risparmia tempo e impara con riassunti rapidi ed efficaci",
     "metaDescription": "Risparmia tempo e impara più velocemente con riassunti video intelligenti",
     "keywords": "YouTube, riassunti, video, riassunto, apprendimento, educazione, risparmio di tempo",
-    "remainingQuota": "Quota rimanente",
+    "remainingQuota": "Quota disponibile",
     "error": {
       "somethingWentWrong": "Qualcosa è andato storto"
     },
     "features": {
+      "title": "Funzionalità Principali",
       "quickSummaries": "Riassunti Rapidi",
-      "quickSummariesDesc": "Ottieni riassunti concisi di video YouTube in secondi.",
+      "quickSummariesDesc": "Converti i video YouTube in riassunti concisi.",
       "timeSaving": "Risparmio di Tempo",
-      "timeSavingDesc": "Risparmia ore di visualizzazione con i nostri riassunti efficienti.",
+      "timeSavingDesc": "Riduci le ore di visualizzazione con riassunti rapidi.",
       "acceleratedLearning": "Apprendimento Accelerato",
-      "acceleratedLearningDesc": "Assimila le informazioni più velocemente con i nostri contenuti riassunti.",
+      "acceleratedLearningDesc": "Ottieni le informazioni essenziali istantaneamente.",
       "forEveryone": "Per Tutti",
-      "forEveryoneDesc": "Adatto a studenti, professionisti e menti curiose.",
+      "forEveryoneDesc": "Ideale per studenti, professionisti e menti curiose.",
       "diverseContent": "Contenuti Diversificati",
       "diverseContentDesc": "Riassumi una vasta gamma di contenuti YouTube, dalle lezioni ai documentari.",
       "valuableInsights": "Spunti Preziosi",
@@ -29,27 +30,47 @@
       "step2": "Scegli il formato",
       "step2Desc": "Seleziona tra punti chiave, paragrafo o pagina completa.",
       "step3": "Ottieni il riassunto",
-      "step3Desc": "In pochi secondi, ricevi un riassunto conciso e accurato del contenuto del video."
+      "step3Desc": "In pochi secondi, ricevi un riassunto conciso e accurato."
     },
     "testimonials": {
       "title": "Testimonianze",
-      "quote1": "Resumyt mi ha fatto risparmiare ore di visualizzazione di video lunghi. Ora posso ottenere le informazioni chiave in pochi minuti.",
+      "quote1": "Resumyt mi ha fatto risparmiare ore. Ora posso ottenere le informazioni chiave in minuti.",
       "name1": "Maria G.",
       "title1": "Studentessa universitaria",
-      "quote2": "Fantastico per preparare presentazioni. Resumyt estrae i punti chiave di cui ho bisogno.",
+      "quote2": "Perfetto per preparare presentazioni. Resumyt estrae i punti chiave di cui ho bisogno.",
       "name2": "Giacomo M.",
       "title2": "Manager marketing",
-      "quote3": "Grazie a Resumyt, posso seguire gli ultimi tutorial di programmazione senza passare ore a guardare video.",
+      "quote3": "Grazie a Resumyt, posso seguire i tutorial di programmazione senza passare ore a guardare video.",
       "name3": "Anna L.",
       "title3": "Sviluppatrice software",
-      "quote4": "Resumyt è uno strumento essenziale per chi vuole imparare velocemente.",
+      "quote4": "Uno strumento essenziale per chi vuole imparare velocemente.",
       "name4": "Carlo V.",
-      "title4": "Studente universitario"
+      "title4": "Studente"
     },
     "cta": {
       "title": "Pronto per Iniziare?",
-      "description": "Unisciti a migliaia di utenti soddisfatti e inizia a riassumere i tuoi video oggi.",
-      "button": "Inizia"
+      "description": "Unisciti a migliaia di utenti soddisfatti e inizia oggi stesso.",
+      "button": "Inizia Ora",
+      "learnMore": "Scopri di Più"
+    },
+    "videoInput": {
+      "title": "Pronto per il riassunto?",
+      "placeholder": "Incolla qui l'URL del video YouTube",
+      "button": "Riassumi",
+      "processing": "Elaborazione in corso...",
+      "quotaExceeded": "Quota raggiunta",
+      "upgrade": "Aggiorna",
+      "or": "o",
+      "waitTomorrow": "aspetta fino a domani",
+      "errorProcessing": "Errore di elaborazione",
+      "tryAgain": "Riprova"
+    },
+    "heroTitle": "Trasforma i Video YouTube in Riassunti Rapidi",
+    "heroSubtitle": "Scopri il futuro dell'apprendimento con riassunti potenziati dall'IA",
+    "stats": {
+      "videos": "Video Elaborati",
+      "users": "Utenti Attivi",
+      "languages": "Lingue Disponibili"
     },
     "faq": {
       "title": "Domande Frequenti",
@@ -60,131 +81,7 @@
       "q3": "Resumyt è gratuito?",
       "a3": "Sì, Resumyt offre un piano gratuito con utilizzo limitato.",
       "q4": "Posso usare Resumyt per scopi educativi?",
-      "a4": "Assolutamente! Resumyt è un ottimo strumento per studenti, ricercatori e educatori."
-    },
-    "description": "Resumyt ti permette di ottenere riassunti concisi e accurati di qualsiasi video YouTube. Ideale per studenti, professionisti e appassionati di apprendimento.",
-    "inputPlaceholder": "Incolla qui il link del video YouTube",
-    "summarizeButton": "Riassumi",
-    "dialog": {
-      "title": "Benvenuto su Resumyt!",
-      "description": "Resumyt ti permette di ottenere riassunti rapidi di video YouTube. Incolla semplicemente il link del video e noi faremo il resto.",
-      "button": "Ho capito"
-    },
-    "continueButton": "Continua",
-    "formatQuestion": "Come vuoi il riassunto?",
-    "alerts": {
-      "lowQuota": {
-        "title": "Avviso Quota Bassa",
-        "message": "Stai esaurendo i riassunti. Considera di aggiornare il tuo piano!"
-      }
+      "a4": "Assolutamente! Resumyt è un ottimo strumento per studenti, ricercatori ed educatori."
     }
-  },
-  "loading": {
-    "title": "Elaborazione",
-    "description": "Attendere prego..."
-  },
-  "summary": {
-    "title": "Riassunto Video",
-    "pageTitle": "Riassunto",
-    "summaryTitle": "Riassunto del Contenuto",
-    "defaultTitle": "Titolo non disponibile",
-    "videoIdLabel": "ID Video",
-    "watchOnYoutube": "Guarda su YouTube",
-    "backToHome": "Torna alla Home",
-    "notFound": "Riassunto non trovato",
-    "returnHome": "Torna alla Pagina Iniziale",
-    "loadingMessage": "Generazione riassunto...",
-    "errorMessage": "Errore nella generazione del riassunto. Per favore riprova."
-  },
-  "error": {
-    "title": "Errore",
-    "message": "Impossibile generare il riassunto"
-  },
-  "videoInput": {
-    "placeholder": "Incolla qui l'URL del video YouTube",
-    "invalidUrl": "Inserisci un URL YouTube valido",
-    "submit": "Genera Riassunto",
-    "button": "Riassumi",
-    "quotaExceeded": "Hai raggiunto il limite della quota",
-    "upgrade": "Aggiorna",
-    "or": "o",
-    "waitTomorrow": "aspetta fino a domani",
-    "processing": "Elaborazione video...",
-    "errorProcessing": "Errore nell'elaborazione del video",
-    "tryAgain": "Per favore riprova"
-  },
-  "formats": {
-    "title": "Seleziona Formato",
-    "keyPoints": "Punti Chiave",
-    "keyPointsDesc": "Elenco puntato delle idee principali",
-    "paragraph": "Paragrafo",
-    "paragraphDesc": "Riassunto conciso in paragrafo",
-    "fullPage": "Pagina Completa",
-    "fullPageDesc": "Riassunto dettagliato completo",
-    "bulletPoints": "Punti chiave",
-    "page": "Pagina"
-  },
-  "achievements": {
-    "unlocked": "Obiettivo Sbloccato!",
-    "summaryGenerated": "Primo Riassunto Generato",
-    "progress": "Progresso"
-  },
-  "recentVideos": {
-    "title": "Video recenti",
-    "thumbnailAlt": "Anteprima video"
-  },
-  "videoChat": {
-    "title": "Chat sul video",
-    "suggestedQuestions": "Domande suggerite:",
-    "inputPlaceholder": "Fai una domanda sul video...",
-    "sendButton": "Invia",
-    "loadingChat": "Caricamento chat...",
-    "error": "Errore:",
-    "generatingQuestions": "Generazione domande suggerite...",
-    "newChatAvailable": "Novità! Chat disponibile"
-  },
-  "quota": {
-    "title": "La tua Quota",
-    "resetIn": "Si resetta in",
-    "hours": "ore",
-    "plan": "Piano"
-  },
-  "pricing": {
-    "title": "Piani & Prezzi",
-    "currentPlan": "Piano Attuale",
-    "month": "mese",
-    "selectPlanButton": "Seleziona Piano",
-    "currentPlanButton": "Piano Attuale",
-    "upgradeButton": "Aggiorna Piano",
-    "features": {
-      "summariesPerDay": "riassunti al giorno",
-      "support": "supporto",
-      "formats": "formati di riassunto",
-      "noAds": "nessuna pubblicità",
-      "apiAccess": "accesso API"
-    }
-  },
-  "profile": {
-    "title": "Il tuo Profilo",
-    "userInfo": "Informazioni Utente",
-    "email": "Email",
-    "quota": "Quota di Utilizzo",
-    "summaryHistory": "Cronologia Riassunti",
-    "recent": "Recenti",
-    "favorites": "Preferiti",
-    "statistics": "Statistiche",
-    "totalSummaries": "Totale Riassunti",
-    "memberSince": "Membro dal",
-    "settings": "Impostazioni",
-    "preferences": "Preferenze",
-    "language": "Lingua",
-    "theme": "Tema",
-    "notifications": {
-      "success": "Successo",
-      "error": "Errore",
-      "info": "Informazione",
-      "warning": "Avviso"
-    },
-    "comingSoon": "Prossimamente"
   }
 }
