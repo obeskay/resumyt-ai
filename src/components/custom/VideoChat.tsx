@@ -43,6 +43,16 @@ const VideoChat: React.FC<VideoChatProps> = ({
   } = useChat({
     api: "/api/chat",
     body: { videoId, language },
+    initialMessages: [
+      {
+        id: "initial-message",
+        role: "system",
+        content:
+          language === "es"
+            ? "💡 Puedo responder preguntas sobre cualquier parte del video ya que tengo acceso a la transcripción completa, no solo al resumen."
+            : "💡 I can answer questions about any part of the video as I have access to the complete transcript, not just the summary.",
+      },
+    ],
   });
 
   const loadOrGenerateSuggestedQuestions = useCallback(async () => {

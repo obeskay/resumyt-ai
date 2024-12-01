@@ -5,6 +5,12 @@ import { OpenAIStream, StreamingTextResponse } from "ai";
 
 export const runtime = "edge";
 
+interface ChatMessage {
+  id: string;
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 
@@ -59,8 +65,9 @@ export default async function handler(req: NextRequest) {
 
   const systemMessage = getSystemPrompt(language, context, suggested_questions);
 
-  // Generar preguntas sugeridas si es el primer mensaje
-  if (messages.length === 0) {
+  // Generar preguntas sugeridas si es el primer mensaje del usuario (ignorando el mensaje inicial del sistema)
+  const userMessages = messages.filter((m: ChatMessage) => m.role === "user");
+  if (userMessages.length === 0) {
     const suggestedQuestionsPrompt =
       language === "es"
         ? "Genera 3 preguntas sugeridas específicas sobre el contenido de este video, incluyendo emojis relevantes. Responde solo con las preguntas, una por línea."
@@ -96,7 +103,14 @@ export default async function handler(req: NextRequest) {
     }
   }
 
-  const apiMessages = [{ role: "system", content: systemMessage }, ...messages];
+  // Filtrar el mensaje inicial del sistema para el chat
+  const chatMessages = messages.filter(
+    (m: ChatMessage) => m.id !== "initial-message",
+  );
+  const apiMessages = [
+    { role: "system", content: systemMessage },
+    ...chatMessages,
+  ];
 
   try {
     const response = await openai.chat.completions.create({
