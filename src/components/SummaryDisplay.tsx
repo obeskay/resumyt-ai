@@ -182,7 +182,13 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
 
   useEffect(() => {
     try {
-      setParsedContent(JSON.parse(content));
+      // If content is already an object, use it directly
+      if (typeof content === "object") {
+        setParsedContent(content);
+      } else {
+        // If content is a string, try to parse it
+        setParsedContent(JSON.parse(content));
+      }
     } catch (error) {
       console.error("Error parsing summary content:", error);
       toast({

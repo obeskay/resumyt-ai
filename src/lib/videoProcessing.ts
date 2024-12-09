@@ -173,7 +173,7 @@ export async function transcribeVideoWithFallback(
 ): Promise<string> {
   console.log("Iniciando transcribeVideoWithFallback para videoId:", videoId);
 
-  // Verificar caché primero
+  // Check cache first
   if (
     transcriptCache[videoId] &&
     Date.now() - transcriptCache[videoId].timestamp < CACHE_EXPIRATION
@@ -183,7 +183,7 @@ export async function transcribeVideoWithFallback(
     return preprocessTranscript(cachedTranscript);
   }
 
-  // Verificar disponibilidad del video
+  // Check video availability
   console.log("Verificando disponibilidad del video:", videoId);
   const isAvailable = await checkVideoAvailability(videoId);
   if (!isAvailable) {
@@ -204,19 +204,36 @@ export async function transcribeVideoWithFallback(
         .map((item: any) => item.text.trim())
         .filter((text: string) => text.length > 0)
         .join(" ");
-    } catch (ytError) {}
+    } catch (ytError) {
+      console.log(
+        "No se pudo obtener la transcripción, usando metadatos enriquecidos",
+      );
+      const metadata = await fetchVideoMetadata(videoId);
 
-    // Preprocesar la transcripción antes de cachearla
+      // Create a richer text from metadata
+      const enrichedText = [
+        `Title: ${metadata.title}`,
+        metadata.description ? `\n\nDescription: ${metadata.description}` : "",
+        `\n\nThis is a YouTube video${metadata.description.includes("by") ? "" : " by an unknown creator"}. `,
+        "The original content is available on YouTube. ",
+        "This summary is based on the video's metadata as the transcript was not available. ",
+        "For the full content, please watch the original video on YouTube.",
+      ].join("");
+
+      return enrichedText;
+    }
+
+    // Preprocess the transcript
     const processedTranscript = preprocessTranscript(transcript);
 
-    // Validar la transcripción
+    // Validate the transcript
     if (!validateTranscript(processedTranscript)) {
       throw new TranscriptNotFoundError(
         "La transcripción no es válida o está incompleta",
       );
     }
 
-    // Cachear la transcripción procesada
+    // Cache the processed transcript
     transcriptCache[videoId] = {
       data: processedTranscript,
       timestamp: Date.now(),
@@ -227,42 +244,26 @@ export async function transcribeVideoWithFallback(
     console.error("Error al obtener la transcripción:", error);
     console.error("Detalles del error:", JSON.stringify(error, null, 2));
 
-    if (error instanceof Error && error.message.includes("410")) {
-      console.log(
-        "Transcripción no disponible (error 410), recurriendo a los metadatos del video",
-      );
-    } else {
-      console.log("Recurriendo a los metadatos del video para el ID:", videoId);
-    }
-
     try {
-      console.log("Intentando obtener metadatos del video");
+      console.log("Intentando obtener metadatos enriquecidos del video");
       const metadata = await fetchVideoMetadata(videoId);
-      console.log("Metadatos obtenidos exitosamente:", {
-        title: metadata.title,
-        descriptionLength: metadata.description.length,
-        thumbnailUrl: metadata.thumbnailUrl,
-      });
-      return `Title: ${metadata.title}\n\nDescription: ${metadata.description}`;
+
+      // Create a richer text from metadata
+      const enrichedText = [
+        `Title: ${metadata.title}`,
+        metadata.description ? `\n\nDescription: ${metadata.description}` : "",
+        `\n\nThis is a YouTube video${metadata.description.includes("by") ? "" : " by an unknown creator"}. `,
+        "The original content is available on YouTube. ",
+        "This summary is based on the video's metadata as the transcript was not available. ",
+        "For the full content, please watch the original video on YouTube.",
+      ].join("");
+
+      return enrichedText;
     } catch (metadataError) {
       console.error("Error al obtener los metadatos del video:", metadataError);
-      try {
-        console.log("Intentando obtener información básica del video");
-        const basicInfo = await getBasicVideoInfo(videoId);
-        console.log(
-          "Información básica obtenida exitosamente, longitud:",
-          basicInfo.length,
-        );
-        return basicInfo;
-      } catch (basicInfoError) {
-        console.error(
-          "Error al obtener información básica del video:",
-          basicInfoError,
-        );
-        throw new TranscriptNotFoundError(
-          "No se pudo obtener la transcripción, los metadatos ni la información básica",
-        );
-      }
+      throw new TranscriptNotFoundError(
+        "No se pudo obtener la transcripción ni los metadatos del video",
+      );
     }
   }
 }
@@ -304,44 +305,84 @@ async function fetchVideoMetadata(
   videoId: string,
 ): Promise<{ title: string; thumbnailUrl: string; description: string }> {
   try {
-    // Primero intentar con oEmbed
+    // First try with YouTube Data API if available
+    if (process.env.NEXT_PUBLIC_YOUTUBE_API_KEY) {
+      try {
+        const response = await axios.get(
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`,
+        );
+        const snippet = response.data.items[0]?.snippet;
+        if (snippet) {
+          return {
+            title: snippet.title,
+            thumbnailUrl:
+              snippet.thumbnails.maxres?.url ||
+              snippet.thumbnails.high?.url ||
+              `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+            description: snippet.description || "",
+          };
+        }
+      } catch (apiError) {
+        console.error("Error fetching from YouTube API:", apiError);
+      }
+    }
+
+    // Then try with oEmbed
     const oembedResponse = await fetch(
       `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
     );
 
     if (oembedResponse.ok) {
       const oembedData = await oembedResponse.json();
-      return {
-        title: oembedData.title,
-        thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-        description: oembedData.author_name
-          ? `Video by ${oembedData.author_name}`
-          : "",
-      };
+      // Try to get video page to extract more info
+      try {
+        const videoPageResponse = await fetch(
+          `https://www.youtube.com/watch?v=${videoId}`,
+        );
+        const html = await videoPageResponse.text();
+        const descriptionMatch = html.match(
+          /"description":{"simpleText":"(.*?)"/,
+        );
+        const description = descriptionMatch
+          ? descriptionMatch[1]
+          : `Video by ${oembedData.author_name}`;
+
+        return {
+          title: oembedData.title,
+          thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+          description: description,
+        };
+      } catch (pageError) {
+        return {
+          title: oembedData.title,
+          thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+          description: `Video by ${oembedData.author_name}`,
+        };
+      }
     }
 
-    // Si oEmbed falla, intentar scraping
+    // If all else fails, try scraping
     const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
     const html = await response.text();
 
-    // Extraer título usando regex
     const titleMatch = html.match(/<title>(.*?)<\/title>/);
     const title = titleMatch
       ? titleMatch[1].replace(" - YouTube", "")
       : "Untitled Video";
 
-    // Extraer descripción (opcional)
     const descriptionMatch = html.match(/"description":{"simpleText":"(.*?)"/);
     const description = descriptionMatch ? descriptionMatch[1] : "";
+
+    const authorMatch = html.match(/"author":"(.*?)"/);
+    const author = authorMatch ? authorMatch[1] : "";
 
     return {
       title,
       thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-      description,
+      description: description || (author ? `Video by ${author}` : ""),
     };
   } catch (error) {
     console.error("Error fetching video metadata:", error);
-    // Fallback con datos mínimos
     return {
       title: "Untitled Video",
       thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
@@ -527,7 +568,7 @@ function getUserPromptForLanguage(
         - A complete introduction explaining the context
         - Main points clearly identified with "-"
         - Relevant and applicable conclusions`,
-    zh: `分析以下视频内容并用中文生成详细摘要：
+    zh: `分析以下��频内容并用中文生成详细摘要：
         ${transcript}
         摘要结构包括：
         - 完整说明背景的引言

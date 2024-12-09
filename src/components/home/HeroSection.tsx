@@ -6,6 +6,8 @@ import VideoInput from "@/components/summary/VideoInput";
 import { AnonymousUser } from "@/types/supabase";
 import { RecentVideoThumbnails } from "@/components/RecentVideoThumbnails";
 import { getSupabase } from "@/lib/supabase";
+import YouTubeLogo from "../YouTubeLogo";
+import YouTubeThumbnail from "../YouTubeThumbnail";
 
 interface Stats {
   videosProcessed: number;
@@ -37,6 +39,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     activeUsers: 0,
     availableLanguages: 0,
   });
+  const [isVideoDetected, setIsVideoDetected] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -58,61 +61,56 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   }, []);
 
   return (
-    <div className="relative w-screen overflow-y-visible bg-transparent lg:-mb-12 lg:pb-12">
-      {/* Container principal con max-width */}
+    <div className="relative min-h-[calc(100vh-4rem)] w-screen overflow-hidden bg-transparent">
       <div className="container mx-auto h-full">
-        <div className="relative flex flex-col lg:flex-row h-full gap-x-12">
-          {/* Sección izquierda */}
-          <div className="w-full lg:w-[55%] py-12 lg:py-24 flex flex-col justify-center z-10">
-            <div className="max-w-xl space-y-8 lg:-mr-12">
+        <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center">
+          <AnimatePresence mode="sync">
+            {!isVideoDetected && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
+                exit={{ opacity: 0, y: -40 }}
+                className="mb-12 text-center"
               >
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight">
+                <div className="mb-6 flex items-center justify-center gap-2  w-32 mx-auto">
+                  <YouTubeThumbnail
+                    src={"/youtube-logo.svg"}
+                    alt={"default"}
+                    layoutId="video-thumbnail-mask"
+                  />
+                </div>
+                <h2 className="text-4xl font-medium leading-tight md:text-5xl lg:text-6xl">
                   <GradientText>{dict.home?.heroTitle}</GradientText>
-                </h1>
+                </h2>
+                <p className="mt-4 text-lg text-muted-foreground md:text-xl">
+                  {dict.home?.subtitle}
+                </p>
               </motion.div>
+            )}
+          </AnimatePresence>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-base md:text-lg text-muted-foreground"
-              >
-                {dict.home?.subtitle}
-              </motion.p>
+          <motion.div
+            layoutId="video-input-container"
+            className="w-full max-w-3xl"
+            ref={videoInputRef}
+          >
+            <VideoInput
+              isLoadingQuota={isSubmitting}
+              quotaRemaining={user?.quota_remaining || 0}
+              onSubmit={onSubmit}
+              dict={dict}
+              onVideoDetected={setIsVideoDetected}
+              onBack={() => setIsVideoDetected(false)}
+            />
+          </motion.div>
 
+          <AnimatePresence mode="sync">
+            {!isVideoDetected && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="flex flex-col sm:flex-row gap-4"
-              >
-                <button
-                  onClick={onGetStarted}
-                  className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-                >
-                  {dict.home?.cta?.button}
-                </button>
-                <button
-                  onClick={() => {
-                    const featuresSection = document.getElementById("features");
-                    featuresSection?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="px-8 py-3 border-2 border-primary/20 hover:border-primary/40 text-foreground rounded-lg transition-colors"
-                >
-                  {dict.home?.cta?.learnMore || "Learn More"}
-                </button>
-              </motion.div>
-
-              {/* Stats con mejor espaciado */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="grid glass-card p-6 rounded-xl grid-cols-3 gap-6 pt-8 mt-8 border-t border-border/10 mb-12"
+                exit={{ opacity: 0, y: -40 }}
+                className="mt-12 grid grid-cols-3 gap-8 text-center"
               >
                 {[
                   {
@@ -129,79 +127,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   },
                 ].map((stat, i) => (
                   <div key={i} className="space-y-2">
-                    <p className="text-2xl md:text-3xl font-light">
+                    <p className="text-2xl font-light md:text-3xl">
                       {stat.value}
                     </p>
-                    <p className="text-xs md:text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground md:text-sm">
                       {stat.label}
                     </p>
                   </div>
                 ))}
               </motion.div>
-            </div>
-          </div>
-
-          {/* Sección derecha mejorada */}
-          <div className="w-full lg:w-[55%] relative h-[400px] lg:h-auto">
-            {/* Fondo con gradiente */}
-            <div className="blur-3xl absolute inset-0">
-              <div
-                className="absolute  inset-0 bg-gradient-to-br from-secondary/0 dark:from-primary/0 via-secondary/10 dark:via-primary/20 to-secondary/0 dark:to-primary/0"
-                style={{
-                  clipPath: "polygon(50% 0, 100% 0, 100% 100%, 0% 100%)",
-                }}
-              />
-            </div>
-            {/* Contenedor del formulario */}
-            <div
-              className="relative h-full flex items-center pt-4 sm:pt-0"
-              ref={videoInputRef}
-            >
-              <div className="w-full max-w-xl mx-auto">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="glass-card p-6 md:p-8 rounded-xl space-y-6 backdrop-blur-sm bg-black/10 border border-white/10"
-                >
-                  <h2 className="text-xl md:text-2xl font-light text-foreground pl-4">
-                    {dict.home?.videoInput?.title}
-                  </h2>
-
-                  <div className="relative">
-                    {isSubmitting && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-50 rounded-lg">
-                        <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                    <VideoInput
-                      isLoadingQuota={isSubmitting}
-                      quotaRemaining={user?.quota_remaining || 0}
-                      onSubmit={onSubmit}
-                      dict={dict}
-                    />
-                  </div>
-
-                  <AnimatePresence mode="wait">
-                    {user?.quota_remaining &&
-                      !isSubmitting &&
-                      !isLoadingQuota && (
-                        <motion.div
-                          layoutId="quota"
-                          className="text-sm text-foreground/80 pl-4"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                        >
-                          <TextGenerateEffect
-                            words={`${dict.home?.remainingQuota}: ${user?.quota_remaining}`}
-                          />
-                        </motion.div>
-                      )}
-                  </AnimatePresence>
-                </motion.div>
-              </div>
-            </div>
-          </div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

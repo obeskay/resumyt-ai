@@ -2,7 +2,11 @@ import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-const YouTubeLogo: React.FC = ({ className }: { className?: string }) => (
+interface YouTubeLogoProps {
+  className?: string;
+}
+
+const YouTubeLogo: React.FC<YouTubeLogoProps> = ({ className }) => (
   <Image
     src="./../../youtube-logo.svg"
     alt="YouTube logo"

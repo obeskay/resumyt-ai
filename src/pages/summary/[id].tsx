@@ -68,7 +68,18 @@ export default function SummaryPage({
       fetch(`/api/getSummary?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-          setSummaries(data);
+          const formattedSummary = {
+            content: data.summary.content,
+            transcript: data.summary.transcript,
+            videoId: data.summary.video_id,
+            title: data.video.title,
+            thumbnailUrl: data.video.thumbnail_url,
+            format: data.summary.format,
+            highlights: data.summary.highlights || [],
+            extended_summary:
+              data.summary.extended_summary || data.summary.content,
+          };
+          setSummaries([formattedSummary]);
           setIsLoading(false);
         })
         .catch((error) => {
@@ -78,8 +89,7 @@ export default function SummaryPage({
     }
   }, [id, initialSummaries]);
 
-  const selectedSummary =
-    summaries?.find((s) => s.format === selectedFormat) || summaries?.[0];
+  const selectedSummary = summaries?.[0];
 
   if (!dict || !dict.summary) {
     return <div>Cargando...</div>;
