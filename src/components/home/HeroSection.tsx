@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { GradientText } from "@/components/ui/gradient-text";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import VideoInput from "@/components/summary/VideoInput";
+import { VideoInput } from "@/components/summary/VideoInput";
 import { AnonymousUser } from "@/types/supabase";
 import { RecentVideoThumbnails } from "@/components/RecentVideoThumbnails";
 import { getSupabase } from "@/lib/supabase";
 import YouTubeLogo from "../YouTubeLogo";
 import YouTubeThumbnail from "../YouTubeThumbnail";
+import { toast } from "sonner";
 
 interface Stats {
   videosProcessed: number;
@@ -60,6 +61,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     fetchStats();
   }, []);
 
+  const handleSubmit = async (url: string, videoTitle: string) => {
+    try {
+      await onSubmit(url, videoTitle);
+    } catch (error) {
+      console.error("Error al procesar el video:", error);
+      toast.error(dict.errors?.processingError || "Error processing video");
+    }
+  };
+
   return (
     <div className="relative min-h-[calc(100vh-4rem)] w-screen overflow-hidden bg-transparent">
       <div className="container mx-auto h-full">
@@ -97,7 +107,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <VideoInput
               isLoadingQuota={isSubmitting}
               quotaRemaining={user?.quota_remaining || 0}
-              onSubmit={onSubmit}
+              onSubmit={handleSubmit}
               dict={dict}
               onVideoDetected={setIsVideoDetected}
               onBack={() => setIsVideoDetected(false)}
