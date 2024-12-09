@@ -10,6 +10,18 @@ import { Locale } from "@/i18n-config";
 import { initSmoothScroll } from "@/lib/smoothScroll";
 import { getLocalizedPath } from "@/lib/navigation";
 
+const MAX_RETRIES = 5;
+const RETRY_DELAY = 1000;
+
+const checkSummaryExists = async (videoId: string) => {
+  try {
+    const response = await fetch(`/api/getSummary?id=${videoId}`);
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+};
+
 export const useHomePageLogic = (dict: any, lang: Locale) => {
   const [user, setUser] = useState<AnonymousUser | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -93,6 +105,17 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
     setIsLoadingQuota(false);
   }, [initializeUser]);
 
+  const waitForSummary = async (videoId: string) => {
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      const exists = await checkSummaryExists(videoId);
+      if (exists) {
+        return true;
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+    }
+    return false;
+  };
+
   const handleSubmit = async (url: string, lang: string) => {
     try {
       setIsSubmitting(true);
@@ -109,7 +132,13 @@ export const useHomePageLogic = (dict: any, lang: Locale) => {
       console.log("data", data);
 
       if (data.success && data.data?.videoId) {
-        router.push(`/summary/${data.data.videoId}`);
+        // Wait for summary to be available
+        const summaryExists = await waitForSummary(data.data.videoId);
+        if (summaryExists) {
+          router.push(`/summary/${data.data.videoId}`);
+        } else {
+          throw new Error("Summary not found after multiple retries");
+        }
       } else {
         throw new Error("Invalid response format");
       }

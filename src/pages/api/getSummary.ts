@@ -18,7 +18,7 @@ export default async function handler(
   try {
     const supabase = createClient();
 
-    // Primero obtenemos el video
+    // First get the video
     const { data: videoData, error: videoError } = await supabase
       .from("videos")
       .select("*")
@@ -30,26 +30,34 @@ export default async function handler(
       return res.status(404).json({ error: "Video not found" });
     }
 
-    // Luego obtenemos el resumen más reciente
+    // Then get the most recent summary
     const { data: summaryData, error: summaryError } = await supabase
       .from("summaries")
       .select("*")
       .eq("video_id", videoId)
       .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
 
     if (summaryError) {
       console.error("Error fetching summary:", summaryError);
       return res.status(404).json({ error: "Summary not found" });
     }
 
-    // Combinamos los datos
+    // Check if we got any summary data
+    if (!summaryData || summaryData.length === 0) {
+      console.error("No summary found for video:", videoId);
+      return res.status(404).json({ error: "Summary not found" });
+    }
+
+    // Use the first (most recent) summary
+    const latestSummary = summaryData[0];
+
+    // Combine the data
     const response = {
       video: videoData,
       summary: {
-        ...summaryData,
-        content: JSON.parse(summaryData.content),
+        ...latestSummary,
+        content: JSON.parse(latestSummary.content),
       },
     };
 
