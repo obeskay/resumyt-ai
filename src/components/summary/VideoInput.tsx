@@ -10,18 +10,18 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useDebounce } from "@/hooks/useDebounce";
 
 interface VideoInputProps {
+  isLoadingQuota: boolean;
   quotaRemaining: number;
   onSubmit: (url: string, videoTitle: string) => Promise<void>;
   dict: any;
-  isLoadingQuota: boolean;
-  onVideoDetected?: (detected: boolean) => void;
-  onBack?: () => void;
+  onVideoDetected: (detected: boolean) => void;
+  onBack: () => void;
 }
 
-const VideoInput: React.FC<VideoInputProps> = ({
+export const VideoInput: React.FC<VideoInputProps> = ({
+  isLoadingQuota,
   quotaRemaining,
   onSubmit,
-  isLoadingQuota,
   dict,
   onVideoDetected,
   onBack,
@@ -48,7 +48,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
     if (!videoId) {
       setIsValidUrl(false);
       setVideoDetails(null);
-      onVideoDetected?.(false);
+      onVideoDetected(false);
       return;
     }
 
@@ -73,12 +73,12 @@ const VideoInput: React.FC<VideoInputProps> = ({
 
       setVideoDetails(videoDetailsData);
       setIsValidUrl(true);
-      onVideoDetected?.(true);
+      onVideoDetected(true);
     } catch (error) {
       console.error("Error:", error);
       setIsValidUrl(false);
       setVideoDetails(null);
-      onVideoDetected?.(false);
+      onVideoDetected(false);
     }
   };
 
@@ -88,27 +88,19 @@ const VideoInput: React.FC<VideoInputProps> = ({
     } else {
       setIsValidUrl(false);
       setVideoDetails(null);
-      onVideoDetected?.(false);
+      onVideoDetected(false);
     }
   }, [debouncedUrl, onVideoDetected]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!url || !isValidUrl) return;
+    if (!url || !isValidUrl || !videoDetails) return;
 
-    setIsValidating(true);
     try {
-      await onSubmit(url, videoDetails?.title || "");
+      await onSubmit(url, videoDetails.title);
     } catch (error) {
       console.error("Error:", error);
-      toast({
-        title: dict.home.error?.title ?? "Error",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsValidating(false);
+      throw error;
     }
   };
 
@@ -116,7 +108,7 @@ const VideoInput: React.FC<VideoInputProps> = ({
     <div className="w-full">
       <form onSubmit={handleSubmit} className="relative w-full">
         <div className="flex flex-col gap-3">
-          <div className="relative flex w-full items-center gap-2">
+          <div className="flex w-full items-stretch gap-2">
             <AnimatePresence mode="wait">
               {videoDetails && (
                 <motion.div
@@ -133,44 +125,51 @@ const VideoInput: React.FC<VideoInputProps> = ({
                       setUrl("");
                       setVideoDetails(null);
                       setIsValidUrl(false);
-                      onVideoDetected?.(false);
-                      onBack?.();
+                      onVideoDetected(false);
+                      onBack();
                     }}
-                    className="h-9 w-9 rounded-full"
+                    className="h-12 w-12 rounded-full"
                   >
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowLeft className="h-5 w-5" />
                   </Button>
                 </motion.div>
               )}
             </AnimatePresence>
-            <Input
-              type="url"
-              placeholder={
-                dict.home.videoInput?.placeholder ?? "Paste YouTube URL here"
-              }
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className={`h-12 w-full rounded-full border-2 pr-4 transition-colors focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                isValidUrl ? "border-primary" : "border-border"
-              }`}
-              required
-            />
-            <div className="absolute right-2">
-              <Button
-                type="submit"
-                disabled={!isValidUrl || isValidating || quotaRemaining <= 0}
-                className={`h-9 overflow-hidden rounded-full px-4 transition-colors
-                  ${isValidUrl ? "bg-red-500 hover:bg-red-600" : "bg-gray-400"}
-                  disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <span className="relative">
-                  {isValidating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    (dict.home.videoInput?.button ?? "Resumir")
-                  )}
-                </span>
-              </Button>
+            <div className="relative flex flex-1 items-stretch gap-2">
+              <Input
+                type="url"
+                placeholder={
+                  dict.home.videoInput?.placeholder ?? "Paste YouTube URL here"
+                }
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                className={`h-12 w-full rounded-full border-2 pl-6 pr-[120px] transition-colors focus-visible:ring-0 focus-visible:ring-offset-0 ${
+                  isValidUrl ? "border-primary" : "border-border"
+                }`}
+                required
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <Button
+                  type="submit"
+                  disabled={
+                    !isValidUrl ||
+                    isValidating ||
+                    quotaRemaining <= 0 ||
+                    isLoadingQuota
+                  }
+                  className={`h-9 rounded-full px-6 transition-colors
+                    ${isValidUrl ? "bg-red-500 hover:bg-red-600" : "bg-gray-400"}
+                    disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <span className="relative">
+                    {isValidating || isLoadingQuota ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      (dict.home.videoInput?.button ?? "Resumir")
+                    )}
+                  </span>
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -199,9 +198,9 @@ const VideoInput: React.FC<VideoInputProps> = ({
             <YouTubeThumbnail
               src={videoDetails.thumbnail}
               alt={videoDetails.title}
-              layoutId="video-thumbnail-mask"
+              layoutId="video-thumbnail"
             />
-            <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-6">
               <h3 className="max-w-2xl text-center text-lg font-medium text-white">
                 {videoDetails.title}
               </h3>
@@ -212,5 +211,3 @@ const VideoInput: React.FC<VideoInputProps> = ({
     </div>
   );
 };
-
-export default VideoInput;
