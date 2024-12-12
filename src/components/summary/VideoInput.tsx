@@ -105,109 +105,127 @@ export const VideoInput: React.FC<VideoInputProps> = ({
   };
 
   return (
-    <div className="w-full">
-      <form onSubmit={handleSubmit} className="relative w-full">
-        <div className="flex flex-col gap-3">
-          <div className="flex w-full items-stretch gap-2">
-            <AnimatePresence mode="wait">
-              {videoDetails && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setUrl("");
-                      setVideoDetails(null);
-                      setIsValidUrl(false);
-                      onVideoDetected(false);
-                      onBack();
-                    }}
-                    className="h-12 w-12 rounded-full"
+    <motion.div
+      className="relative rounded-lg border bg-card p-4 shadow-sm transition-all"
+      animate={
+        videoDetails
+          ? {
+              scale: 1,
+              y: 0,
+              width: "100%",
+            }
+          : {
+              scale: 1,
+              y: 0,
+            }
+      }
+      transition={{ duration: 0.3 }}
+    >
+      <div className="w-full">
+        <form onSubmit={handleSubmit} className="relative w-full">
+          <div className="flex flex-col gap-3">
+            <div className="flex w-full items-stretch gap-2">
+              <AnimatePresence mode="wait">
+                {videoDetails && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <ArrowLeft className="h-5 w-5" />
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div className="relative flex flex-1 items-stretch gap-2">
-              <Input
-                type="url"
-                placeholder={
-                  dict.home.videoInput?.placeholder ?? "Paste YouTube URL here"
-                }
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className={`h-12 w-full rounded-full border-2 pl-6 pr-[120px] transition-colors focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                  isValidUrl ? "border-primary" : "border-border"
-                }`}
-                required
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <Button
-                  type="submit"
-                  disabled={
-                    !isValidUrl ||
-                    isValidating ||
-                    quotaRemaining <= 0 ||
-                    isLoadingQuota
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setUrl("");
+                        setVideoDetails(null);
+                        setIsValidUrl(false);
+                        onVideoDetected(false);
+                        onBack();
+                      }}
+                      className="h-12 w-12 rounded-full"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <div className="relative flex flex-1 items-stretch gap-2">
+                <Input
+                  type="url"
+                  placeholder={
+                    dict.home.videoInput?.placeholder ??
+                    "Paste YouTube URL here"
                   }
-                  className={`h-9 rounded-full px-6 transition-colors
-                    ${isValidUrl ? "bg-red-500 hover:bg-red-600" : "bg-gray-400"}
-                    disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  <span className="relative">
-                    {isValidating || isLoadingQuota ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      (dict.home.videoInput?.button ?? "Resumir")
-                    )}
-                  </span>
-                </Button>
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className={`h-12 w-full rounded-full border-2 pl-6 pr-[120px] transition-colors focus-visible:ring-0 focus-visible:ring-offset-0 ${
+                    isValidUrl ? "border-primary" : "border-border"
+                  }`}
+                  required
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  <Button
+                    type="submit"
+                    disabled={
+                      !isValidUrl ||
+                      isValidating ||
+                      quotaRemaining <= 0 ||
+                      isLoadingQuota
+                    }
+                    className={`h-9 rounded-full px-6 transition-colors
+                      ${isValidUrl ? "bg-red-500 hover:bg-red-600" : "bg-gray-400"}
+                      disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <span className="relative">
+                      {isValidating || isLoadingQuota ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        (dict.home.videoInput?.button ?? "Resumir")
+                      )}
+                    </span>
+                  </Button>
+                </div>
               </div>
             </div>
+
+            {url && !isValidUrl && (
+              <motion.p
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-sm text-red-500"
+              >
+                {dict.home.error?.invalidUrl ?? "Invalid YouTube URL"}
+              </motion.p>
+            )}
           </div>
+        </form>
 
-          {url && !isValidUrl && (
-            <motion.p
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="text-sm text-red-500"
+        <AnimatePresence mode="wait">
+          {videoDetails && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-8 aspect-video w-full overflow-hidden rounded-2xl"
             >
-              {dict.home.error?.invalidUrl ?? "Invalid YouTube URL"}
-            </motion.p>
+              <YouTubeThumbnail
+                src={videoDetails.thumbnail}
+                alt={videoDetails.title}
+                layoutId="video-thumbnail"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-6">
+                <h3 className="max-w-2xl text-center text-lg font-medium text-white">
+                  {videoDetails.title}
+                </h3>
+              </div>
+            </motion.div>
           )}
-        </div>
-      </form>
-
-      <AnimatePresence mode="wait">
-        {videoDetails && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="mt-8 aspect-video w-full overflow-hidden rounded-2xl"
-          >
-            <YouTubeThumbnail
-              src={videoDetails.thumbnail}
-              alt={videoDetails.title}
-              layoutId="video-thumbnail"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 p-6">
-              <h3 className="max-w-2xl text-center text-lg font-medium text-white">
-                {videoDetails.title}
-              </h3>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </AnimatePresence>
+      </div>
+    </motion.div>
   );
 };

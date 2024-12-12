@@ -74,15 +74,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     <div className="relative min-h-[calc(100vh-4rem)] w-screen overflow-hidden bg-transparent">
       <div className="container mx-auto h-full">
         <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center">
-          <AnimatePresence mode="sync">
+          <AnimatePresence mode="wait">
             {!isVideoDetected && (
               <motion.div
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -40 }}
-                className="mb-12 text-center"
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="mb-8 text-center"
               >
-                <div className="mb-6 flex items-center justify-center gap-2  w-32 mx-auto">
+                <div className="mb-6 flex items-center justify-center gap-2 w-32 mx-auto">
                   <YouTubeThumbnail
                     src={"/youtube-logo.svg"}
                     alt={"default"}
@@ -103,6 +104,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             layoutId="video-input-container"
             className="w-full max-w-3xl"
             ref={videoInputRef}
+            transition={{ duration: 0.3 }}
           >
             <VideoInput
               isLoadingQuota={isSubmitting}
@@ -114,13 +116,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             />
           </motion.div>
 
-          <AnimatePresence mode="sync">
+          <AnimatePresence mode="wait">
             {!isVideoDetected && (
               <motion.div
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -40 }}
-                className="mt-12 grid grid-cols-3 gap-8 text-center"
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="mt-8 grid grid-cols-3 gap-8 text-center"
               >
                 {[
                   {
