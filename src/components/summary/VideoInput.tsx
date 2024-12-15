@@ -110,29 +110,31 @@ export const VideoInput: React.FC<VideoInputProps> = ({
 
   return (
     <LayoutGroup>
-      <motion.div ref={wrapperRef} className="w-full max-w-3xl mx-auto" layout>
+      <motion.div
+        initial={{ opacity: 0, y: 20, height: "auto" }}
+        layoutId="video-input-wrapper"
+        animate={{
+          opacity: 1,
+          y: 0,
+          height: containerBounds.height || "auto",
+          transition: {
+            opacity: { duration: 0.2, ease: "easeOut" },
+          },
+        }}
+        transition={{
+          ease: "easeOut",
+          duration: 0.3,
+        }}
+        ref={wrapperRef}
+        className="w-full max-w-3xl mx-auto"
+      >
         <motion.div
           ref={containerRef}
           className="relative rounded-2xl border bg-card/50 backdrop-blur-sm p-6 shadow-xl ring-1 ring-black/5 overflow-hidden"
-          initial={{ opacity: 0, y: 20, height: "auto" }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            height: containerBounds.height || "auto",
-            transition: {
-              height: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2, ease: "easeOut" },
-            },
-          }}
-          layout
-          transition={{
-            layout: { type: "spring", stiffness: 300, damping: 30 },
-            duration: 0.3,
-          }}
         >
           <form onSubmit={handleSubmit} className="relative w-full">
             <div className="flex flex-col gap-4">
-              <div className="flex w-full items-stretch gap-3">
+              <div className="flex w-full items-center gap-3">
                 <AnimatePresence mode="popLayout">
                   {videoDetails && (
                     <motion.div
@@ -173,22 +175,10 @@ export const VideoInput: React.FC<VideoInputProps> = ({
                     }
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className={`h-12 w-full rounded-xl border-2 pl-6 pr-[120px] transition-all duration-300 ease-out focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      isValidUrl
-                        ? "border-red-500/30 bg-white shadow-lg shadow-red-500/5 focus:border-red-500"
-                        : "border-border/40 bg-white/80"
-                    }`}
+                    className="h-12 w-full rounded-xl border-2 pl-6 pr-[120px] transition-all duration-300 ease-out focus-visible:ring-0 focus-visible:ring-offset-0 bg-white/80 border-border/40 focus:border-red-500"
                     required
                   />
-                  <motion.div
-                    className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center"
-                    layout
-                    transition={{
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 30,
-                    }}
-                  >
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
                     <Button
                       type="submit"
                       disabled={
@@ -214,7 +204,7 @@ export const VideoInput: React.FC<VideoInputProps> = ({
                         </span>
                       )}
                     </Button>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
 
@@ -242,40 +232,39 @@ export const VideoInput: React.FC<VideoInputProps> = ({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                 transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                  opacity: { duration: 0.2 },
+                  duration: 0.3,
+                  ease: "easeOut",
                 }}
-                className="mt-8 w-full overflow-hidden rounded-xl relative ring-1 ring-black/5"
+                className="flex flex-col items-center aspect-video w-full overflow-hidden rounded-xl relative"
               >
-                <YouTubeThumbnail
-                  src={videoDetails.thumbnail}
-                  alt={videoDetails.title}
-                  className="w-full h-full"
-                />
                 <motion.div
-                  className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/80 via-black/50 to-transparent backdrop-blur-[1px] p-8"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
                   transition={{
                     duration: 0.3,
                     ease: "easeOut",
                   }}
+                  className="w-full h-full aspect-video overflow-hidden rounded-xl relative"
                 >
-                  <motion.h3
-                    className="max-w-2xl text-center text-lg font-medium text-white drop-shadow-lg"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.3,
-                      ease: "easeOut",
-                      delay: 0.1,
-                    }}
-                  >
-                    {videoDetails.title}
-                  </motion.h3>
+                  <YouTubeThumbnail
+                    src={videoDetails.thumbnail}
+                    alt={videoDetails.title}
+                  />
                 </motion.div>
+
+                <motion.h3
+                  className="max-w- text-center text-lg font-medium"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                    delay: 0.1,
+                  }}
+                >
+                  {videoDetails.title}
+                </motion.h3>
               </motion.div>
             )}
           </AnimatePresence>
