@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface YouTubeThumbnailProps {
   src: string;
@@ -9,6 +10,7 @@ interface YouTubeThumbnailProps {
   videoId?: string;
   title?: string;
   thumbnailUrl?: string;
+  className?: string;
 }
 
 const YouTubeThumbnail: React.FC<YouTubeThumbnailProps> = ({
@@ -18,11 +20,15 @@ const YouTubeThumbnail: React.FC<YouTubeThumbnailProps> = ({
   videoId,
   title,
   thumbnailUrl,
+  className,
 }) => {
   return (
     <motion.div
       layoutId={layoutId}
-      className="relative w-full h-0 pb-[56.25%] max-w-6xl mx-auto "
+      className={cn(
+        "relative w-full h-0 pb-[56.25%] max-w-6xl mx-auto",
+        className,
+      )}
     >
       <div
         className="absolute inset-0"

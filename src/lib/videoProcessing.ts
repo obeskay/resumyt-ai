@@ -14,6 +14,10 @@ import { VideoSummary, ProcessedVideo } from "./types";
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: "https://openrouter.ai/api/v1",
+  defaultHeaders: {
+    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    "X-Title": "Resumyt",
+  },
 });
 
 // Simple in-memory cache for transcripts and metadata
@@ -286,17 +290,19 @@ function preprocessTranscript(transcript: string): string {
 
 // Nueva función para validar la transcripción
 function validateTranscript(transcript: string): boolean {
-  // Verificar longitud mínima
-  if (transcript.length < 50) return false;
+  // Verificar longitud mínima más permisiva
+  if (transcript.length < 30) return false;
 
   // Verificar que no sea solo números o caracteres especiales
-  const textContent = transcript.replace(/[^a-zA-Z\u00C0-\u00FF]/g, "");
-  if (textContent.length < transcript.length * 0.5) return false;
+  const textContent = transcript
+    .replace(/[^a-zA-Z\u00C0-\u00FF\s]/g, "")
+    .trim();
+  if (textContent.length < transcript.length * 0.3) return false;
 
-  // Verificar que no haya secuencias repetitivas
-  const words = transcript.split(" ");
-  const uniqueWords = new Set(words);
-  if (uniqueWords.size < words.length * 0.3) return false;
+  // Verificar que no haya secuencias repetitivas de manera más flexible
+  const words = transcript.split(/\s+/).filter((word) => word.length > 0);
+  const uniqueWords = new Set(words.map((w) => w.toLowerCase()));
+  if (uniqueWords.size < words.length * 0.2) return false;
 
   return true;
 }
@@ -398,8 +404,8 @@ async function generateSummary(
   try {
     const processedTranscript = preprocessTranscript(transcriptOrMetadata);
 
-    // Early validation
-    if (!processedTranscript || processedTranscript.length < 50) {
+    // Early validation with more permissive limits
+    if (!processedTranscript || processedTranscript.length < 30) {
       throw new SummaryGenerationError("Transcript too short or invalid");
     }
 
@@ -411,7 +417,7 @@ async function generateSummary(
         : processedTranscript;
 
     const completion = await openai.chat.completions.create({
-      model: "openai/gpt-4o-mini", // Changed from gpt-4o-mini to gpt-4
+      model: "openai/gpt-4o-mini", // Changed to a more reliable model
       messages: [
         {
           role: "system",
@@ -422,7 +428,7 @@ async function generateSummary(
           content: getUserPromptForLanguage(language, truncatedTranscript),
         },
       ],
-      temperature: 0.5, // Reduced for more consistent outputs
+      temperature: 0.5,
       response_format: { type: "json_object" },
     });
 
@@ -568,7 +574,7 @@ function getUserPromptForLanguage(
         - A complete introduction explaining the context
         - Main points clearly identified with "-"
         - Relevant and applicable conclusions`,
-    zh: `分析以下��频内容并用中文生成详细摘要：
+    zh: `分析以下视频内容并用中文生成详细摘要：
         ${transcript}
         摘要结构包括：
         - 完整说明背景的引言
