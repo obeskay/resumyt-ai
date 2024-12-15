@@ -184,47 +184,48 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
     try {
       // If content is already an object, use it directly
       if (typeof content === "object") {
-        setParsedContent(content);
+        setParsedContent(content as VideoSummary);
       } else {
         // If content is a string, try to parse it
         setParsedContent(JSON.parse(content));
       }
     } catch (error) {
       console.error("Error parsing summary content:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Could not parse summary content",
+      setParsedContent({
+        introduction: "Could not generate detailed summary.",
+        mainPoints: [],
+        conclusions: "Please try again later.",
       });
     }
-  }, [content, toast]);
+  }, [content]);
 
   if (!parsedContent) {
     return (
       <Alert>
-        <AlertDescription>Error loading summary content</AlertDescription>
+        <AlertDescription>Loading summary content...</AlertDescription>
       </Alert>
     );
   }
 
   const { introduction, mainPoints, conclusions } = parsedContent;
 
-  const timelineData = mainPoints.map((point, index) => ({
-    title: `${index + 1}`,
-    content: (
-      <Card className="relative overflow-hidden border-none py-2 px-3 rounded-xl">
-        <motion.div className="md:text-lg leading-relaxed">
-          <ReactMarkdown>{point.point}</ReactMarkdown>
-        </motion.div>
-      </Card>
-    ),
-  }));
+  const timelineData =
+    mainPoints?.map((point, index) => ({
+      title: point.title || `Punto ${index + 1}`,
+      content: (
+        <Card className="relative overflow-hidden border-none py-2 px-3 rounded-xl">
+          <motion.div className="md:text-lg leading-relaxed">
+            <ReactMarkdown>
+              {typeof point === "string" ? point : point.point}
+            </ReactMarkdown>
+          </motion.div>
+        </Card>
+      ),
+    })) || [];
 
   const copyToClipboard = () => {
     try {
-      const parsedContent = JSON.parse(content);
       const formattedText = formatForWord(parsedContent);
-
       navigator.clipboard.writeText(formattedText).then(() => {
         setCopied(true);
         toast({
@@ -248,64 +249,72 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({
   };
 
   return (
-    <CardSpotlight
-      className={cn("w-full max-w-4xl mx-auto backdrop-blur-sm", className)}
-    >
-      <CardHeader>
-        <div className="space-y-4">
-          {/* Acciones */}
-          <div className="flex flex-wrap gap-2">
-            {videoId && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  window.open(
-                    `https://youtube.com/watch?v=${videoId}`,
-                    "_blank",
-                  )
-                }
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                {t.watchOnYoutube}
-              </Button>
-            )}
-            <Button onClick={copyToClipboard} variant="ghost" size="sm">
-              {copied ? (
-                <Check className="h-4 w-4 mr-2" />
-              ) : (
-                <Copy className="h-4 w-4 mr-2" />
-              )}
-              {copied ? t.copied : t.copyButton}
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
+    <div className={cn("space-y-8", className)}>
+      <div className="flex justify-between items-center">
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-muted-foreground"
+          onClick={copyToClipboard}
+        >
+          {copied ? (
+            <Check className="h-4 w-4 mr-2" />
+          ) : (
+            <Copy className="h-4 w-4 mr-2" />
+          )}
+          {copied ? t.copied : t.copyButton}
+        </Button>
+      </div>
 
-      <CardContent className="space-y-6">
-        {/* Introducción */}
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold">{t.introduction}</h2>
-          <div className="text-muted-foreground">
-            <ReactMarkdown>{introduction}</ReactMarkdown>
-          </div>
-        </div>
+      <div className="space-y-6">
+        <Card className="relative overflow-hidden">
+          <CardHeader>
+            <CardTitle>
+              <SectionTitle>{t.introduction}</SectionTitle>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="prose prose-sm md:prose-base max-w-none"
+            >
+              <ReactMarkdown>{introduction}</ReactMarkdown>
+            </motion.div>
+          </CardContent>
+        </Card>
 
-        {/* Puntos Principales */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">{t.mainPoints}</h2>
-          <Timeline data={timelineData} />
-        </div>
+        {mainPoints && mainPoints.length > 0 && (
+          <Card className="relative overflow-hidden">
+            <CardHeader>
+              <CardTitle>
+                <SectionTitle>{t.mainPoints}</SectionTitle>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Timeline data={timelineData} />
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Conclusiones */}
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold">{t.conclusions}</h2>
-          <div className="text-muted-foreground">
-            <ReactMarkdown>{conclusions}</ReactMarkdown>
-          </div>
-        </div>
-      </CardContent>
-    </CardSpotlight>
+        <Card className="relative overflow-hidden">
+          <CardHeader>
+            <CardTitle>
+              <SectionTitle>{t.conclusions}</SectionTitle>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="prose prose-sm md:prose-base max-w-none"
+            >
+              <ReactMarkdown>{conclusions}</ReactMarkdown>
+            </motion.div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 

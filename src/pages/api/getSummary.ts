@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@/lib/supabase-server";
+import { Summary, VideoDetails } from "@/types/summary";
 
 export default async function handler(
   req: NextApiRequest,
@@ -52,13 +53,44 @@ export default async function handler(
     // Use the first (most recent) summary
     const latestSummary = summaryData[0];
 
+    // Parse the content and ensure it has the required structure
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(latestSummary.content);
+    } catch (error) {
+      console.error("Error parsing summary content:", error);
+      parsedContent = {
+        introduction: "Could not generate detailed summary.",
+        mainPoints: [],
+        conclusions: "Please try again later.",
+      };
+    }
+
+    // Ensure the content has the required structure
+    if (
+      !parsedContent.introduction ||
+      !parsedContent.mainPoints ||
+      !parsedContent.conclusions
+    ) {
+      parsedContent = {
+        introduction:
+          parsedContent.introduction || "Could not generate detailed summary.",
+        mainPoints: parsedContent.mainPoints || [],
+        conclusions: parsedContent.conclusions || "Please try again later.",
+      };
+    }
+
     // Combine the data
     const response = {
-      video: videoData,
+      video: {
+        id: videoData.id,
+        title: videoData.title,
+        thumbnail_url: videoData.thumbnail_url,
+      } as VideoDetails,
       summary: {
         ...latestSummary,
-        content: JSON.parse(latestSummary.content),
-      },
+        content: parsedContent,
+      } as Summary,
     };
 
     return res.status(200).json(response);
