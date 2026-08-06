@@ -97,6 +97,7 @@ docker build -t resumyt .
 docker run -p 3000:3000 --env-file .env resumyt
 ```
 
-## License
+## Licence
 
-MIT — see [LICENSE](LICENSE).
+None. See [NOTICE.md](NOTICE.md) — this repository is visible for reference,
+not licensed for reuse.
