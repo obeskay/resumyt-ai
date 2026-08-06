@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
+import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "edge";
 
@@ -35,6 +36,14 @@ const getSystemPrompt = (language: string, context: string, questions: any) => {
 };
 
 export default async function handler(req: NextRequest) {
+  const limitRes = await rateLimit(req);
+  if (limitRes) {
+    if (limitRes.status === 429) {
+      limitRes.headers.set("Retry-After", "86400");
+    }
+    return limitRes;
+  }
+
   const { messages, videoId, language } = await req.json();
 
   const supabase = getSupabase();

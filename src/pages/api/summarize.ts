@@ -1,4 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest } from "next/server";
+import { rateLimit } from "@/lib/rateLimit";
 import { summarizeVideo, extractYouTubeId } from "@/lib/videoProcessing";
 import { createClient } from "@/lib/supabase-server";
 import { getVideoDetails } from "@/lib/videoProcessing";
@@ -10,6 +12,32 @@ export default async function handler(
 ) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const host = req.headers.host || "localhost";
+  const protocol = (req.headers["x-forwarded-proto"] as string) || "http";
+  const url = `${protocol}://${host}${req.url || ""}`;
+  const nextReq = new NextRequest(url, {
+    headers: req.headers as HeadersInit,
+  });
+  const clientIp =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+    req.socket.remoteAddress ||
+    "::1";
+  Object.defineProperty(nextReq, "ip", {
+    get() {
+      return clientIp;
+    },
+    configurable: true,
+  });
+
+  const limitRes = await rateLimit(nextReq);
+  if (limitRes) {
+    const data = await limitRes.json();
+    if (limitRes.status === 429) {
+      res.setHeader("Retry-After", "86400");
+    }
+    return res.status(limitRes.status).json(data);
   }
 
   try {
