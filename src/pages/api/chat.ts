@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import OpenAI from "openai";
-import { OpenAIStream, StreamingTextResponse } from "ai";
 import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "edge";
@@ -112,8 +111,21 @@ export default async function handler(req: NextRequest) {
       max_tokens: 500,
     });
 
-    const stream = OpenAIStream(response);
-    return new StreamingTextResponse(stream);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of response) {
+          const text = chunk.choices[0]?.delta?.content;
+          if (text) controller.enqueue(encoder.encode(text));
+        }
+        controller.close();
+      },
+      // The client went away: stop generating tokens nobody will read.
+      cancel: () => response.controller.abort(),
+    });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   } catch (error) {
     console.error("Error in chat completion:", error);
     return new Response(

@@ -76,7 +76,7 @@ Open [http://localhost:3000](http://localhost:3000) to start using the tool.
 
 - **Frontend** — Next.js 16, TypeScript, Tailwind CSS, Radix UI
 - **Backend** — Next.js API routes, Supabase
-- **AI** — OpenRouter and OpenAI through the `openai` SDK; the Vercel AI SDK streams the chat
+- **AI** — OpenRouter and OpenAI through the `openai` SDK, which also streams the chat
 - **Transcripts** — `youtube-transcript` (YouTube captions)
 
 ## Deployment

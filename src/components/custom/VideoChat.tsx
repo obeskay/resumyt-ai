@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { useChat } from "ai/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,18 +31,45 @@ const VideoChat: React.FC<VideoChatProps> = ({
   const [showSuggestedQuestions, setShowSuggestedQuestions] = useState(true);
   const [isChatExpanded, setIsChatExpanded] = useState(true);
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    error,
-    setInput,
-  } = useChat({
-    api: "/api/chat",
-    body: { videoId, language },
-  });
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string }[]
+  >([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error>();
+
+  // What useChat did: post the history, append the streamed answer, and on
+  // failure show the response text and drop the question it never answered.
+  const handleSubmit = async (event?: { preventDefault?: () => void }) => {
+    event?.preventDefault?.();
+    if (!input) return;
+    const history = [...messages, { role: "user" as const, content: input }];
+    setMessages(history);
+    setInput("");
+    setIsLoading(true);
+    setError(undefined);
+    let content = "";
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history, videoId, language }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        content += value;
+        setMessages([...history, { role: "assistant", content }]);
+      }
+    } catch (err) {
+      if (!content) setMessages(messages);
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadOrGenerateSuggestedQuestions = useCallback(async () => {
     setIsLoadingSuggestions(true);
@@ -166,9 +192,9 @@ const VideoChat: React.FC<VideoChatProps> = ({
         >
           <div className="max-w-full space-y-2">
             <AnimatePresence initial={false}>
-              {messages.map((message) => (
+              {messages.map((message, index) => (
                 <motion.div
-                  key={message.id}
+                  key={index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
@@ -266,7 +292,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
         <form onSubmit={handleSubmit} className="flex space-x-2 mt-2">
           <Input
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             placeholder={dict.home.videoChat.inputPlaceholder}
             className="flex-grow bg-background/50 backdrop-blur-sm text-sm"
             disabled={isLoading}
