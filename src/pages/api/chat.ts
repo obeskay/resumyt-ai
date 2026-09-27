@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
+import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "edge";
 
@@ -35,6 +36,11 @@ const getSystemPrompt = (language: string, context: string, questions: any) => {
 };
 
 export default async function handler(req: NextRequest) {
+  const limited = await rateLimit(
+    req.ip || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "::1",
+  );
+  if (limited) return limited;
+
   const { messages, videoId, language } = await req.json();
 
   const supabase = getSupabase();

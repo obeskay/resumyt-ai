@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { clientIp, rateLimit } from "@/lib/rateLimit";
 import { getSupabase } from "@/lib/supabase";
 import { openai } from "@/lib/openai";
 
@@ -9,6 +10,9 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
+
+  const limited = await rateLimit(clientIp(req));
+  if (limited) return res.status(limited.status).json(await limited.json());
 
   try {
     const { videoId, language } = req.body;

@@ -75,8 +75,8 @@ Open [http://localhost:3000](http://localhost:3000) to start using the tool.
 
 - **Frontend** — Next.js 14, TypeScript, Tailwind CSS, Radix UI
 - **Backend** — Next.js API routes, Supabase
-- **AI** — OpenAI, OpenRouter and DeepSeek via the Vercel AI SDK and LangChain
-- **Media** — ytdl-core and ffmpeg for audio extraction
+- **AI** — OpenAI, OpenRouter and DeepSeek via the Vercel AI SDK
+- **Media** — ffmpeg for audio extraction
 - **Monitoring** — Sentry
 
 ## Deployment

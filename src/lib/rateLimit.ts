@@ -1,9 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest } from "next";
+import { NextResponse } from "next/server";
 import { getSupabase } from "./supabase";
+import { decrementQuota } from "./quotaManager";
 
-export async function rateLimit(req: NextRequest) {
+// First hop of x-forwarded-for (set by Vercel and most proxies), else the socket peer.
+export const clientIp = (req: NextApiRequest) =>
+  String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() ||
+  req.socket.remoteAddress ||
+  "::1";
+
+// `consume` spends one unit of the daily quota; only summaries do.
+export async function rateLimit(ip: string, consume = false) {
   const supabase = getSupabase();
-  const ip = req.ip ?? "::1";
 
   try {
     // Use the get_or_create_anonymous_user function from our SQL setup
@@ -30,6 +38,9 @@ export async function rateLimit(req: NextRequest) {
         { status: 429 },
       );
     }
+
+    // Nothing else decrements the quota, so without this the 429 never fires.
+    if (consume) await decrementQuota(user.id);
 
     return null; // No rate limit hit
   } catch (error) {

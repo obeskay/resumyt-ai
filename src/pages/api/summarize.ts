@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { clientIp, rateLimit } from "@/lib/rateLimit";
 import { summarizeVideo, extractYouTubeId } from "@/lib/videoProcessing";
 import { createClient } from "@/lib/supabase-server";
 import { getVideoDetails } from "@/lib/videoProcessing";
@@ -23,6 +24,9 @@ export default async function handler(
     if (!videoId) {
       return res.status(400).json({ error: "Invalid YouTube URL" });
     }
+
+    const limited = await rateLimit(clientIp(req), true);
+    if (limited) return res.status(limited.status).json(await limited.json());
 
     const requestedLang =
       lang && typeof lang === "string"
