@@ -3,6 +3,7 @@ export interface VideoSummary {
   mainPoints: {
     id: number;
     point: string;
+    title?: string;
   }[];
   conclusions: string;
 }

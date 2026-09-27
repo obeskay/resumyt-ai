@@ -1,5 +1,4 @@
 import { createClientComponentClient, SupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@/types/supabase";
 
 export const createClient = () => {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -9,7 +8,7 @@ export const createClient = () => {
     throw new Error("Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY");
   }
 
-  return createClientComponentClient<Database>();
+  return createClientComponentClient();
 };
 
 export const getSupabase = createClient;
@@ -21,7 +20,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 export async function ensureVideoExists(
-  supabase: SupabaseClient<Database>,
+  supabase: SupabaseClient,
   videoUrl: string,
   userId: string,
   videoTitle: string,
