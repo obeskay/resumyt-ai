@@ -17,7 +17,7 @@ An AI-powered YouTube video summarizer that extracts key insights from any video
 
 ### Prerequisites
 
-- Node.js 18.17+
+- Node.js 20.9+
 - An OpenRouter API key (summaries, chat) and an OpenAI API key (suggested questions)
 - A YouTube Data API v3 key
 - A Supabase project (storage, auth and the per-IP quota). Its schema is not in this
@@ -74,7 +74,7 @@ Open [http://localhost:3000](http://localhost:3000) to start using the tool.
 
 ## Technology stack
 
-- **Frontend** — Next.js 14, TypeScript, Tailwind CSS, Radix UI
+- **Frontend** — Next.js 16, TypeScript, Tailwind CSS, Radix UI
 - **Backend** — Next.js API routes, Supabase
 - **AI** — OpenRouter and OpenAI through the `openai` SDK; the Vercel AI SDK streams the chat
 - **Transcripts** — `youtube-transcript` (YouTube captions)

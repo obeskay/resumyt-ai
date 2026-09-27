@@ -37,7 +37,7 @@ const getSystemPrompt = (language: string, context: string, questions: any) => {
 
 export default async function handler(req: NextRequest) {
   const limited = await rateLimit(
-    req.ip || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "::1",
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "::1",
   );
   if (limited) return limited;
 
