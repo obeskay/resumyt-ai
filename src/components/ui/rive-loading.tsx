@@ -23,7 +23,7 @@ export const RiveLoading: React.FC<RiveLoadingAnimationProps> = ({ dict }) => {
     if (rive) {
       const progressInput = rive
         .stateMachineInputs("State Machine")
-        .find((input) => input.name === "progress");
+        ?.find((input) => input.name === "progress");
       if (progressInput) {
         progressInput.value = progress;
       }
