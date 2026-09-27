@@ -77,7 +77,6 @@ Open [http://localhost:3000](http://localhost:3000) to start using the tool.
 - **Backend** — Next.js API routes, Supabase
 - **AI** — OpenAI, OpenRouter and DeepSeek via the Vercel AI SDK
 - **Media** — ffmpeg for audio extraction
-- **Monitoring** — Sentry
 
 ## Deployment
 
