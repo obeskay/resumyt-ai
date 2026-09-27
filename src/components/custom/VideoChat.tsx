@@ -38,14 +38,13 @@ const VideoChat: React.FC<VideoChatProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error>();
 
-  // What useChat did: post the history, append the streamed answer, and on
-  // failure show the response text and drop the question it never answered.
-  const handleSubmit = async (event?: { preventDefault?: () => void }) => {
-    event?.preventDefault?.();
-    if (!input) return;
-    const history = [...messages, { role: "user" as const, content: input }];
+  // What useChat did: post the history and append the streamed answer. On
+  // failure, show the API's error and drop the question it never answered,
+  // which goes back into the input so it can be retried.
+  const send = async (text: string) => {
+    if (!text || isLoading) return;
+    const history = [...messages, { role: "user" as const, content: text }];
     setMessages(history);
-    setInput("");
     setIsLoading(true);
     setError(undefined);
     let content = "";
@@ -55,7 +54,8 @@ const VideoChat: React.FC<VideoChatProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history, videoId, language }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      // The API answers errors as {"error": "..."}: show that sentence, not the JSON.
+      if (!res.ok) throw new Error(await res.json().then((body) => body?.error, () => res.statusText));
       const reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();
       while (true) {
         const { done, value } = await reader.read();
@@ -64,7 +64,10 @@ const VideoChat: React.FC<VideoChatProps> = ({
         setMessages([...history, { role: "assistant", content }]);
       }
     } catch (err) {
-      if (!content) setMessages(messages);
+      if (!content) {
+        setMessages(messages);
+        setInput(text);
+      }
       setError(err as Error);
     } finally {
       setIsLoading(false);
@@ -140,10 +143,16 @@ const VideoChat: React.FC<VideoChatProps> = ({
     }
   }, [messages, suggestedQuestions]);
 
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setInput("");
+    send(input);
+  };
+
+  // Sends the question itself: setInput + submit read the old, empty input.
   const handleSuggestedQuestion = (question: string) => {
-    setInput(question);
     setShowSuggestedQuestions(false);
-    handleSubmit(new Event("submit") as any);
+    send(question);
   };
 
   return (
@@ -284,7 +293,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
                 className="text-red-500 text-center bg-red-100 dark:bg-red-900 p-2 rounded-lg"
               >
                 {dict.home.videoChat.error}{" "}
-                {error?.toString() || "Algo salió mal"}
+                {error?.message || "Algo salió mal"}
               </motion.div>
             )}
           </div>
