@@ -9,7 +9,6 @@ import { RecentVideoThumbnails } from "@/components/RecentVideoThumbnails";
 import { getSupabase } from "@/lib/supabase";
 import YouTubeLogo from "../YouTubeLogo";
 import YouTubeThumbnail from "../YouTubeThumbnail";
-import { toast } from "sonner";
 
 interface Stats {
   videosProcessed: number;
@@ -80,7 +79,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       await onSubmit(url, videoTitle);
     } catch (error) {
       console.error("Error al procesar el video:", error);
-      toast.error(dict.errors?.processingError || "Error processing video");
     }
   };
 
