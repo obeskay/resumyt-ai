@@ -8,9 +8,8 @@ An AI-powered YouTube video summarizer that extracts key insights from any video
 
 ## What it does
 
-- **Automatic transcription** — extracts audio and generates text from YouTube videos
-- **AI summarization** — uses multiple providers (OpenAI, OpenRouter, DeepSeek) for intelligent summaries
-- **Multiple formats** — customizable summary lengths and styles
+- **Automatic transcription** — uses the video's YouTube captions, or its metadata when there are none
+- **AI summarization** — summaries and chat through OpenRouter, suggested questions through OpenAI
 - **Real-time processing** — live progress tracking during video analysis
 - **Multi-language support** — works with videos in various languages
 
@@ -18,10 +17,12 @@ An AI-powered YouTube video summarizer that extracts key insights from any video
 
 ### Prerequisites
 
-- Node.js 18+
-- At least one AI provider API key (OpenAI, OpenRouter, or DeepSeek)
+- Node.js 18.17+
+- An OpenRouter API key (summaries, chat) and an OpenAI API key (suggested questions)
 - A YouTube Data API v3 key
-- A Supabase project (used for storage and auth)
+- A Supabase project (storage, auth and the per-IP quota). Its schema is not in this
+  repo: `supabase-setup.md` predates the current tables and the
+  `get_or_create_anonymous_user` / `decrement_quota` functions the app calls.
 
 ### 1. Clone and install
 
@@ -39,8 +40,9 @@ cp .env.example .env
 
 Then fill in your keys. **`.env.example` is the authoritative list** — it covers the
 AI providers, the YouTube Data API, Supabase, Google OAuth and NextAuth. At minimum
-you need one AI provider key, the YouTube key, and the Supabase pair; sign-in also
-needs the Google OAuth and NextAuth values.
+you need `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `NEXT_PUBLIC_YOUTUBE_API_KEY` and the
+Supabase pair, which `npm run build` also needs; sign-in also needs the Google OAuth
+and NextAuth values.
 
 ### 3. Run
 
@@ -60,9 +62,8 @@ Open [http://localhost:3000](http://localhost:3000) to start using the tool.
 
 ### AI integration
 
-- **Primary** — OpenAI for high-quality summaries
-- **Fallback** — OpenRouter for reliability
-- **Efficient** — DeepSeek for fast processing
+- **Summaries and chat** — OpenRouter
+- **Suggested questions** — OpenAI
 
 ### User experience
 
@@ -75,8 +76,8 @@ Open [http://localhost:3000](http://localhost:3000) to start using the tool.
 
 - **Frontend** — Next.js 14, TypeScript, Tailwind CSS, Radix UI
 - **Backend** — Next.js API routes, Supabase
-- **AI** — OpenAI, OpenRouter and DeepSeek via the Vercel AI SDK
-- **Media** — ffmpeg for audio extraction
+- **AI** — OpenRouter and OpenAI through the `openai` SDK; the Vercel AI SDK streams the chat
+- **Transcripts** — `youtube-transcript` (YouTube captions)
 
 ## Deployment
 
