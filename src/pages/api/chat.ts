@@ -1,9 +1,7 @@
-import { NextRequest } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { getSupabase } from "@/lib/supabase";
 import OpenAI from "openai";
-import { rateLimit } from "@/lib/rateLimit";
-
-export const runtime = "edge";
+import { clientIp, rateLimit } from "@/lib/rateLimit";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
@@ -34,13 +32,14 @@ const getSystemPrompt = (language: string, context: string, questions: any) => {
     : `You are an AI assistant that answers questions about a YouTube video. Respond concisely but comprehensively, using emojis and bullet points when appropriate. Respond in English. Use the following context to answer:\n\n${context}${questionsContext}`;
 };
 
-export default async function handler(req: NextRequest) {
-  const limited = await rateLimit(
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "::1",
-  );
-  if (limited) return limited;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const limited = await rateLimit(clientIp(req));
+  if (limited) return res.status(limited.status).json(await limited.json());
 
-  const { messages, videoId, language } = await req.json();
+  const { messages, videoId, language } = req.body;
 
   const supabase = getSupabase();
   const { data, error } = await supabase
@@ -50,57 +49,13 @@ export default async function handler(req: NextRequest) {
     .single();
 
   if (error) {
-    return new Response(
-      JSON.stringify({ error: "Failed to fetch video data" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return res.status(500).json({ error: "Failed to fetch video data" });
   }
 
   const { transcript, content: summary, suggested_questions } = data;
   const context = `Summary: ${summary}\n\nTranscript: ${transcript}`;
 
   const systemMessage = getSystemPrompt(language, context, suggested_questions);
-
-  // Generar preguntas sugeridas si es el primer mensaje
-  if (messages.length === 0) {
-    const suggestedQuestionsPrompt =
-      language === "es"
-        ? "Genera 3 preguntas sugeridas específicas sobre el contenido de este video, incluyendo emojis relevantes. Responde solo con las preguntas, una por línea."
-        : "Generate 3 suggested questions specific to this video content, including relevant emojis. Respond only with the questions, one per line.";
-
-    try {
-      const suggestedQuestionsResponse = await openai.chat.completions.create({
-        model: "openai/gpt-4-turbo",
-        messages: [
-          { role: "system", content: systemMessage },
-          { role: "user", content: suggestedQuestionsPrompt },
-        ],
-        max_tokens: 150,
-      });
-
-      const suggestedQuestions =
-        suggestedQuestionsResponse.choices[0].message?.content
-          ?.split("\n")
-          .filter((q: string) => q.trim() !== "") || [];
-
-      return new Response(JSON.stringify({ suggestedQuestions }), {
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      console.error("Error generating suggested questions:", error);
-      return new Response(
-        JSON.stringify({ error: "Failed to generate suggested questions" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-  }
-
   const apiMessages = [{ role: "system", content: systemMessage }, ...messages];
 
   try {
@@ -111,29 +66,22 @@ export default async function handler(req: NextRequest) {
       max_tokens: 500,
     });
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of response) {
-          const text = chunk.choices[0]?.delta?.content;
-          if (text) controller.enqueue(encoder.encode(text));
-        }
-        controller.close();
-      },
-      // The client went away: stop generating tokens nobody will read.
-      cancel: () => response.controller.abort(),
+    // The client went away: stop generating tokens nobody will read.
+    res.on("close", () => response.controller.abort());
+    // no-transform keeps the server's gzip from holding the text until the end.
+    res.writeHead(200, {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
     });
-    return new Response(stream, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
-    });
+    for await (const chunk of response) {
+      const text = chunk.choices[0]?.delta?.content;
+      if (text) res.write(text);
+    }
+    res.end();
   } catch (error) {
     console.error("Error in chat completion:", error);
-    return new Response(
-      JSON.stringify({ error: "Failed to generate response" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    // Mid-stream, cut the connection so the client reports the error.
+    if (res.headersSent) return res.destroy();
+    res.status(500).json({ error: "Failed to generate response" });
   }
 }
