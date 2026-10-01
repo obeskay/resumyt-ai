@@ -45,7 +45,7 @@
     "@radix-ui/react-tooltip": "^1.2.16",
     "@react-three/fiber": "^8.17.6",
     "@rive-app/react-canvas": "^4.35.0",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/auth-helpers-nextjs": "^0.15.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.45.1",
     "@tsparticles/engine": "^3.5.0",
