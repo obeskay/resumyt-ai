@@ -9,6 +9,7 @@ import YouTubeThumbnail from "../YouTubeThumbnail";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import { useDebounce } from "@/hooks/useDebounce";
 import useMeasure from "react-use-measure";
+import { spatial, spring } from "@/lib/motion";
 
 interface VideoInputProps {
   isLoadingQuota: boolean;
@@ -119,6 +120,7 @@ export const VideoInput: React.FC<VideoInputProps> = ({
           height: containerBounds.height || "auto",
           transition: {
             opacity: { duration: 0.2, ease: "easeOut" },
+            height: spatial.default,
           },
         }}
         transition={{
@@ -141,11 +143,7 @@ export const VideoInput: React.FC<VideoInputProps> = ({
                       initial={{ opacity: 0, scale: 0.9, x: -20 }}
                       animate={{ opacity: 1, scale: 1, x: 0 }}
                       exit={{ opacity: 0, scale: 0.9, x: -20 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 30,
-                      }}
+                      transition={spring.swap}
                     >
                       <Button
                         type="button"
@@ -175,7 +173,7 @@ export const VideoInput: React.FC<VideoInputProps> = ({
                     }
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className="h-12 w-full rounded-xl border-2 pl-6 pr-[120px] transition-all duration-300 ease-out focus-visible:ring-0 focus-visible:ring-offset-0 bg-white/80 border-border/40 focus:border-red-500"
+                    className="h-12 w-full rounded-xl border-2 pl-6 pr-[120px] transition-colors duration-300 ease-out focus-visible:ring-0 focus-visible:ring-offset-0 bg-white/80 border-border/40 focus:border-red-500"
                     required
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -187,7 +185,7 @@ export const VideoInput: React.FC<VideoInputProps> = ({
                         quotaRemaining <= 0 ||
                         isLoadingQuota
                       }
-                      className={`h-9 rounded-xl px-6 transition-all duration-300 whitespace-nowrap
+                      className={`h-9 rounded-xl px-6 transition-[transform,box-shadow,background-color,color,opacity] duration-300 whitespace-nowrap
                         ${
                           isValidUrl
                             ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30"

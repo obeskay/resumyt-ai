@@ -2,15 +2,15 @@
 import React from "react";
 import { useEffect, useRef } from "react";
 import { useMotionValue, useSpring, motion } from "framer-motion";
+import { follow } from "@/lib/motion";
 
 export const BackgroundBeams = () => {
   const ref = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const springConfig = { damping: 30, stiffness: 100 };
-  const x = useSpring(mouseX, springConfig);
-  const y = useSpring(mouseY, springConfig);
+  const x = useSpring(mouseX, follow.cursor);
+  const y = useSpring(mouseY, follow.cursor);
 
   useEffect(() => {
     const currentRef = ref.current;

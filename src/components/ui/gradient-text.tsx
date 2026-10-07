@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import { TextGenerateEffect } from "./text-generate-effect";
 import { cn } from "@/lib/utils";
+import { follow } from "@/lib/motion";
 
 interface GradientTextProps {
   children: React.ReactNode;
@@ -71,7 +72,7 @@ export const GradientText: React.FC<GradientTextProps> = ({
   }, [isInView, controls]);
 
   const x = useMotionValue(0);
-  const animateX = useSpring(x, { stiffness: 400, damping: 80 });
+  const animateX = useSpring(x, follow.sweep);
 
   useMotionValueEvent(animateX, "change", (latest) => {
     setMousePosition({ x: latest, y: 0 });

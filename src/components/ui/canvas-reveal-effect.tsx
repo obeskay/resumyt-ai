@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 export const CanvasRevealEffect = ({
@@ -181,15 +181,20 @@ type Uniforms = {
     type: string;
   };
 };
+// Time (s) used for the single frame under reduced motion: the intro reveal is complete.
+const STILL_TIME = 30;
+
 const ShaderMaterial = ({
   source,
   uniforms,
   maxFps = 60,
+  still = false,
 }: {
   source: string;
   hovered?: boolean;
   maxFps?: number;
   uniforms: Uniforms;
+  still?: boolean;
 }) => {
   const { size } = useThree();
   const ref = useRef<THREE.Mesh>();
@@ -197,7 +202,7 @@ const ShaderMaterial = ({
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    const timestamp = clock.getElapsedTime();
+    const timestamp = still ? STILL_TIME : clock.getElapsedTime();
     if (timestamp - lastFrameTime < 1 / maxFps) {
       return;
     }
@@ -296,10 +301,53 @@ const ShaderMaterial = ({
 };
 
 const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(true);
+  const [tabVisible, setTabVisible] = useState(true);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) =>
+      setOnScreen(entry.isIntersecting),
+    );
+    io.observe(el);
+
+    const onVisibility = () => setTabVisible(!document.hidden);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onMotion = () => setReduced(mq.matches);
+    onMotion();
+    mq.addEventListener("change", onMotion);
+
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      mq.removeEventListener("change", onMotion);
+    };
+  }, []);
+
+  // Reduced motion: "demand" renders one frame (on mount and resize) at a fixed time.
+  // Otherwise the loop only runs while the canvas is on screen and the tab is visible.
+  const frameloop = reduced
+    ? "demand"
+    : onScreen && tabVisible
+      ? "always"
+      : "never";
+
   return (
-    <Canvas className="absolute inset-0  h-full w-full">
-      <ShaderMaterial source={source} uniforms={uniforms} maxFps={maxFps} />
-    </Canvas>
+    <div ref={wrapperRef} className="absolute inset-0 h-full w-full">
+      <Canvas className="absolute inset-0  h-full w-full" frameloop={frameloop}>
+        <ShaderMaterial
+          source={source}
+          uniforms={uniforms}
+          maxFps={maxFps}
+          still={reduced}
+        />
+      </Canvas>
+    </div>
   );
 };
 interface ShaderProps {

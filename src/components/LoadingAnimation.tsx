@@ -1,6 +1,7 @@
 import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { spatial } from "@/lib/motion";
 
 // Define the possible status types
 type StatusType = "error" | "processing" | "success";
@@ -59,10 +60,10 @@ export function LoadingAnimation({
       <div className="mt-6">
         <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
           <motion.div
-            className="absolute h-full bg-blue-500"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress * 100}%` }}
-            transition={{ duration: 0.5 }}
+            className="absolute h-full w-full origin-left bg-blue-500"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: progress }}
+            transition={spatial.default}
           />
         </div>
 

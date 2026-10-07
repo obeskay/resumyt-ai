@@ -18,7 +18,7 @@ export const BackgroundGradient = ({
       {...props}
     >
       <div
-        className="absolute transition-all duration-300 opacity-0 -inset-px bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl blur-lg group-hover/bg:opacity-100 group-hover/bg:duration-200 animate-tilt"
+        className="absolute transition-opacity duration-300 opacity-0 -inset-px bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl blur-lg group-hover/bg:opacity-100 group-hover/bg:duration-200 animate-tilt"
         style={{
           backgroundSize: "200% 200%",
           animationDuration: "5s",

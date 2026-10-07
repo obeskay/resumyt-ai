@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, FileText, List, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { spring } from "@/lib/motion";
 
 interface Step {
   icon: React.ReactNode;
@@ -62,7 +63,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ onComplete }) => {
               initial={false}
               animate={{
                 scale: index === currentStep ? 1.2 : 1,
-                transition: { type: "spring", stiffness: 300, damping: 20 },
+                transition: spring.snap,
               }}
             >
               {index < currentStep ? (

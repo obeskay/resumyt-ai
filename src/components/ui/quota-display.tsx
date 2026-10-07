@@ -43,8 +43,8 @@ const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${(quota / max) * 100}%` }}
+                className="h-full origin-left bg-primary transition-transform"
+                style={{ transform: `scaleX(${quota / max})` }}
               />
             </div>
             <div className="text-xs text-muted-foreground">

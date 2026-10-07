@@ -126,3 +126,15 @@ html.lenis {
     @apply bg-background/50 backdrop-blur-xl border border-foreground/10;
   }
 }
+
+/* Reduced motion: same final states, collapsed to a near-instant change. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 50ms !important;
+    animation-duration: 50ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

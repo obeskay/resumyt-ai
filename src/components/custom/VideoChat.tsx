@@ -189,12 +189,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
         </motion.div>
       </ShineBorder>
 
-      <motion.div
-        initial={{ opacity: 1, height: "auto" }}
-        animate={{ opacity: 1, height: "auto" }}
-        transition={{ duration: 0.3 }}
-        className="overflow-visible"
-      >
+      <div className="overflow-visible">
         <ScrollArea
           ref={chatContainerRef}
           className="border rounded-lg p-2 h-[calc(100vh-300px)] max-h-96 overflow-y-auto bg-gradient-to-b from-background to-background/50 backdrop-blur-sm"
@@ -322,7 +317,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
             )}
           </Button>
         </form>
-      </motion.div>
+      </div>
     </motion.div>
   );
 };

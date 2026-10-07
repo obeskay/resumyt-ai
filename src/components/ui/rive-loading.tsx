@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { motion } from "framer-motion";
 import { useLoadingStore } from "@/store/loadingStore";
+import { spatial } from "@/lib/motion";
 
 interface RiveLoadingAnimationProps {
   dict: any;
@@ -76,10 +77,10 @@ export const RiveLoading: React.FC<RiveLoadingAnimationProps> = ({ dict }) => {
           </div>
           <div className="w-64 h-2 bg-muted rounded-full overflow-hidden mx-auto mt-4">
             <motion.div
-              className="h-full bg-primary"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5 }}
+              className="h-full w-full origin-left bg-primary"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: progress / 100 }}
+              transition={spatial.default}
             />
           </div>
           <p className="text-sm text-muted-foreground">{progress}%</p>
